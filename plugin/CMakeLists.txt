@@ -5,18 +5,19 @@ project(AudioPlugin VERSION 0.1.0)
 
 # Adding a directory with the library/application name as a subfolder of the
 # include folder is a good practice. It helps avoid name clashes later on.
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/YourPluginName")
+set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/QSynthi2")
 
 # Adds a plugin target (that's basically what the Projucer does).
 juce_add_plugin(${PROJECT_NAME}
-        COMPANY_NAME MyCompany
-        IS_SYNTH FALSE
-        NEEDS_MIDI_INPUT FALSE
-        NEEDS_MIDI_OUTPUT FALSE
-        PLUGIN_MANUFACTURER_CODE MCMP
-        PLUGIN_CODE EXPL
-        FORMATS VST3
-        PRODUCT_NAME "YourPluginName"
+        COMPANY_NAME AJ
+        IS_SYNTH TRUE
+        NEEDS_MIDI_INPUT TRUE
+        NEEDS_MIDI_OUTPUT TRUE
+        COPY_PLUGIN_AFTER_BUILD TRUE
+        PLUGIN_MANUFACTURER_CODE Ajcp
+        PLUGIN_CODE Qsy2
+        FORMATS AU VST3 Standalone
+        PRODUCT_NAME "QSynthi2"
 )
 
 # Sets the source files of the plugin project.
@@ -52,6 +53,16 @@ target_compile_definitions(${PROJECT_NAME}
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0
 )
+
+IF (WIN32)
+    # set stuff for windows
+    # copy plugin file command (template from https://stackoverflow.com/a/49064484)
+#    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E -E copy $<TARGET_FILE:${PROJECT_NAME}> ${targetfile}
+#    )
+ELSE()
+    # set stuff for other systems
+ENDIF()
 
 # Silences some deprecation warnings that (hopefully) will be fixed in a future release of JUCE.
 #if (MSVC)

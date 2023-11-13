@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(clion_juce_test)
+project(QSynthi2)
 
 set(CMAKE_CXX_STANDARD 23)
 
