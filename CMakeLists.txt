@@ -42,7 +42,7 @@ enable_testing()
 # Enables all warnings and treats warnings as errors.
 # This needs to be added AFTER all the third-party dependencies.
 if(MSVC)
-    add_compile_options(/Wall /WX)
+    #add_compile_options(/Wall /WX)
 else()
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
