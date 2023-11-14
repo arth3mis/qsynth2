@@ -50,7 +50,7 @@ enable_testing()
 if(MSVC)
     #add_compile_options(/Wall /WX)
 else()
-    add_compile_options(-Wall -Wextra -Wpedantic)
+    #add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 # Adds all the targets configured in the "plugin" folder.

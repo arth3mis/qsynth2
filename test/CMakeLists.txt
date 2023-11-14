@@ -7,7 +7,9 @@ enable_testing()
 
 # Creates the test console application.
 add_executable(${PROJECT_NAME}
-        src/AudioProcessorTest.cpp)
+        src/AudioProcessorTest.cpp
+        ../plugin/include/QSynthi2/Parameter/Parameter.h
+        ../plugin/include/QSynthi2/Parameter/ParameterAdapter.h)
 
 # Sets the necessary include directories: ours, JUCE's, and googletest's.
 target_include_directories(${PROJECT_NAME}
