@@ -3,6 +3,19 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "QSynthi2/Parameter/Parameter.h"
 
+// simple cout logger
+//
+class SimpleLogger : public juce::Logger {
+public:
+    ~SimpleLogger() override = default;
+    SimpleLogger() = default;
+protected:
+    void logMessage(const juce::String &message) override {
+        std::cout << message << std::endl;
+    }
+};
+
+
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor
 {

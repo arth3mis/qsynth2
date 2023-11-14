@@ -1,5 +1,6 @@
 #include "QSynthi2/PluginProcessor.h"
 #include "QSynthi2/PluginEditor.h"
+#include <iostream>
 
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
@@ -15,6 +16,10 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 
     parameter = std::make_shared<Parameter>();
     parameter->connectTo(*this);
+
+    // set logger to cout if current logger does not exist
+    if (juce::Logger::getCurrentLogger() == nullptr)
+        juce::Logger::setCurrentLogger(new SimpleLogger());
 
     parameter->addListener(parameter->testParameterID, [](float x){ juce::Logger::writeToLog(juce::String(x)); });
 
