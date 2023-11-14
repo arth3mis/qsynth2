@@ -10,7 +10,13 @@ set(CMAKE_CXX_STANDARD 23)
 # I like to download the dependencies to the same folder as the project.
 # If you want to install them system wide, set CPM_SOURCE_CACHE with the path to the dependencies
 # either as an environment variable or pass it to the cmake script with -DCPM_SOURCE_CACHE=<path>.
-set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs)
+
+IF (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    # save release lib builds in cmake-build-release[...] folder
+    set(LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/libs)
+ELSE()
+    set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs)
+ENDIF()
 
 # Downloads CPM if not already downloaded. CPM is an easy-to-use package manager nicely integrated with CMake.
 include(cmake/get_cpm.cmake)
