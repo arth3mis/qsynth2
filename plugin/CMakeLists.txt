@@ -7,6 +7,12 @@ project(AudioPlugin VERSION 0.1.0)
 # include folder is a good practice. It helps avoid name clashes later on.
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/QSynthi2")
 
+IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set(PROD_NAME "QSynthi2-Debug")
+ELSE()
+    set(PROD_NAME "QSynthi2")
+ENDIF()
+
 # Adds a plugin target (that's basically what the Projucer does).
 juce_add_plugin(${PROJECT_NAME}
         COMPANY_NAME AJ
@@ -17,7 +23,7 @@ juce_add_plugin(${PROJECT_NAME}
         PLUGIN_MANUFACTURER_CODE Ajfm
         PLUGIN_CODE Qsy2
         FORMATS AU VST3 Standalone
-        PRODUCT_NAME "QSynthi2"
+        PRODUCT_NAME ${PROD_NAME}
 )
 
 # Sets the source files of the plugin project.
