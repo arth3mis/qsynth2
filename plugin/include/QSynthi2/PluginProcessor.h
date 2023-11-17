@@ -63,12 +63,6 @@ private:
 
     std::shared_ptr<Parameter> parameter;
 
-    List<double> benchmarkSamples = List<double>(1024);
     int benchmarkCounter = 0;
-    float floatVariable = 0;
-    double doubleVariable = 0;
 
-    long total_0 = 0;
-    long total_1 = 0;
-    long total_2 = 0;
 };
