@@ -67,9 +67,7 @@ public:
 
         treeState->addParameterListener(parameterID, listener);
 
-        juce::Logger::writeToLog("Register Listener");
-
-        // Call listener Once
+        // Call listener once
         listener->parameterChanged(parameterID, treeState->getRawParameterValue(parameterID)->load());
     }
 
@@ -83,13 +81,15 @@ public:
     }
 
 
-private:
+protected:
 
     // Used for parameter ID creation
     int parameterVersion;
 
     // Tree state in which all parameters are stored
     std::shared_ptr<juce::AudioProcessorValueTreeState> treeState;
+
+private:
 
     // Layout in that all Parameters are inserted
     // Gets filled after initialization. Is invalid to further use after connectTo() is called

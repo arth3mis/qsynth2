@@ -9,7 +9,14 @@ enable_testing()
 add_executable(${PROJECT_NAME}
         src/AudioProcessorTest.cpp
         ../plugin/include/QSynthi2/Parameter/Parameter.h
-        ../plugin/include/QSynthi2/Parameter/ParameterAdapter.h)
+        ../plugin/include/QSynthi2/Parameter/ParameterAdapter.h
+        ../plugin/include/QSynthi2/Synthesizer/Synthesizer.h
+        ../plugin/include/QSynthi2/Synthesizer/Voice.h
+        ../plugin/include/QSynthi2/Synthesizer/Oscillator.h
+        ../plugin/include/QSynthi2/AudioProcessing/AudioProcessor.h
+        ../plugin/include/QSynthi2/AudioProcessing/ProcessingBlock.h
+        ../libs/juce/modules/juce_dsp/juce_dsp.h
+        ../plugin/include/QSynthi2/List/list.h)
 
 # Sets the necessary include directories: ours, JUCE's, and googletest's.
 target_include_directories(${PROJECT_NAME}
