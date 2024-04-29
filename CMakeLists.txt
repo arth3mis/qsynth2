@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 project(QSynthi2)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 
 # setup guide:
 # https://www.youtube.com/watch?v=Uq7Hwt18s3s
@@ -24,8 +24,8 @@ include(cmake/get_cpm.cmake)
 # This commands downloads AND configures JUCE. It sets up some variables, like JUCE_SOURCE_DIR.
 CPMAddPackage(
         NAME JUCE
-        GIT_TAG 7.0.8
-        VERSION 7.0.8
+        GIT_TAG 7.0.12
+        VERSION 7.0.12
         GITHUB_REPOSITORY juce-framework/JUCE
         SOURCE_DIR ${LIB_DIR}/juce
 )
