@@ -21,10 +21,10 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     if (juce::Logger::getCurrentLogger() == nullptr)
         juce::Logger::setCurrentLogger(new SimpleLogger());
 
-    parameter->addListener(parameter->testParameterID, [&](float x){
+    parameter->addListener(parameter->testParameterID, [&](const float x){
         juce::Logger::writeToLog(juce::String(x));
-        floatVariable = x;
-        doubleVariable = x;
+        // floatVariable = x;
+        // doubleVariable = x;
     });
 
 }
@@ -169,6 +169,14 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
         juce::ignoreUnused (channelData);
         // ..do something to the data...
+    }
+
+
+    for (const auto &m : midiMessages) {
+        const auto midiEvent = m.getMessage();
+        const auto midiEventSample = static_cast<int>(midiEvent.getTimeStamp());
+
+        juce::Logger::writeToLog(midiEvent.getDescription());
     }
 
 
