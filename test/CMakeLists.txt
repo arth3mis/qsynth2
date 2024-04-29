@@ -16,7 +16,9 @@ add_executable(${PROJECT_NAME}
         ../plugin/include/QSynthi2/AudioProcessing/AudioProcessor.h
         ../plugin/include/QSynthi2/AudioProcessing/ProcessingBlock.h
         ../libs/juce/modules/juce_dsp/juce_dsp.h
-        ../plugin/include/QSynthi2/List/list.h)
+        ../plugin/include/QSynthi2/List/list.h
+        ../plugin/include/QSynthi2/Testing/Benchmarking.h
+        ../cmake-build-release/libs/juce/modules/juce_dsp/containers/juce_AudioBlock.h)
 
 # Sets the necessary include directories: ours, JUCE's, and googletest's.
 target_include_directories(${PROJECT_NAME}

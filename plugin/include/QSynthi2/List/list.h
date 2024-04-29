@@ -9,7 +9,13 @@ public:
 
     List() : std::vector<T>() { }
 
+
+    List(List<T> const &other) : std::vector<T>(other) { }
+
     explicit List(size_t size) : std::vector<T>(size) { }
+
+    List(size_t size, T initialValue) : std::vector<T>(size, initialValue) { }
+
 
     template<class U>
     List<U> map(std::function<U(T)> mapper) {
@@ -34,6 +40,10 @@ public:
             sum += x;
         }
         return sum;
+    }
+
+    static List<List<T>> empty(const List<T>& child) {
+
     }
 
 };
