@@ -8,9 +8,9 @@ enable_testing()
 # Creates the test console application.
 add_executable(${PROJECT_NAME}
         src/AudioProcessorTest.cpp
-        ../plugin/include/QSynthi2/Parameter/Parameter.h
+        ../plugin/include/QSynthi2/Parameter/ParameterCollection.h
         ../plugin/include/QSynthi2/Parameter/ParameterAdapter.h
-        ../plugin/include/QSynthi2/Synthesizer/Synthesizer.h
+        ../plugin/include/QSynthi2/Synthesizer/Synthesiser.h
         ../plugin/include/QSynthi2/Synthesizer/Voice.h
         ../plugin/include/QSynthi2/Synthesizer/Oscillator.h
         ../plugin/include/QSynthi2/AudioProcessing/AudioProcessor.h

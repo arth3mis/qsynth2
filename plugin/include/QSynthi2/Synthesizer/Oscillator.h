@@ -5,8 +5,5 @@
 
 class Oscillator {
 
-    virtual void getNextSamples(double phase, double frequency, size_t num,  fill) {
-
-    }
 
 };

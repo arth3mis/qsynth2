@@ -1,5 +1,6 @@
 #include "QSynthi2/PluginProcessor.h"
 #include "QSynthi2/PluginEditor.h"
+#include "QSynthi2/Synthesizer/Voice.h"
 #include <iostream>
 
 //==============================================================================
@@ -14,7 +15,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                        )
 {
 
-    parameter = std::make_shared<Parameter>();
+    parameter = std::make_shared<ParameterCollection>();
     parameter->connectTo(*this);
 
     // set logger to cout if current logger does not exist
@@ -23,9 +24,14 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 
     parameter->addListener(parameter->testParameterID, [&](const float x){
         juce::Logger::writeToLog(juce::String(x));
-        // floatVariable = x;
-        // doubleVariable = x;
     });
+
+
+    // TODO: Move to Audio Processor
+    synth.setVoiceStealingEnabled (false);
+    for (auto i = 0; i < 15; ++i)
+        synth.addVoice (new Voice());
+
 
 }
 
@@ -104,7 +110,9 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    juce::ignoreUnused (sampleRate, samplesPerBlock);
+
+    synth.setCurrentPlaybackSampleRate(sampleRate);
+    juce::ignoreUnused (samplesPerBlock);
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -161,15 +169,10 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
 
-        juce::Logger::writeToLog(juce::String(buffer.getArrayOfWritePointers()[0][0]));
+    // TODO: Move to AudioProcessor
+    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
-        juce::ignoreUnused (channelData);
-        // ..do something to the data...
-    }
 
 
     for (const auto &m : midiMessages) {
@@ -179,13 +182,6 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         juce::Logger::writeToLog(midiEvent.getDescription());
     }
 
-
-    benchmarkCounter++;
-    benchmarkCounter %= 42;
-
-    if (benchmarkCounter == 0) {
-        // Benchmarking?
-    }
 }
 
 //==============================================================================

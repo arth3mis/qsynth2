@@ -1,2 +1,2 @@
 # qsynthi2
-Quantum Synthesizer from Schrödinger's Equation - Advanced
+Quantum Synthesiser from Schrödinger's Equation - Advanced

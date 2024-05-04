@@ -15,4 +15,5 @@ public:
     virtual void processBlock(ProcessingBlock& processingBlock) = 0;
 
 protected:
+
 };
