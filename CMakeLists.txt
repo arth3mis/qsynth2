@@ -42,15 +42,25 @@ CPMAddPackage(
         "gtest_force_shared_crt ON"
 )
 
+# Adds pocketfft
+CPMAddPackage(
+        NAME PocketFFT
+        GIT_TAG b557a35
+        GITHUB_REPOSITORY mreineck/pocketfft
+        SOURCE_DIR ${LIB_DIR}/pocketfft
+)
+include_directories(${LIB_DIR}/pocketfft)
+
 # This command allows running tests from the "build" folder (the one where CMake generates the project to).
 enable_testing()
 
 # Enables all warnings and treats warnings as errors.
 # This needs to be added AFTER all the third-party dependencies.
 if(MSVC)
-    #add_compile_options(/Wall /WX)
+#    add_compile_options(/Wall /WX)
 else()
-    #add_compile_options(-Wall -Wextra -Wpedantic)
+#    add_compile_options(-Wall -Wextra -Wpedantic)
+#    add_compile_options(-O3)
 endif()
 
 # Adds all the targets configured in the "plugin" folder.

@@ -8,17 +8,7 @@ enable_testing()
 # Creates the test console application.
 add_executable(${PROJECT_NAME}
         src/AudioProcessorTest.cpp
-        ../plugin/include/QSynthi2/Parameter/ParameterCollection.h
-        ../plugin/include/QSynthi2/Parameter/ParameterAdapter.h
-        ../plugin/include/QSynthi2/Synthesizer/Synthesiser.h
-        ../plugin/include/QSynthi2/Synthesizer/Voice.h
-        ../plugin/include/QSynthi2/Synthesizer/Oscillator.h
-        ../plugin/include/QSynthi2/AudioProcessing/AudioProcessor.h
-        ../plugin/include/QSynthi2/AudioProcessing/ProcessingBlock.h
-        ../libs/juce/modules/juce_dsp/juce_dsp.h
-        ../plugin/include/QSynthi2/List/list.h
-        ../plugin/include/QSynthi2/Testing/Benchmarking.h
-        ../cmake-build-release/libs/juce/modules/juce_dsp/containers/juce_AudioBlock.h)
+        src/SimulationTest.cpp)
 
 # Sets the necessary include directories: ours, JUCE's, and googletest's.
 target_include_directories(${PROJECT_NAME}

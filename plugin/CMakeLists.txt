@@ -31,8 +31,8 @@ target_sources(${PROJECT_NAME}
         PRIVATE
         src/PluginEditor.cpp
         src/PluginProcessor.cpp
-        ${INCLUDE_DIR}/PluginEditor.h
-        ${INCLUDE_DIR}/PluginProcessor.h
+        src/Simulation/Simulation.cpp
+        src/Simulation/QuantumSimulation.cpp
 )
 
 # Sets the include directories of the plugin project.
@@ -59,16 +59,6 @@ target_compile_definitions(${PROJECT_NAME}
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0
 )
-
-IF (WIN32)
-    # set stuff for windows
-    # copy plugin file command (template from https://stackoverflow.com/a/49064484)
-#    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#        COMMAND ${CMAKE_COMMAND} -E -E copy $<TARGET_FILE:${PROJECT_NAME}> ${targetfile}
-#    )
-ELSE()
-    # set stuff for other systems
-ENDIF()
 
 # Silences some deprecation warnings that (hopefully) will be fixed in a future release of JUCE.
 #if (MSVC)
