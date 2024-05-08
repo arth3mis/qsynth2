@@ -22,7 +22,7 @@ public:
     }
 
     template<class U>
-    List<U> map(std::function<U(T)> mapper) {
+    List<U> map(std::function<U(T)> mapper) const {
         List<U> copiedList(this->size());
 
         for (size_t i = 0; i < this->size(); ++i) {
@@ -51,7 +51,7 @@ public:
     }
 
     // cout overload
-    friend std::ostream& operator<< (std::ostream& os, const List& list) {
+    friend std::ostream& operator<<(std::ostream& os, const List& list) {
         os << "[";
         for (size_t i = 0; i < list.size(); i++) {
             os << list[i];

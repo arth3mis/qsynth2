@@ -54,14 +54,25 @@ include_directories(${LIB_DIR}/pocketfft)
 # This command allows running tests from the "build" folder (the one where CMake generates the project to).
 enable_testing()
 
+
+if(MSVC)
 # Enables all warnings and treats warnings as errors.
 # This needs to be added AFTER all the third-party dependencies.
-if(MSVC)
 #    add_compile_options(/Wall /WX)
+
+    # optimizations
+    IF (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+#        add_compile_options(/Ox)
+    ENDIF()
 else()
 #    add_compile_options(-Wall -Wextra -Wpedantic)
-#    add_compile_options(-O3)
+
+    # optimizations
+    IF (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+#        add_compile_options(-O3)
+    ENDIF()
 endif()
+
 
 # Adds all the targets configured in the "plugin" folder.
 add_subdirectory(plugin)
