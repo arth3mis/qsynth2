@@ -1,7 +1,6 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
-#include "QSynthi2/Parameter/ParameterCollection.h"
 #include "QSynthi2/List/list.h"
 
 // simple cout logger
@@ -60,8 +59,6 @@ public:
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
-
-    std::shared_ptr<ParameterCollection> parameter;
 
 
     // TODO: Move to AudioProcessor and do Audio Logic there

@@ -14,7 +14,8 @@ public:
     void noteStarted() override {
         jassert (currentlyPlayingNote.isValid());
         jassert (currentlyPlayingNote.keyState == juce::MPENote::keyDown
-                 || currentlyPlayingNote.keyState == juce::MPENote::keyDownAndSustained);
+              || currentlyPlayingNote.keyState == juce::MPENote::sustained
+              || currentlyPlayingNote.keyState == juce::MPENote::keyDownAndSustained);
 
         gain = 0.25;
         // TODO: Start playing
@@ -27,8 +28,9 @@ public:
 
         gain = 0.0;
 
+        // TODO: Note off behaviour
+
         if (!allowTailOff) {
-            // TODO: Instant note Off
             return;
         }
 
