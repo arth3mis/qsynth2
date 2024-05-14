@@ -14,11 +14,14 @@ int main() {
 	sdl.simW = w;
 	sdl.simH = h;
 
-	auto sim = QuantumSimulation(w, h, 0.2)
+	auto sim = QuantumSimulation(w, h)
 		.parabolaPotential({0, 0}, {1, 1})
 		.gaussianDistribution({-0.5, 0}, {0.2, 0.2}, {0, 0});
 
-	bool running = false, isReset = false;
+	const num dt = 0.2;
+	const ModulationData mod;
+
+	bool running = true, isReset = false;
 	int initDraw = 2;
 
 	size_t simCount = 0;
@@ -37,7 +40,7 @@ int main() {
 				running = !running;
 			}
 			else if (sdl.e.type == SDL_KEYDOWN && sdl.e.key.keysym.sym == SDLK_RIGHT) {
-				sdl.draw2DField(sim.getNextFrame());
+				sdl.draw2DField(sim.getNextFrame(dt, mod));
 			}
 		}
 
@@ -51,7 +54,7 @@ int main() {
 		// calculate
 		constexpr int reps = 20;
 		for (size_t i = 0; i < reps && running; i++) {
-			sim.getNextFrame();
+			sim.getNextFrame(dt, mod);
 		}
 
 		if (running) {

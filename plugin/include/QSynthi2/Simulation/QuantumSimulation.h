@@ -36,10 +36,13 @@ private:
     List<RList> potentials;
     CList initialPsi;
     CList psi;
-    CList psiP;
+    CList psiFFT;
     bool started;
 
     void calculateNextPsi(num timestep);
+
+    // returns pointer to psi for started simulation, else initialPsi
+    CList* getPsiToChange() { return started ? &psi : &initialPsi; }
 
     // index to coordinates, normalized to [-1;1]
     [[nodiscard]] num xOf(const size_t i) const { return (static_cast<num>(i / W) - w/2) / (w/2); }
