@@ -16,10 +16,12 @@ public:
     [[nodiscard]] Vec2 mul(const T f) const { return {x * f, y * f}; }
     [[nodiscard]] Vec2 div(const T f) const { return {x / f, y / f}; }
 
-    Vec2 operator+(const Vec2& b) { return add(b); }
-    Vec2 operator-(const Vec2& b) { return sub(b); }
-    Vec2 operator*(const T f) { return mul(f); }
-    Vec2 operator/(const T f) { return div(f); }
+    Vec2 operator+(const Vec2& b) const { return add(b); }
+    Vec2 operator-(const Vec2& b) const { return sub(b); }
+    Vec2 operator*(const T f) const { return mul(f); }
+    Vec2 operator/(const T f) const { return div(f); }
+
+    // Vec2 operator=(const Vec2& b) { return {b.x, b.y}; }
 };
 
 #endif //VECTOR_H
