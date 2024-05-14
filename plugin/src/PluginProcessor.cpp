@@ -25,11 +25,6 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     });
 */
 
-    // TODO: Move to Audio Processor
-    synth.setVoiceStealingEnabled (false);
-    for (auto i = 0; i < 15; ++i)
-        synth.addVoice (new Voice());
-
 
 }
 
@@ -109,8 +104,7 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 
-    synth.setCurrentPlaybackSampleRate(sampleRate);
-    juce::ignoreUnused (samplesPerBlock);
+    audioProcessor.prepareToPlay(sampleRate, samplesPerBlock);
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -168,8 +162,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
 
-    // TODO: Move to AudioProcessor
-    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+    audioProcessor.processBlock(buffer, midiMessages);
 
 
 

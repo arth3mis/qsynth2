@@ -5,20 +5,14 @@
 
 #include <utility>
 
-class FloatParameter : public juce::AudioParameterFloat, public Modulatable {
+class FloatParameter : public juce::AudioParameterFloat {
 
 public:
-
-    std::vector<Modulation> modifiers;
 
     FloatParameter(const juce::String& name, int versionHint, const juce::NormalisableRange<float>& range, float defaultValue, float sliderSmoothingSeconds = 0.1f) :
             juce::AudioParameterFloat(juce::ParameterID(name, versionHint), name, range, defaultValue),
             sliderSmoothingSeconds(sliderSmoothingSeconds),
-            smoothedValue(range.convertTo0to1(defaultValue))
-    {
-
-
-
+            smoothedValue(range.convertTo0to1(defaultValue)) {
     }
 
 
@@ -27,9 +21,20 @@ public:
      * @param modulationData
      * @return
      */
-    float getNormalizedBaseValue(const std::unordered_map<juce::String, float>& modulationData) override {
+    float getNormalizedBaseValue(const std::unordered_map<juce::String, float>& modulationData) {
         smoothedValue.setTargetValue(range.convertTo0to1(juce::AudioParameterFloat::get()));
         return smoothedValue.getNextValue();
+    }
+
+
+    float getNormalized(const std::unordered_map<juce::String, float> &modulationData) {
+        float value = getNormalizedBaseValue(modulationData);
+
+        for (auto& modulator : modulations) {
+            value += modulator.getNormalized(modulationData);
+        }
+
+        return value;
     }
 
 
@@ -53,6 +58,8 @@ protected:
 
     float sliderSmoothingSeconds;
     juce::SmoothedValue<float> smoothedValue;
+
+    List<Modulation> modulations;
 
 
 

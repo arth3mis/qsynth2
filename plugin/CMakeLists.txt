@@ -33,8 +33,10 @@ target_sources(${PROJECT_NAME}
         src/PluginProcessor.cpp
         src/Simulation/Simulation.cpp
         src/Simulation/QuantumSimulation.cpp
-        src/Parameter/Modulatable.cpp
         src/Parameter/Modulation.cpp
+
+        ${INCLUDE_DIR}/Parameter/FloatParameter.h
+        ${INCLUDE_DIR}/Parameter/Modulation.h
 )
 
 # Sets the include directories of the plugin project.

@@ -2,6 +2,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "QSynthi2/List/list.h"
+#include "QSynthi2/AudioProcessing/AJAudioProcessor.h"
 
 // simple cout logger
 //
@@ -62,7 +63,6 @@ private:
 
 
     // TODO: Move to AudioProcessor and do Audio Logic there
-    juce::MPEInstrument instrument { juce::MPEZone (juce::MPEZone::Type::lower, 15) };
-    juce::MPESynthesiser synth { instrument };
+    AJAudioProcessor audioProcessor;
 
 };

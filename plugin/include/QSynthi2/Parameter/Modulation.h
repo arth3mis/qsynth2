@@ -1,36 +1,24 @@
 #pragma once
 
-#include <utility>
-
 #include "juce_audio_processors/juce_audio_processors.h"
-#include "Modulatable.h"
-#include "FloatParameter.h"
+#include <QSynthi2/List/list.h>
 
-class Modulation : public Modulatable {
+class FloatParameter;
 
+class Modulation {
 public:
 
-    Modulation(juce::String modulationSource, std::shared_ptr<FloatParameter> &amount) :
-            modulationSource(std::move(modulationSource)), amount(amount) {
+    Modulation(juce::String modulationSource, std::shared_ptr<FloatParameter> &amount);
 
+    float getNormalizedBaseValue(const std::unordered_map<juce::String, float>& modulationData);
 
-    }
-
-    float getNormalizedBaseValue(const std::unordered_map<juce::String, float>& modulationData) override {
-        return amount->getNormalized(modulationData);
-    }
-
-    float getNormalized(const std::unordered_map<juce::String, float>& modulationData) override {
-        jassert(modulationData.contains(modulationSource)); // Tries to access not already calculated modulation value. Indicates cyclic modulation.
-        jassert(!isnan(modulationData.at(modulationSource)));
-
-        return Modulatable::getNormalized(modulationData) * modulationData.at(modulationSource);
-    }
-
+    float getNormalized(const std::unordered_map<juce::String, float>& modulationData);
 
 protected:
 
     juce::String modulationSource;
     std::shared_ptr<FloatParameter> amount;
+
+    List<Modulation> modulations;
 
 };

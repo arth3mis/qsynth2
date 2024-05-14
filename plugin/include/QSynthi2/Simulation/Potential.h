@@ -11,7 +11,7 @@ enum class PotentialType {
     PARABOLA, BARRIER
 };
 
-class Potential abstract {
+class Potential {
 public:
     explicit Potential(const PotentialType pt) : type(pt) {
 
