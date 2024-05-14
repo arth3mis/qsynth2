@@ -9,7 +9,6 @@ QuantumSimulation::QuantumSimulation(const int width, const int height, const nu
     , H(height)
     , w(static_cast<num>(width))
     , h(static_cast<num>(height)) {
-    dt = timestep;
     initialPsi = CList(W * H);
     psi = CList(W * H);
     psiP = CList(W * H);
@@ -56,7 +55,7 @@ QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2 offset, cons
     return *this;
 }
 
-const CList& QuantumSimulation::getNextFrame() {
+const CList& QuantumSimulation::getNextFrame(num timestep, ModulationData modulationData) {
     if (!started) {
         started = true;
         psi = initialPsi;
@@ -87,7 +86,7 @@ void QuantumSimulation::calculateNextPsi() {
         for (int j = 0; j < H; ++j) {
             const num k = pi2 * std::min(static_cast<float>(i), w-static_cast<float>(i)) / w;
             const num l = pi2 * std::min(static_cast<float>(j), h-static_cast<float>(j)) / h;
-            const num theta = (k*k + l*l) * dt;
+            const num theta = (k*k + l*l) * timestep;
             psiP[i*H+j] *= std::exp(cnum(0, 1) * theta);
         }
     }

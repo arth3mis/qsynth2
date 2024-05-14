@@ -8,11 +8,11 @@ Modulation::Modulation(juce::String modulationSource, std::shared_ptr<FloatParam
 
 }
 
-float Modulation::getNormalizedBaseValue(const std::unordered_map<juce::String, float> &modulationData) {
+float Modulation::getNormalizedBaseValue(const ModulationData &modulationData) {
     return amount->getNormalized(modulationData);
 }
 
-float Modulation::getNormalized(const std::unordered_map<juce::String, float> &modulationData) {
+float Modulation::getNormalized(const ModulationData &modulationData) {
     jassert(modulationData.contains(modulationSource)); // Tries to access not already calculated modulation value. Indicates cyclic modulation.
     jassert(!std::isnan(modulationData.at(modulationSource)));
 

@@ -51,6 +51,14 @@ public:
         return sum;
     }
 
+    static float sumOf(const List<float>& list) {
+        float sum = 0;
+        for (const float x : list) {
+            sum += x;
+        }
+        return sum;
+    }
+
     static List<List> empty(const List& child) {
 
     }

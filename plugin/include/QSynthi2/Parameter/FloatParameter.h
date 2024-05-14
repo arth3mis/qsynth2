@@ -21,13 +21,13 @@ public:
      * @param modulationData
      * @return
      */
-    float getNormalizedBaseValue(const std::unordered_map<juce::String, float>& modulationData) {
+    float getNormalizedBaseValue(const ModulationData& modulationData) {
         smoothedValue.setTargetValue(range.convertTo0to1(juce::AudioParameterFloat::get()));
         return smoothedValue.getNextValue();
     }
 
 
-    float getNormalized(const std::unordered_map<juce::String, float> &modulationData) {
+    float getNormalized(const ModulationData &modulationData) {
         float value = getNormalizedBaseValue(modulationData);
 
         for (auto& modulator : modulations) {

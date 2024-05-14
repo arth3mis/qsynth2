@@ -21,7 +21,7 @@ public:
     void reset();
 
     // getters
-    const CList& getNextFrame() override;
+    const CList& getNextFrame(num timestep, ModulationData modulationData) override;
 
     [[nodiscard]] const List<RList>& getPotentials() const { return potentials; }
     [[nodiscard]] const CList& getPsi() const { return started ? psi : initialPsi; }

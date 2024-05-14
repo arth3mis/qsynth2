@@ -17,7 +17,10 @@ find_package(SDL2 REQUIRED SDL2)
 # Creates the test console application.
 add_executable(${PROJECT_NAME}
         src/main.cpp
-        ../plugin/include/QSynthi2/Synthesizer/Sonifier.h)
+        ../plugin/include/QSynthi2/Synthesizer/Sonifier.h
+        ../plugin/include/QSynthi2/Parameter/ParameterHolder.h
+        ../plugin/include/QSynthi2/Synthesizer/Scanner.h
+        ../plugin/include/QSynthi2/Synthesizer/Simulation.h)
 
 # Sets the necessary include directories.
 target_include_directories(${PROJECT_NAME}

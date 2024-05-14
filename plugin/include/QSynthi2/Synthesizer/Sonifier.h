@@ -1,12 +1,15 @@
-#ifndef SONIFIER_H
-#define SONIFIER_H
+#pragma once
 
-#endif //SONIFIER_H
+#include "QSynthi2/Parameter/ParameterHolder.h"
 
 class Sonifier {
 public:
 
-    float getNextSample(std::un)
+    float getNextSample(const ModulationData& modulationData) {
+        // TODO
+        return 0.0;
+    }
 
 protected:
+
 };
