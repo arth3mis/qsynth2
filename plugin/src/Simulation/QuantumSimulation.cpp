@@ -13,25 +13,32 @@ QuantumSimulation::QuantumSimulation(const int width, const int height, const nu
     initialPsi = CList(W * H);
     psi = CList(W * H);
     psiP = CList(W * H);
-    potential = RList(W * H);
     started = false;
 }
 
 QuantumSimulation::~QuantumSimulation() = default;
 
+QuantumSimulation& QuantumSimulation::potential(const Potential p) {
+    // potentials.push_back(p);
+    return *this;
+}
+
 QuantumSimulation& QuantumSimulation::parabolaPotential(const V2 offset, const V2 factor) {
+    const size_t h = potentials.append(RList(W * H));
     for (int i = 0; i < W * H; ++i) {
         const num x = xOf(i) - offset.x;
         const num y = yOf(i) - offset.y;
-        potential[i] += factor.x * x*x + factor.y * y*y;
+        potentials[h][i] += factor.x * x*x + factor.y * y*y;
     }
     return *this;
 }
 
-QuantumSimulation& QuantumSimulation::barrierPotential(const V2 pos, int width, num value) {
-    const int px = static_cast<int>(pos.x * w/2);
+QuantumSimulation& QuantumSimulation::barrierPotential(const V2 start, const V2 end, int width, num value) {
+    // const int px = static_cast<int>(pos.x * w/2);
+    // const int py = static_cast<int>(pos.y * h/2);
+    const size_t h = potentials.append(RList(W * H));
     for (int i = 0; i < W * H; ++i) {
-        if (xOf(i) == pos.x);
+        // if (xOf(i) == pos.x);
     }
     return *this;
 }
@@ -49,7 +56,7 @@ QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2 offset, cons
     return *this;
 }
 
-CList& QuantumSimulation::getNextFrame() {
+const CList& QuantumSimulation::getNextFrame() {
     if (!started) {
         started = true;
         psi = initialPsi;
@@ -69,7 +76,7 @@ void QuantumSimulation::calculateNextPsi() {
 
     // potential part
     for (size_t i = 0; i < W * H; ++i) {
-        psi[i] *= std::exp(cnum(0, 1) * dt * potential[i]);
+        psi[i] *= std::exp(cnum(0, 1) * dt * potentials[0][i]);
     }
 
     pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },

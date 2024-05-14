@@ -16,7 +16,7 @@ public:
         jassert (currentlyPlayingNote.keyState == juce::MPENote::keyDown
                  || currentlyPlayingNote.keyState == juce::MPENote::keyDownAndSustained);
 
-        gain = 1.0;
+        gain = 0.25;
         // TODO: Start playing
 
     }

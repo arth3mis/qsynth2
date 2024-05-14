@@ -9,7 +9,7 @@ public:
 
     virtual ~Simulation() = default;
 
-    virtual List<T>& getNextFrame() = 0;
+    virtual const List<T>& getNextFrame() = 0;
 };
 
 #endif //SIMULATION_H

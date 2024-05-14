@@ -21,6 +21,11 @@ public:
         return List(size0, List(size1, initialValue));
     }
 
+    size_t append(const T& element) {
+        this->push_back(element);
+        return this->size() - 1;
+    }
+
     template<class U>
     List<U> map(std::function<U(T)> mapper) const {
         List<U> copiedList(this->size());

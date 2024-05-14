@@ -67,7 +67,7 @@ int main() {
 		}
 
 		// delay?
-#define LIMIT_RATE 1
+#define LIMIT_RATE 0
 #define TICK_RATE 50
 
 #if LIMIT_RATE
