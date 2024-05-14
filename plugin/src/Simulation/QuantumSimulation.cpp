@@ -3,7 +3,7 @@
 #include "QSynthi2/Simulation/QuantumSimulation.h"
 #include "pocketfft_hdronly.h"
 
-QuantumSimulation::QuantumSimulation(const int width, const int height, const num timestep)
+QuantumSimulation::QuantumSimulation(const int width, const int height)
     : Simulation()
     , W(width)
     , H(height)
@@ -61,7 +61,7 @@ const CList& QuantumSimulation::getNextFrame(num timestep, ModulationData modula
         psi = initialPsi;
     }
 
-    calculateNextPsi();
+    calculateNextPsi(timestep);
     return psi;
 }
 
@@ -69,19 +69,24 @@ void QuantumSimulation::reset() {
     psi = initialPsi;
 }
 
-void QuantumSimulation::calculateNextPsi() {
+void QuantumSimulation::calculateNextPsi(const num timestep) {
     constexpr num pi2 = M_PI * 2;
     const pocketfft::stride_t stride{ static_cast<long int>(H * sizeof(cnum)), sizeof(cnum) };
 
     // potential part
     for (size_t i = 0; i < W * H; ++i) {
-        psi[i] *= std::exp(cnum(0, 1) * dt * potentials[0][i]);
+        num V = 0;
+        for (auto& potential : potentials) {
+            V += potential[i];
+        }
+        psi[i] *= std::exp(cnum(0, 1) * timestep * V);
     }
 
     pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },
         true, psi.data(), psiP.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
 
     // kinetic part
+    // TODO outsource window calculation
     for (int i = 0; i < W; ++i) {
         for (int j = 0; j < H; ++j) {
             const num k = pi2 * std::min(static_cast<float>(i), w-static_cast<float>(i)) / w;

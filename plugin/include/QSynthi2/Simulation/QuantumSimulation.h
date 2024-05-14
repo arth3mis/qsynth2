@@ -10,7 +10,7 @@
 class QuantumSimulation final : Simulation<cnum> {
 public:
 
-    QuantumSimulation(int width, int height, num timestep);
+    QuantumSimulation(int width, int height);
     ~QuantumSimulation() override;
 
     QuantumSimulation& potential(Potential p);
@@ -38,9 +38,8 @@ private:
     CList psi;
     CList psiP;
     bool started;
-    num dt;
 
-    void calculateNextPsi();
+    void calculateNextPsi(num timestep);
 
     // index to coordinates, normalized to [-1;1]
     [[nodiscard]] num xOf(const size_t i) const { return (static_cast<num>(i / W) - w/2) / (w/2); }
