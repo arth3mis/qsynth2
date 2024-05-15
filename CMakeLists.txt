@@ -67,7 +67,8 @@ if(MSVC)
 else()
 #    add_compile_options(-Wall -Wextra -Wpedantic)
 
-    # optimizations
+    # optimizations TODO
+    add_compile_options(-O3)
     IF (${CMAKE_BUILD_TYPE} STREQUAL "Release")
 #        add_compile_options(-O3)
     ENDIF()

@@ -21,6 +21,7 @@ private:
 
     juce::GenericAudioProcessorEditor* gpe;
     SimulationDisplay simulationDisplay;
+    int simDisplaySize;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

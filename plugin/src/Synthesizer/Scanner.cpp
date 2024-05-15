@@ -14,7 +14,7 @@ Scanner::Scanner() {
     sharedData.simWidth = SIM_SIZE;
     sharedData.simHeight = SIM_SIZE;
 
-    timestep = 0.2;
+    timestep = 0.5;
 }
 
 num Scanner::getValueAt(num at, const ModulationData& modulationData) {
@@ -33,7 +33,7 @@ void Scanner::prepareToPlay(num sampleRate) {
 void Scanner::nextSample() {
     // TODO correct implementation
     time++;
-    if (time % 22 != 0) {
+    if (time % 441 != 0) {
         return;
     }
 
@@ -41,4 +41,8 @@ void Scanner::nextSample() {
     simFrameCurrent = sim->getNextFrame(timestep, {});
 
     sharedData.setSimulationDisplayFrame(simFrameCurrent.map<num>([](const cnum c){ return std::abs(c); }));
+}
+
+void Scanner::restart() {
+    sim->reset();
 }

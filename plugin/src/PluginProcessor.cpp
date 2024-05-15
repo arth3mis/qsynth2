@@ -9,6 +9,18 @@
 // shared content instance (backend & frontend communication)
 Data sharedData;
 
+// simple cout logger
+//
+class SimpleLogger final : public juce::Logger {
+public:
+    ~SimpleLogger() override = default;
+    SimpleLogger() = default;
+protected:
+    void logMessage(const juce::String &message) override {
+        std::cout << message << std::endl;
+    }
+};
+
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
      : AudioProcessor (BusesProperties()

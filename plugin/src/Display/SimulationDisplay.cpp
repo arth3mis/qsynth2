@@ -12,7 +12,8 @@ SimulationDisplay::SimulationDisplay() {
     startTimerHz(30);
 }
 
-SimulationDisplay::~SimulationDisplay() = default;
+SimulationDisplay::~SimulationDisplay() {
+}
 
 void SimulationDisplay::paint(juce::Graphics &g) {
     g.fillAll (juce::Colours::black);
@@ -40,21 +41,23 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
     const size_t w = sharedData.simWidth;
     const size_t h = sharedData.simHeight;
 
-    const num vx = static_cast<num>(getWidth()) / static_cast<num>(w);
-    const num vy = static_cast<num>(getHeight()) / static_cast<num>(h);
+    const float vx = static_cast<float>(getWidth()) / static_cast<float>(w);
+    const float vy = static_cast<float>(getHeight()) / static_cast<float>(h);
+
+    const float xOverlap = vx/10;
+    const float yOverlap = vy/10;
 
     for (int x = 0; x < w; x++) {
         for (int y = 0; y < h; y++) {
             num v = frame.at(x * w + y);
             int rgb = std::min(255, static_cast<int>(std::round(std::pow(std::abs(v), 0.66) * 255)));
-            // if (rgb < 2)
-                // continue;
-            // int cR = rgb * ((rgbMask & 0xff0000) >> 16) / 255;
-            // int cG = rgb * ((rgbMask & 0x00ff00) >> 8) / 255;
-            // int cB = rgb * (rgbMask & 0x0000ff) / 255;
             g.setColour(juce::Colour(rgb, rgb, rgb));
             // fill rectangle
-            g.fillRect(juce::Rectangle<float>(static_cast<num>(x) * vx, static_cast<num>(y) * vy, vx, vy));
+            g.fillRect(juce::Rectangle(
+                static_cast<float>(x) * vx - xOverlap,
+                static_cast<float>(y) * vy - yOverlap,
+                vx + xOverlap * 2,
+                vy + yOverlap * 2));
         }
     }
 

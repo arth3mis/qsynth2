@@ -11,9 +11,12 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setResizable (true, false);
-    setSize (1200, 800);
 
-    simulationDisplay.setSize(300, 300);
+    simDisplaySize = 400;
+
+    setSize(simDisplaySize, 600);
+
+    simulationDisplay.setSize(simDisplaySize, simDisplaySize);
     addAndMakeVisible(simulationDisplay);
 
     addAndMakeVisible(gpe);
@@ -30,9 +33,9 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 
-    g.setColour (juce::Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText ("Wer das liest is doof!", getLocalBounds(), juce::Justification::centred, 1);
+    // g.setColour (juce::Colours::white);
+    // g.setFont (15.0f);
+    // g.drawFittedText ("Wer das liest is doof!", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void AudioPluginAudioProcessorEditor::resized()
@@ -40,5 +43,5 @@ void AudioPluginAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     simulationDisplay.setTopLeftPosition(0, 0);
-    gpe->setTopLeftPosition(0, 300);
+    gpe->setTopLeftPosition(0, simDisplaySize);
 }
