@@ -6,8 +6,9 @@
 class Sonifier {
 public:
 
-    Sonifier() : frequency(100) {
-
+    Sonifier(const std::shared_ptr<Simulation>& simRef)
+        : scanner(simRef)
+        , frequency(100) {
     }
 
     num getNextSample(const juce::MPENote& note, const ModulationData& modulationData) {

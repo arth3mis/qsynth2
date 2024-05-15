@@ -4,17 +4,17 @@
 extern Data sharedData;
 
 
-Scanner::Scanner() {
-    constexpr int SIM_SIZE = 128;
-    sim = std::make_unique<QuantumSimulation>(QuantumSimulation(SIM_SIZE,SIM_SIZE)
-        .barrierPotential({-0.0, NAN}, 2, {{-0.2, -0.1}, {0.1, 0.2}}, 1e30)
-        .parabolaPotential({0, 0}, {2, 1.5})
-        .gaussianDistribution({-0.4, 0}, {0.25, 0.25}, {4, 0}));
+Scanner::Scanner(const std::shared_ptr<Simulation>& simRef)
+    : sim(simRef) {
+    // constexpr int SIM_SIZE = 128;
+    // sim = std::make_unique<QuantumSimulation>(QuantumSimulation(SIM_SIZE,SIM_SIZE)
+    //     .barrierPotential({-0.0, NAN}, 2, {{-0.2, -0.1}, {0.1, 0.2}}, 1e30)
+    //     .parabolaPotential({0, 0}, {2, 1.5})
+    //     .gaussianDistribution({-0.4, 0}, {0.25, 0.25}, {4, 0}));
+    // sharedData.simWidth = SIM_SIZE;
+    // sharedData.simHeight = SIM_SIZE;
 
-    sharedData.simWidth = SIM_SIZE;
-    sharedData.simHeight = SIM_SIZE;
-
-    timestep = 0.5;
+    timestep = 0.2;
 }
 
 num Scanner::getValueAt(num at, const ModulationData& modulationData) {

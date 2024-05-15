@@ -7,7 +7,7 @@
 #include "QSynthi2/Simulation/Potential.h"
 
 
-class QuantumSimulation final : Simulation<cnum> {
+class QuantumSimulation final : public Simulation {
 public:
 
     QuantumSimulation(int width, int height);
@@ -18,10 +18,10 @@ public:
     QuantumSimulation& barrierPotential(V2 pos, int width, const List<V2>& slits, num value);
     QuantumSimulation& gaussianDistribution(V2 offset, V2 size, V2 impulse);
 
-    void reset();
+    void reset() override;
 
     // getters
-    const CList& getNextFrame(num timestep, const ModulationData& modulationData) override;
+    const List<SimNum>& getNextFrame(num timestep, const ModulationData& modulationData) override;
 
     [[nodiscard]] const List<RList>& getPotentials() const { return potentials; }
     [[nodiscard]] const CList& getPsi() const { return started ? psi : initialPsi; }

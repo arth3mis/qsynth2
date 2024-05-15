@@ -10,7 +10,9 @@
 class Voice : public juce::MPESynthesiserVoice {
 public:
 
-    Voice() { }
+    Voice(const std::shared_ptr<Simulation>& simRef)
+        : sonifier(simRef) {
+    }
 
 
     void noteStarted() override {
