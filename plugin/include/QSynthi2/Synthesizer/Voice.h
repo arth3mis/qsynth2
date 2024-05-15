@@ -4,6 +4,7 @@
 
 #include "juce_audio_processors/juce_audio_processors.h"
 #include "QSynthi2/types.h"
+#include "Sonifier.h"
 
 class Voice : public juce::MPESynthesiserVoice {
 public:
@@ -19,6 +20,8 @@ public:
 
         gain = 0.25;
         // TODO: Start playing
+
+        sonifier.jumpToNote(currentlyPlayingNote);
 
     }
 
@@ -66,6 +69,8 @@ public:
         noteStopped(false);
         currentSampleRate = newRate;
         // TODO: react
+
+        sonifier.prepareToPlay((num) newRate);
     }
 
 
@@ -93,15 +98,16 @@ public:
 
 protected:
 
-    double phase = 0.0;
-    double gain = 0.0;
+    ModulationData modulationData;
+
+    Sonifier sonifier;
+
+    // TODO: Temporary
+    num gain = 0.0;
 
     num getNextSample() noexcept {
-
-        phase += currentlyPlayingNote.getFrequencyInHertz() / currentSampleRate * juce::MathConstants<double>::twoPi;
-
-        return gain * tanh(sin(phase));
-        // TODO: Implement
+        // TODO Add envelopes, ...
+        return gain * sonifier.getNextSample(getCurrentlyPlayingNote(), modulationData);
     }
 
 };

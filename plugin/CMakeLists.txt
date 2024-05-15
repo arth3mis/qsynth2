@@ -35,7 +35,6 @@ target_sources(${PROJECT_NAME}
         src/Simulation/QuantumSimulation.cpp
         src/Parameter/Modulation.cpp
         src/Parameter/ModulatedParameterFloat.cpp
-        src/Parameter/ParameterHolder.cpp
         src/Synthesizer/Scanner.cpp
         src/Data.cpp
 )

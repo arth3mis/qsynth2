@@ -9,7 +9,7 @@
 #include "QSynthi2/List/list.h"
 #include "QSynthi2/List/Vector.h"
 
-typedef float num;
+typedef double num;
 
 typedef std::unordered_map<juce::String, num> ModulationData;
 

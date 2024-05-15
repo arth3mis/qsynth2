@@ -3,7 +3,6 @@
 
 #include "QSynthi2/types.h"
 #include "QSynthi2/List/list.h"
-#include "QSynthi2/Parameter/ParameterHolder.h"
 
 template <typename T>
 class Simulation {

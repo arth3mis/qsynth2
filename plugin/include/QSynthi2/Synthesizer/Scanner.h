@@ -6,13 +6,13 @@
 class Scanner {
 public:
 
-    num getValueAt(num at);
+    num getValueAt(num at, const ModulationData& modulationData);
 
 
     void prepareToPlay(num sampleRate);
 
 
-    void nextSample(ModulationData modulationData);
+    void nextSample();
 
 private:
 
