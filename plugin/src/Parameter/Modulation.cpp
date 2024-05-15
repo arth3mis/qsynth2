@@ -2,7 +2,7 @@
 #include "QSynthi2/Parameter/Modulation.h"
 #include "QSynthi2/Parameter/ModulatedParameterFloat.h"
 
-Modulation::Modulation(juce::String modulationSource, std::shared_ptr<ModulatedParameterFloat> &amount):
+Modulation::Modulation(juce::String modulationSource, ModulatedParameterFloat* amount):
     modulationSource(std::move(modulationSource)), amount(amount) {
 
 

@@ -42,6 +42,12 @@ public:
     }
 
 
+    ModulatedParameterFloat* withModulation(Modulation& modulation) {
+        modulations.append(modulation);
+        return this;
+    }
+
+
 
 protected:
 
