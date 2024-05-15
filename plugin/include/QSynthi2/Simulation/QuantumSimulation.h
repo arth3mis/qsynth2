@@ -21,7 +21,7 @@ public:
     void reset();
 
     // getters
-    const CList& getNextFrame(num timestep, ModulationData modulationData) override;
+    const CList& getNextFrame(const num timestep, const ModulationData& modulationData) override;
 
     [[nodiscard]] const List<RList>& getPotentials() const { return potentials; }
     [[nodiscard]] const CList& getPsi() const { return started ? psi : initialPsi; }
@@ -39,7 +39,7 @@ private:
     CList psiP;
     bool started;
 
-    void calculateNextPsi(num timestep);
+    void calculateNextPsi(const num timestep);
 
     // index to coordinates, normalized to [-1;1]
     [[nodiscard]] num xOf(const size_t i) const { return (static_cast<num>(i / W) - w/2) / (w/2); }

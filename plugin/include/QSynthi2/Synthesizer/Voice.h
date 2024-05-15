@@ -3,7 +3,7 @@
 #include <utility>
 
 #include "juce_audio_processors/juce_audio_processors.h"
-#include "Oscillator.h"
+#include "QSynthi2/types.h"
 
 class Voice : public juce::MPESynthesiserVoice {
 public:
@@ -75,7 +75,7 @@ public:
 
         for (int sampleIndex = startSample; sampleIndex < startSample + numSamples; sampleIndex++) {
 
-            double sample = getNextSample();
+            num sample = getNextSample();
 
             for (int channel = 0; channel < outputBuffer.getNumChannels(); channel++) {
                 outputBuffer.addSample(channel, sampleIndex, (float) sample);
@@ -96,7 +96,7 @@ protected:
     double phase = 0.0;
     double gain = 0.0;
 
-    double getNextSample() noexcept {
+    num getNextSample() noexcept {
 
         phase += currentlyPlayingNote.getFrequencyInHertz() / currentSampleRate * juce::MathConstants<double>::twoPi;
 

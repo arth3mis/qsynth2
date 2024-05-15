@@ -5,15 +5,15 @@
 
 #include <utility>
 
-class FloatParameter : public juce::AudioParameterFloat {
+class ParameterHolder;
+
+class ModulatedParameterFloat : public juce::AudioParameterFloat {
 
 public:
 
-    FloatParameter(const juce::String& name, int versionHint, const juce::NormalisableRange<float>& range, float defaultValue, float sliderSmoothingSeconds = 0.1f) :
-            juce::AudioParameterFloat(juce::ParameterID(name, versionHint), name, range, defaultValue),
-            sliderSmoothingSeconds(sliderSmoothingSeconds),
-            smoothedValue(range.convertTo0to1(defaultValue)) {
-    }
+    ModulatedParameterFloat();
+
+    ModulatedParameterFloat(const juce::String& name, const juce::NormalisableRange<float>& range, float defaultValue, float sliderSmoothingSeconds = 0.1f);
 
 
     /**
@@ -52,6 +52,7 @@ public:
     void prepareToPlay(double sampleRate) {
         smoothedValue.reset(sampleRate, sliderSmoothingSeconds);
     }
+
 
 
 protected:

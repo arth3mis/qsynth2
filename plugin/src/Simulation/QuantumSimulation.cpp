@@ -55,7 +55,7 @@ QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2 offset, cons
     return *this;
 }
 
-const CList& QuantumSimulation::getNextFrame(num timestep, ModulationData modulationData) {
+const CList& QuantumSimulation::getNextFrame(const num timestep, const ModulationData& modulationData) {
     if (!started) {
         started = true;
         psi = initialPsi;

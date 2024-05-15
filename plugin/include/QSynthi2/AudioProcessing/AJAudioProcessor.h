@@ -2,6 +2,7 @@
 
 #include <QSynthi2/Synthesizer/Voice.h>
 #include <QSynthi2/Synthesizer/Synthesiser.h>
+#include <QSynthi2/Parameter/ParameterHolder.h>
 
 #include "juce_audio_processors/juce_audio_processors.h"
 

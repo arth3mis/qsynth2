@@ -11,7 +11,7 @@ public:
 
     virtual ~Simulation() = default;
 
-    virtual const List<T>& getNextFrame(num timestep, ModulationData modulationData) = 0;
+    virtual const List<T>& getNextFrame(const num timestep, const ModulationData& modulationData) = 0;
 };
 
 #endif //SIMULATION_H
