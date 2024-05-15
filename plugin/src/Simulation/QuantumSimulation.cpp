@@ -1,5 +1,6 @@
 #include <cmath>
 
+#include "juce_audio_processors/juce_audio_processors.h"
 #include "QSynthi2/Simulation/QuantumSimulation.h"
 #include "pocketfft_hdronly.h"
 
@@ -11,13 +12,13 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
     , h(static_cast<num>(height)) {
     initialPsi = CList(W * H);
     psi = CList(W * H);
-    psiP = CList(W * H);
+    psiFFT = CList(W * H);
     started = false;
 }
 
 QuantumSimulation::~QuantumSimulation() = default;
 
-QuantumSimulation& QuantumSimulation::potential(const Potential p) {
+QuantumSimulation& QuantumSimulation::addPotential(const Potential p) {
     // potentials.push_back(p);
     return *this;
 }
@@ -32,25 +33,58 @@ QuantumSimulation& QuantumSimulation::parabolaPotential(const V2 offset, const V
     return *this;
 }
 
-QuantumSimulation& QuantumSimulation::barrierPotential(const V2 start, const V2 end, int width, num value) {
-    // const int px = static_cast<int>(pos.x * w/2);
-    // const int py = static_cast<int>(pos.y * h/2);
+QuantumSimulation& QuantumSimulation::barrierPotential(const V2 pos, const int width, const List<V2>& slits, const num value) {
+    // TODO outsource to Potential class
+    const size_t px = toX(pos.x);
+    const size_t py = toY(pos.y);
+    List<Vec2<size_t>> slitIndices;
+    for (const auto& s : slits) {
+        if (std::isnan(pos.x))
+            slitIndices.push_back(Vec2(toX(s.x), toX(s.y)));
+        else
+            slitIndices.push_back(Vec2(toY(s.x), toY(s.y)));
+    }
     const size_t h = potentials.append(RList(W * H));
-    for (int i = 0; i < W * H; ++i) {
-        // if (xOf(i) == pos.x);
+    // horizontal barrier
+    if (std::isnan(pos.x)) {
+        for (int i = 0; i < W; ++i) {
+            bool isSlit = false;
+            for (const auto& s : slitIndices) {
+                if (i >= s.x && i < s.y) isSlit = true;
+            }
+            if (isSlit) continue;
+            for (int j = 0; j < width; ++j) {
+                potentials[h][i * H + (py - width/2 + j)] = value;
+            }
+        }
+    }
+    // vertical barrier
+    else {
+        for (int i = 0; i < H; ++i) {
+            bool isSlit = false;
+            for (const auto& s : slitIndices) {
+                if (i > s.x && i <= s.y) isSlit = true;
+            }
+            if (isSlit) continue;
+            for (int j = 0; j < width; ++j) {
+                potentials[h][(px - width/2 + j) * H + i] = value;
+            }
+        }
     }
     return *this;
 }
 
 QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2 offset, const V2 size, const V2 impulse) {
+    const auto psi = getPsiToChange();
+    const V2 sz = size / 2.f;
     for (int i = 0; i < W * H; ++i) {
-        constexpr num pi2 = M_PI * 2;
+        constexpr num pi2 = juce::MathConstants<num>::twoPi;
         const num x = xOf(i) - offset.x;
         const num y = yOf(i) - offset.y;
-        initialPsi[i] +=
+        (*psi)[i] +=
             std::exp(-cnum(0, 1) * pi2 * impulse.x * x) *
             std::exp(-cnum(0, 1) * pi2 * impulse.y * y) *
-            std::exp(-( x*x / (size.x * size.x) + y*y / (size.y * size.y) ));
+            std::exp(-( x*x / (sz.x * sz.x) + y*y / (sz.y * sz.y) ));
     }
     return *this;
 }
@@ -70,7 +104,7 @@ void QuantumSimulation::reset() {
 }
 
 void QuantumSimulation::calculateNextPsi(const num timestep) {
-    constexpr num pi2 = M_PI * 2;
+    constexpr num pi2 = juce::MathConstants<num>::twoPi;
     const pocketfft::stride_t stride{ static_cast<long int>(H * sizeof(cnum)), sizeof(cnum) };
 
     // potential part
@@ -83,7 +117,7 @@ void QuantumSimulation::calculateNextPsi(const num timestep) {
     }
 
     pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },
-        true, psi.data(), psiP.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
+        true, psi.data(), psiFFT.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
 
     // kinetic part
     // TODO outsource window calculation
@@ -92,10 +126,10 @@ void QuantumSimulation::calculateNextPsi(const num timestep) {
             const num k = pi2 * std::min(static_cast<float>(i), w-static_cast<float>(i)) / w;
             const num l = pi2 * std::min(static_cast<float>(j), h-static_cast<float>(j)) / h;
             const num theta = (k*k + l*l) * timestep;
-            psiP[i*H+j] *= std::exp(cnum(0, 1) * theta);
+            psiFFT[i*H+j] *= std::exp(cnum(0, 1) * theta);
         }
     }
 
     pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },
-        false, psiP.data(), psi.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
+        false, psiFFT.data(), psi.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
 }

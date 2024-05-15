@@ -17,14 +17,14 @@ namespace audio_plugin_test {
     }
 
     TEST(QuantumSimulation, Setup) {
-        auto sim = QuantumSimulation(16, 16, 0.2)
+        auto sim = QuantumSimulation(16, 16)
             .parabolaPotential({}, {10, 10})
             .gaussianDistribution({-0.5, 0}, {0.2, 0.2}, {0, 0});
 
         print2D(sim.getPsi().map<float>([](const cnum c){ return abs(c); }), sim);
 
         for (int i = 0; i < 5; ++i) {
-            sim.getNextFrame();
+            sim.getNextFrame(0.2f, ModulationData());
         }
 
         print2D(sim.getPsi().map<float>([](const cnum c){ return abs(c); }), sim);

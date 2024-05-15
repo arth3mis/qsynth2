@@ -12,6 +12,8 @@ public:
 
     List(const List& other) : std::vector<T>(other) { }
 
+    List(const std::initializer_list<T> l) : std::vector<T>(l) { }
+
     explicit List(size_t size) : std::vector<T>(size) { }
 
     List(size_t size, T initialValue) : std::vector<T>(size, initialValue) { }
