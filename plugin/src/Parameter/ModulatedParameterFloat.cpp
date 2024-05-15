@@ -2,7 +2,6 @@
 // Created by Jannis Müller on 14.05.24.
 //
 #include "QSynthi2/Parameter/ModulatedParameterFloat.h"
-#include "QSynthi2/Parameter/ParameterHolder.h"
 #include "QSynthi2/Parameter/Parameters.h"
 
 

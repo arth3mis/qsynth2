@@ -31,13 +31,13 @@ target_sources(${PROJECT_NAME}
         PRIVATE
         src/PluginEditor.cpp
         src/PluginProcessor.cpp
+        src/Data.cpp
+        src/Display/SimulationDisplay.cpp
         src/Simulation/Simulation.cpp
         src/Simulation/QuantumSimulation.cpp
         src/Parameter/Modulation.cpp
         src/Parameter/ModulatedParameterFloat.cpp
-        src/Parameter/ParameterHolder.cpp
         src/Synthesizer/Scanner.cpp
-        src/Data.cpp
 )
 
 # Sets the include directories of the plugin project.

@@ -6,6 +6,7 @@
 #define DATA_H
 #include "QSynthi2/types.h"
 #include <mutex>
+#include <atomic>
 
 typedef List<num> SimFrame;
 
@@ -13,6 +14,8 @@ class Data {
 public:
     SimFrame getSimulationDisplayFrame();
     void setSimulationDisplayFrame(const SimFrame& f);
+    std::atomic<size_t> simWidth;
+    std::atomic<size_t> simHeight;
 
 private:
     SimFrame simulationDisplayFrame;

@@ -1,18 +1,27 @@
 #include "QSynthi2/PluginProcessor.h"
 #include "QSynthi2/PluginEditor.h"
 
+
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p)
+    , gpe (new juce::GenericAudioProcessorEditor(p))
 {
     juce::ignoreUnused (processorRef);
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
+    setResizable (true, false);
     setSize (1200, 800);
+
+    simulationDisplay.setSize(300, 300);
+    addAndMakeVisible(simulationDisplay);
+
+    addAndMakeVisible(gpe);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 {
+    delete gpe;
 }
 
 //==============================================================================
