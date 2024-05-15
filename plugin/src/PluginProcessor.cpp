@@ -3,6 +3,11 @@
 #include "QSynthi2/Synthesizer/Voice.h"
 #include <iostream>
 
+#include "QSynthi2/Data.h"
+
+// shared content instance (backend & frontend communication)
+Data sharedData;
+
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
      : AudioProcessor (BusesProperties()

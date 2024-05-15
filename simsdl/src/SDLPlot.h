@@ -56,10 +56,13 @@ public:
 	}
 
 	void draw2DField(const CList& values, const int rgbMask, const V2 valueMod) {
-		draw2DField(values.map<num>([](const cnum c){ return abs(c); }), rgbMask, valueMod);
+		draw2DField(values.map<num>([](const cnum c){ return std::abs(c); }), rgbMask, valueMod);
 	}
 
 	void draw2DField(const RList& values, const int rgbMask, const V2 valueMod) {
+		if (values.empty())
+			return;
+
 		const num w = simW;
 		const num h = simH;
 

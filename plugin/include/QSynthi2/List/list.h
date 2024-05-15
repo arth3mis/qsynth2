@@ -61,10 +61,6 @@ public:
         return sum;
     }
 
-    static List<List> empty(const List& child) {
-
-    }
-
     // cout overload
     friend std::ostream& operator<<(std::ostream& os, const List& list) {
         os << "[";

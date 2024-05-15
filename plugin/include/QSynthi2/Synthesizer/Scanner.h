@@ -6,19 +6,11 @@
 
 class Scanner {
 
-    float getPoint(num x, num y) {
-        // TODO
-        return 0.0;
-    }
+    float getPoint(num x, num y);
 
 
-    void prepareToPlay(double sampleRate) {
-
-    }
+    void prepareToPlay(double sampleRate);
 
 
-    void nextSample(ModulationData modulationData) {
-        // TODO
-    }
-
+    void nextSample(ModulationData modulationData);
 };

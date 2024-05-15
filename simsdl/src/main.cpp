@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 #include <QSynthi2/Simulation/QuantumSimulation.h>
+#include "QSynthi2/Data.h"
 
 #include "SDLPlot.h"
 
