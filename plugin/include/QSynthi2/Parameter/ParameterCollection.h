@@ -4,11 +4,16 @@
 #include "Parameters.h"
 
 class ParameterCollection : public Parameters {
-
+public:
 
     // Declare Parameters here
-    const ModulatedParameterFloat* test = make<ModulatedParameterFloat>("TestParameter", juce::NormalisableRange<float>(0, 1), 0);
+    ModulatedParameterFloat* modulationAmount = make<ModulatedParameterFloat>("ModAmount", juce::NormalisableRange<float>(0, 1), 0);
 
+
+    Modulation modulation = Modulation(Modulation::Sources::TIMBRE, modulationAmount);
+
+    ModulatedParameterFloat* timbre = make<ModulatedParameterFloat>("Timbre", juce::NormalisableRange<float>(0, 1), 0)
+            ->withModulation(modulation);
 
 
 };

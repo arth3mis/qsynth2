@@ -1,12 +1,9 @@
-//
-// Created by art on 15.05.24.
-//
-
 #ifndef DATA_H
 #define DATA_H
 #include "QSynthi2/types.h"
 #include <mutex>
 #include <atomic>
+#include "QSynthi2/Parameter/ParameterCollection.h"
 
 typedef List<num> SimFrame;
 
@@ -16,6 +13,8 @@ public:
     void setSimulationDisplayFrame(const SimFrame& f);
     std::atomic<size_t> simWidth;
     std::atomic<size_t> simHeight;
+
+    ParameterCollection parameters;
 
 private:
     SimFrame simulationDisplayFrame;

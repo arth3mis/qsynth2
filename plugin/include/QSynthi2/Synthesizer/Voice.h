@@ -4,6 +4,7 @@
 
 #include "juce_audio_processors/juce_audio_processors.h"
 #include "QSynthi2/types.h"
+#include "QSynthi2/Parameter/Modulation.h"
 #include "Sonifier.h"
 
 class Voice : public juce::MPESynthesiserVoice {
@@ -18,10 +19,15 @@ public:
               || currentlyPlayingNote.keyState == juce::MPENote::sustained
               || currentlyPlayingNote.keyState == juce::MPENote::keyDownAndSustained);
 
+
+        notePressureChanged();
+        notePitchbendChanged();
+        noteTimbreChanged();
+
         gain = 0.25;
         // TODO: Start playing
 
-        sonifier.jumpToNote(currentlyPlayingNote);
+        sonifier.restart(currentlyPlayingNote);
 
     }
 
@@ -42,7 +48,7 @@ public:
 
 
     void notePressureChanged() override {
-        // TODO: react
+        modulationData[Modulation::Sources::PRESSURE] = currentlyPlayingNote.pressure.asUnsignedFloat();
     }
 
 
@@ -54,7 +60,7 @@ public:
 
 
     void noteTimbreChanged() override {
-        // TODO: react
+        modulationData[Modulation::Sources::TIMBRE] = currentlyPlayingNote.timbre.asUnsignedFloat();
     }
 
 

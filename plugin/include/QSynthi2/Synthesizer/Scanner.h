@@ -19,6 +19,9 @@ public:
 
     void nextSample();
 
+
+    void restart();
+
 private:
 
     size_t time{0};

@@ -25,7 +25,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     if (juce::Logger::getCurrentLogger() == nullptr)
         juce::Logger::setCurrentLogger(new SimpleLogger());
 
-    parameters.connectTo(*this);
+    sharedData.parameters.connectTo(*this);
 
 }
 
