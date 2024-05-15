@@ -39,4 +39,6 @@ void AudioPluginAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    simulationDisplay.setTopLeftPosition(0, 0);
+    gpe->setTopLeftPosition(0, 300);
 }

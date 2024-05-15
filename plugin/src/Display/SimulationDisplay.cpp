@@ -20,8 +20,8 @@ void SimulationDisplay::paint(juce::Graphics &g) {
     drawSimulation(g);
 
     g.setColour (juce::Colours::white);
-    g.setFont (8.0f);
-    g.drawText (std::to_string(std::chrono::system_clock::now().time_since_epoch().count()), getLocalBounds(), juce::Justification::topRight, true);
+    g.setFont (12.0f);
+    g.drawText (std::to_string(std::chrono::system_clock::now().time_since_epoch().count()), getLocalBounds(), juce::Justification::centredBottom, true);
 }
 
 void SimulationDisplay::resized() {
@@ -33,8 +33,9 @@ void SimulationDisplay::timerCallback() {
 
 void SimulationDisplay::drawSimulation(juce::Graphics &g) {
     const auto frame = sharedData.getSimulationDisplayFrame();
-    if (frame.empty())
+    if (frame.empty()) {
         return;
+    }
 
     const size_t w = sharedData.simWidth;
     const size_t h = sharedData.simHeight;
@@ -53,7 +54,7 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
             // int cB = rgb * (rgbMask & 0x0000ff) / 255;
             g.setColour(juce::Colour(rgb, rgb, rgb));
             // fill rectangle
-            g.fillRect(juce::Rectangle(static_cast<num>(x) * vx, static_cast<num>(y) * vy, vx, vy));
+            g.fillRect(juce::Rectangle<float>(static_cast<num>(x) * vx, static_cast<num>(y) * vy, vx, vy));
         }
     }
 
