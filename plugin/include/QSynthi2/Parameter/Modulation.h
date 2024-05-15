@@ -1,15 +1,15 @@
 #pragma once
 
 #include "juce_audio_processors/juce_audio_processors.h"
-#include "ParameterHolder.h"
 #include <QSynthi2/List/list.h>
+#include <QSynthi2/types.h>
 
-class FloatParameter;
+class ModulatedParameterFloat;
 
 class Modulation {
 public:
 
-    Modulation(juce::String modulationSource, std::shared_ptr<FloatParameter> &amount);
+    Modulation(juce::String modulationSource, std::shared_ptr<ModulatedParameterFloat> &amount);
 
     float getNormalizedBaseValue(const ModulationData& modulationData);
 
@@ -18,7 +18,7 @@ public:
 protected:
 
     juce::String modulationSource;
-    std::shared_ptr<FloatParameter> amount;
+    std::shared_ptr<ModulatedParameterFloat> amount;
 
     List<Modulation> modulations;
 

@@ -3,6 +3,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "QSynthi2/List/list.h"
 #include "QSynthi2/AudioProcessing/AJAudioProcessor.h"
+#include "QSynthi2/Parameter/ParameterCollection.h"
 
 // simple cout logger
 //
@@ -61,8 +62,8 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 
+    ParameterCollection parameters;
 
-    // TODO: Move to AudioProcessor and do Audio Logic there
     AJAudioProcessor audioProcessor;
 
 };

@@ -5,13 +5,13 @@
 
 
 
-float Scanner::getPoint(num x, num y) {
+num Scanner::getValueAt(num at) {
     // TODO
     return 0.0;
 }
 
-void Scanner::prepareToPlay(double sampleRate) {
-
+void Scanner::prepareToPlay(num sampleRate) {
+    // TODO getSimulationSpeed
 }
 
 void Scanner::nextSample(ModulationData modulationData) {

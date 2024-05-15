@@ -5,7 +5,7 @@
 class Sonifier {
 public:
 
-    float getNextSample(const ModulationData& modulationData) {
+    num getNextSample(const ModulationData& modulationData) {
         // TODO
         return 0.0;
     }

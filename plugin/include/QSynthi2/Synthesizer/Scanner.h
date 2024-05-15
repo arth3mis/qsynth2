@@ -2,15 +2,21 @@
 
 
 #include "QSynthi2/types.h"
-#include "QSynthi2/Parameter/ParameterHolder.h"
 
 class Scanner {
+public:
 
-    float getPoint(num x, num y);
+    num getValueAt(num at);
 
 
-    void prepareToPlay(double sampleRate);
+    void prepareToPlay(num sampleRate);
 
 
     void nextSample(ModulationData modulationData);
+
+private:
+
+    num time = 0;
+    num timestep;
+
 };

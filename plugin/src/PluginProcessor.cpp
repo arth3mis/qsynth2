@@ -1,6 +1,7 @@
 #include "QSynthi2/PluginProcessor.h"
 #include "QSynthi2/PluginEditor.h"
 #include "QSynthi2/Synthesizer/Voice.h"
+#include "QSynthi2/Parameter/ModulatedParameterFloat.h"
 #include <iostream>
 
 #include "QSynthi2/Data.h"
@@ -20,16 +21,11 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                        )
 {
 
-
     // set logger to cout if current logger does not exist
     if (juce::Logger::getCurrentLogger() == nullptr)
         juce::Logger::setCurrentLogger(new SimpleLogger());
- /*
-    parameter->addListener(parameter->testParameterID, [&](const float x){
-        juce::Logger::writeToLog(juce::String(x));
-    });
-*/
 
+    parameters.connectTo(*this);
 
 }
 

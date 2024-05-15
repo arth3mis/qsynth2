@@ -21,7 +21,7 @@ public:
     void reset();
 
     // getters
-    const CList& getNextFrame(num timestep, ModulationData modulationData) override;
+    const CList& getNextFrame(const num timestep, const ModulationData& modulationData) override;
 
     [[nodiscard]] const List<RList>& getPotentials() const { return potentials; }
     [[nodiscard]] const CList& getPsi() const { return started ? psi : initialPsi; }
@@ -39,7 +39,7 @@ private:
     CList psiFFT;
     bool started;
 
-    void calculateNextPsi(num timestep);
+    void calculateNextPsi(const num timestep);
 
     // returns pointer to psi for started simulation, else initialPsi
     CList* getPsiToChange() { return started ? &psi : &initialPsi; }

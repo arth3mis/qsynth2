@@ -34,12 +34,10 @@ target_sources(${PROJECT_NAME}
         src/Simulation/Simulation.cpp
         src/Simulation/QuantumSimulation.cpp
         src/Parameter/Modulation.cpp
+        src/Parameter/ModulatedParameterFloat.cpp
+        src/Parameter/ParameterHolder.cpp
         src/Synthesizer/Scanner.cpp
         src/Data.cpp
-
-        ${INCLUDE_DIR}/Parameter/FloatParameter.h
-        ${INCLUDE_DIR}/Parameter/Modulation.h
-        ${INCLUDE_DIR}/Data.h
 )
 
 # Sets the include directories of the plugin project.
