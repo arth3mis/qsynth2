@@ -27,7 +27,7 @@ public:
         gain = 0.25;
         // TODO: Start playing
 
-        sonifier.jumpToNote(currentlyPlayingNote);
+        sonifier.restart(currentlyPlayingNote);
 
     }
 

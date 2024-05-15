@@ -14,6 +14,9 @@ public:
 
     void nextSample();
 
+
+    void restart();
+
 private:
 
     num time = 0;

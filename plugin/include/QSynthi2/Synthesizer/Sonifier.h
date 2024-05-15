@@ -27,8 +27,10 @@ public:
         frequency.reset(newSampleRate, 0.040);
     }
 
-    void jumpToNote(const juce::MPENote& note) {
+    void restart(const juce::MPENote& note) {
         frequency.setCurrentAndTargetValue((num)note.getFrequencyInHertz());
+
+        scanner.restart();
     }
 
 
