@@ -5,8 +5,6 @@
 
 #include <utility>
 
-class ParameterHolder;
-
 class ModulatedParameterFloat : public juce::AudioParameterFloat {
 
 public:
@@ -16,11 +14,6 @@ public:
     ModulatedParameterFloat(const juce::String& name, const juce::NormalisableRange<float>& range, float defaultValue, float sliderSmoothingSeconds = 0.1f);
 
 
-    /**
-     * Assumed its only called once a sample
-     * @param modulationData
-     * @return
-     */
     float getNormalizedBaseValue(const ModulationData& modulationData) {
         smoothedValue.setTargetValue(range.convertTo0to1(juce::AudioParameterFloat::get()));
         return smoothedValue.getNextValue();
@@ -38,12 +31,7 @@ public:
     }
 
 
-    /**
-     * Assumed its only called once a sample
-     * @param modulationData
-     * @return
-     */
-    float getModulated(const std::unordered_map<juce::String, float>& modulationData) {
+    float getModulated(const ModulationData& modulationData) {
         return range.convertFrom0to1(getNormalized(modulationData));
     }
 
