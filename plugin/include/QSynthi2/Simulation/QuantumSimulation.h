@@ -21,10 +21,10 @@ public:
     void reset() override;
 
     // getters
-    const CSimMatrix& getNextFrame(num timestep, const ModulationData& modulationData) override;
+    const CSimMatrix* getNextFrame(num timestep, const ModulationData& modulationData) override;
 
     // [[nodiscard]] const List<RList>& getPotentials() const { return potentials; }
-    [[nodiscard]] const CSimMatrix& getPsi() const { return started ? psi : initialPsi; }
+    [[nodiscard]] const CSimMatrix* getPsi() const { return started ? psi : initialPsi; }
     [[nodiscard]] size_t getW() const { return W; }
     [[nodiscard]] size_t getH() const { return H; }
 
@@ -35,15 +35,15 @@ private:
 
     List<RSimMatrix> potentials;
     RSimMatrix thetaPrecalc;
-    CSimMatrix initialPsi;
-    CSimMatrix psi;
-    CSimMatrix psiFFT;
+    CSimMatrix* initialPsi;
+    CSimMatrix* psi;
+    CSimMatrix* psiFFT;
     bool started;
 
     void calculateNextPsi(num timestep);
 
     // returns pointer to psi for started simulation, else initialPsi
-    CSimMatrix* getPsiToChange() { return started ? &psi : &initialPsi; }
+    CSimMatrix* getPsiToChange() { return started ? psi : initialPsi; }
 
     // index to coordinates, normalized to [-1;1]
     [[nodiscard]] num xOf(const size_t i) const { return (static_cast<num>(i / W) - w/2) / (w/2); }

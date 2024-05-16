@@ -13,8 +13,8 @@ Scanner::Scanner(const std::shared_ptr<Simulation>& simRef)
     //     .gaussianDistribution({-0.4, 0}, {0.25, 0.25}, {4, 0}));
     // sharedData.simWidth = SIM_SIZE;
     // sharedData.simHeight = SIM_SIZE;
+    // timestep = 0.2;
 
-    timestep = 0.2;
 }
 
 num Scanner::getValueAt(num at, const ModulationData& modulationData) {
@@ -34,24 +34,9 @@ void Scanner::nextSample() {
     // TODO correct implementation
     //      only used for testing right now, but the logic needs to move into AJAudioProcessor,
     //      which propagates the simulation and adds to frameBuffer that each Scanner can access values from.
-    time++;
-    if (time % (size_t)(sampleRate / 100) != 0) {
-        return;
-    }
 
-    sharedData.functionCallStopwatch.stop();
-    sharedData.simulationStopwatch.start();
-
-    simFramePrev = simFrameCurrent;
-    simFrameCurrent = sim->getNextFrame(timestep, {});
-
-    sharedData.setSimulationDisplayFrame(simFrameCurrent);//.map<num>([](const cnum c){ return std::abs(c); }));
-
-    sharedData.simulationStopwatch.stop();
-    sharedData.functionCallStopwatch.start();
  }
 
 
 void Scanner::restart() {
-    sim->reset();
 }

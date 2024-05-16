@@ -19,8 +19,11 @@ public:
 
     Stopwatch functionCallStopwatch     {"Function calls"};
     Stopwatch parameterStopwatch        {"Parameters    "};
-    Stopwatch modulationStopwatch        {"Modulation    "};
+    Stopwatch modulationStopwatch       {"Modulation    "};
     Stopwatch simulationStopwatch       {"Simulation    "};
+    Stopwatch simFftStopwatch           {"Sim FFT       "};
+    Stopwatch simKinStopwatch           {"Sim Kin       "};
+    Stopwatch simPotStopwatch           {"Sim Pot       "};
 
 
 

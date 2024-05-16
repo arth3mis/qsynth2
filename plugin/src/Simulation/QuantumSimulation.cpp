@@ -5,22 +5,29 @@
 #include "pocketfft_hdronly.h"
 #include "QSynthi2/Data.h"
 
+extern Data sharedData;
+
 QuantumSimulation::QuantumSimulation(const int width, const int height)
     : Simulation()
     , W(width)
     , H(height)
     , w(static_cast<num>(width))
     , h(static_cast<num>(height)) {
-    initialPsi = CSimMatrix().setZero();
-    psi = CSimMatrix().setZero();
-    psiFFT = CSimMatrix().setZero();
+    initialPsi = new CSimMatrix();
+    psi = new CSimMatrix();
+    psiFFT = new CSimMatrix();
+
+    initialPsi->setZero();
+    psi->setZero();
+    psiFFT->setZero();
+
     started = false;
 
     constexpr num pi2 = juce::MathConstants<num>::twoPi;
     for (int i = 0; i < W; ++i) {
         for (int j = 0; j < H; ++j) {
-            const num k = pi2 * std::min(static_cast<float>(i), w-static_cast<float>(i)) / w;
-            const num l = pi2 * std::min(static_cast<float>(j), h-static_cast<float>(j)) / h;
+            const num k = pi2 * std::min(static_cast<num>(i), w-static_cast<num>(i)) / w;
+            const num l = pi2 * std::min(static_cast<num>(j), h-static_cast<num>(j)) / h;
             const num theta = (k*k + l*l);
             thetaPrecalc(j, i) = theta;
         }
@@ -100,10 +107,10 @@ QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2 offset, cons
     return *this;
 }
 
-const CSimMatrix& QuantumSimulation::getNextFrame(const num timestep, const ModulationData& modulationData) {
+const CSimMatrix* QuantumSimulation::getNextFrame(const num timestep, const ModulationData& modulationData) {
     if (!started) {
         started = true;
-        psi = initialPsi;
+        *psi = *initialPsi;
     }
 
     calculateNextPsi(timestep);
@@ -111,27 +118,31 @@ const CSimMatrix& QuantumSimulation::getNextFrame(const num timestep, const Modu
 }
 
 void QuantumSimulation::reset() {
-    psi = initialPsi;
+    started = false;
 }
 
 void QuantumSimulation::calculateNextPsi(const num timestep) {
     const pocketfft::stride_t stride{ static_cast<long int>(H * sizeof(cnum)), sizeof(cnum) };
 
     // potential part
-    // RSimMatrix V = RSimMatrix().setZero();
-    // for (const auto& potential : potentials) {
-    //     V += potential;
-    // }
-    psi *= static_cast<CSimMatrix>(Eigen::exp(potentials.sum() * cnum(0, 1) * timestep));
+    sharedData.simPotStopwatch.start();
+    psi->operator*=(static_cast<CSimMatrix>(Eigen::exp(potentials.sum() * cnum(0, 1) * timestep)));
+    sharedData.simPotStopwatch.stop();
 
-    // psi.transposeInPlace();
-    //
+    // FFT (to impulse domain)
+    sharedData.simFftStopwatch.start();
     pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },
-    true, psi.data(), psiFFT.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
+    true, psi->data(), psiFFT->data(), static_cast<num>(1.0 / std::sqrt(w*h)));
+    sharedData.simFftStopwatch.stop();
 
     // kinetic part
-    psiFFT *= static_cast<CSimMatrix>(Eigen::exp(thetaPrecalc * cnum(0, 1)));
+    sharedData.simKinStopwatch.start();
+    psiFFT->operator*=(static_cast<CSimMatrix>(Eigen::exp(thetaPrecalc * timestep * cnum(0, 1))));
+    sharedData.simKinStopwatch.stop();
 
+    // inverse FFT (to spatial domain)
+    sharedData.simFftStopwatch.start();
     pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },
-    false, psiFFT.data(), psi.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
+    false, psiFFT->data(), psi->data(), static_cast<num>(1.0 / std::sqrt(w*h)));
+    sharedData.simFftStopwatch.stop();
 }

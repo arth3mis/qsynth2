@@ -62,8 +62,6 @@ CPMAddPackage(
 )
 include_directories(${LIB_DIR}/eigen)
 
-add_compile_options(-DEIGEN_STACK_ALLOCATION_LIMIT=0)
-
 # This command allows running tests from the "build" folder (the one where CMake generates the project to).
 enable_testing()
 
@@ -81,7 +79,13 @@ else()
 #    add_compile_options(-Wall -Wextra -Wpedantic)
 
     # optimizations TODO
-    add_compile_options(-O3)
+
+    add_compile_options(
+#            -march=native                       # vectorization
+            -O3
+            -DEIGEN_STACK_ALLOCATION_LIMIT=0    # allow large Eigen objects on stack
+    )
+
     IF (${CMAKE_BUILD_TYPE} STREQUAL "Release")
 #        add_compile_options(-O3)
     ENDIF()

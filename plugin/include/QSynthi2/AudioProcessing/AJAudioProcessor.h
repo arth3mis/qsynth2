@@ -19,6 +19,10 @@ protected:
     juce::MPEInstrument instrument { juce::MPEZone (juce::MPEZone::Type::lower, 15) };
     Synthesiser synth { instrument };
 
+    size_t time = 0;
+    size_t timestepCounter = 0;
+    size_t bufferCounterDebug = 0;
     std::shared_ptr<Simulation> sim;
+    const CSimMatrix *simFrameCurrent;
 
 };

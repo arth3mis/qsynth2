@@ -20,11 +20,7 @@ private:
 
     num sampleRate = 0;
 
-    size_t time{0};
-    num timestep{0};
-
     std::shared_ptr<Simulation> sim;
     size_t frameCounter;    // todo knows needed frame index
-    CSimMatrix simFrameCurrent;
-    CSimMatrix simFramePrev;
+
 };

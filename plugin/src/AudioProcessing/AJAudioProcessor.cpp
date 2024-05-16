@@ -16,7 +16,7 @@ AJAudioProcessor::AJAudioProcessor() {
     sharedData.simWidth = SIM_SIZE;
     sharedData.simHeight = SIM_SIZE;
 
-    sharedData.setSimulationDisplayFrame(std::dynamic_pointer_cast<QuantumSimulation>(sim)->getPsi());
+    sharedData.setSimulationDisplayFrame(*std::dynamic_pointer_cast<QuantumSimulation>(sim)->getPsi());
 
     synth.setVoiceStealingEnabled (false); // TODO: Parameter
     for (auto i = 0; i < 15; ++i)
@@ -31,7 +31,6 @@ void AJAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
 }
 
 void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages) {
-    sharedData.functionCallStopwatch.start();
 
     /*
      *     for (const auto &m : midiMessages) {
@@ -42,11 +41,35 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     }
      */
 
-    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
+    sharedData.functionCallStopwatch.start();
+    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
     sharedData.functionCallStopwatch.stop();
-    sharedData.parameterStopwatch.print();
+
+
+    bufferCounterDebug += buffer.getNumSamples();
+
+    // TEMP simulation
+    if (time++ % static_cast<size_t>(44100 / buffer.getNumSamples() / 100) != 0) {
+        return;
+    }
+    timestepCounter++;
+
+    sharedData.simulationStopwatch.start();
+    simFrameCurrent = sim->getNextFrame(0.2, {});
+    sharedData.setSimulationDisplayFrame(*simFrameCurrent);//.map<num>([](const cnum c){ return std::abs(c); }));
+    sharedData.simulationStopwatch.stop();
+
+    long ref = sharedData.modulationStopwatch.get();
+
+    sharedData.parameterStopwatch.print(ref);
     sharedData.modulationStopwatch.print();
-    sharedData.functionCallStopwatch.print();
-    sharedData.simulationStopwatch.print();
+    sharedData.functionCallStopwatch.print(ref);
+
+    long per = timestepCounter;
+    sharedData.simulationStopwatch.print(0, per);
+
+    sharedData.simPotStopwatch.print(0, per);
+    sharedData.simFftStopwatch.print(0, per);
+    sharedData.simKinStopwatch.print(0, per);
 }
