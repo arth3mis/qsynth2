@@ -15,6 +15,16 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
     psi = CSimMatrix().setZero();
     psiFFT = CSimMatrix().setZero();
     started = false;
+
+    constexpr num pi2 = juce::MathConstants<num>::twoPi;
+    for (int i = 0; i < W; ++i) {
+        for (int j = 0; j < H; ++j) {
+            const num k = pi2 * std::min(static_cast<float>(i), w-static_cast<float>(i)) / w;
+            const num l = pi2 * std::min(static_cast<float>(j), h-static_cast<float>(j)) / h;
+            const num theta = (k*k + l*l);
+            thetaPrecalc(j, i) = theta;
+        }
+    }
 }
 
 QuantumSimulation::~QuantumSimulation() = default;
@@ -105,22 +115,14 @@ void QuantumSimulation::reset() {
 }
 
 void QuantumSimulation::calculateNextPsi(const num timestep) {
-    constexpr num pi2 = juce::MathConstants<num>::twoPi;
     const pocketfft::stride_t stride{ static_cast<long int>(H * sizeof(cnum)), sizeof(cnum) };
 
     // potential part
-    // for (size_t i = 0; i < W * H; ++i) {
-        // psi[i] *= std::exp(cnum(0, 1) * timestep * V);
+    // RSimMatrix V = RSimMatrix().setZero();
+    // for (const auto& potential : potentials) {
+    //     V += potential;
     // }
-    RSimMatrix V = RSimMatrix().setZero();
-    for (const auto& potential : potentials) {
-        V += potential;
-    }
-    // CSimMatrix a = V * timestep;
-    // CSimMatrix b = a * cnum(0, 1);
-    // CSimMatrix c = Eigen::exp(b.array());
-    // TODO not working
-    psi *= static_cast<CSimMatrix>(Eigen::exp((V * cnum(0, 1) * timestep).array()));
+    psi *= static_cast<CSimMatrix>(Eigen::exp(potentials.sum() * cnum(0, 1) * timestep));
 
     // psi.transposeInPlace();
     //
@@ -128,20 +130,7 @@ void QuantumSimulation::calculateNextPsi(const num timestep) {
     true, psi.data(), psiFFT.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
 
     // kinetic part
-    // TODO outsource window calculation
-    RSimMatrix th;
-    for (int i = 0; i < W; ++i) {
-        for (int j = 0; j < H; ++j) {
-            const num k = pi2 * std::min(static_cast<float>(i), w-static_cast<float>(i)) / w;
-            const num l = pi2 * std::min(static_cast<float>(j), h-static_cast<float>(j)) / h;
-            const num theta = (k*k + l*l) * timestep;
-            th(j, i) = theta;
-            // psiFFT(j, i) *= std::exp(cnum(0, 1) * theta);
-        }
-    }
-
-    // TODO not working
-    psiFFT *= static_cast<CSimMatrix>(Eigen::exp((th * cnum(0, 1)).array()));
+    psiFFT *= static_cast<CSimMatrix>(Eigen::exp(thetaPrecalc * cnum(0, 1)));
 
     pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },
     false, psiFFT.data(), psi.data(), static_cast<num>(1.0 / std::sqrt(w*h)));

@@ -35,7 +35,7 @@ void Scanner::nextSample() {
     //      only used for testing right now, but the logic needs to move into AJAudioProcessor,
     //      which propagates the simulation and adds to frameBuffer that each Scanner can access values from.
     time++;
-    if (time % (size_t)(sampleRate / 80) != 0) {
+    if (time % (size_t)(sampleRate / 100) != 0) {
         return;
     }
 

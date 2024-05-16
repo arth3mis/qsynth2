@@ -28,6 +28,16 @@ public:
         return this->size() - 1;
     }
 
+    T sum() {
+        if (this->empty())
+            return T();
+        T res = this->at(0);
+        for (size_t i = 1; i < this->size(); ++i) {
+            res += this->at(i);
+        }
+        return res;
+    }
+
     template<class U>
     List<U> map(std::function<U(T)> mapper) const {
         List<U> copiedList(this->size());

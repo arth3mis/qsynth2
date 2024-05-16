@@ -34,6 +34,7 @@ private:
     const float w, h;
 
     List<RSimMatrix> potentials;
+    RSimMatrix thetaPrecalc;
     CSimMatrix initialPsi;
     CSimMatrix psi;
     CSimMatrix psiFFT;

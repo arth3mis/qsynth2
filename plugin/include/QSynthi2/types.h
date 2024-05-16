@@ -22,8 +22,8 @@ typedef std::complex<num> cnum;
 typedef List<cnum> CList;
 typedef List<num> RList;
 
-typedef Eigen::Matrix<cnum, SIM_H, SIM_W> CSimMatrix;
-typedef Eigen::Matrix<num, SIM_H, SIM_W> RSimMatrix;
+typedef Eigen::Array<cnum, SIM_H, SIM_W> CSimMatrix;
+typedef Eigen::Array<num, SIM_H, SIM_W> RSimMatrix;
 
 typedef CSimMatrix SimFrame;
 
