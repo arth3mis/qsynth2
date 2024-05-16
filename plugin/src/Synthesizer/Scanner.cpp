@@ -32,6 +32,8 @@ void Scanner::prepareToPlay(num newSampleRate) {
 
 void Scanner::nextSample() {
     // TODO correct implementation
+    //      only used for testing right now, but the logic needs to move into AJAudioProcessor,
+    //      which propagates the simulation and adds to frameBuffer that each Scanner can access values from.
     time++;
     if (time % (size_t)(sampleRate / 8) != 0) {
         return;

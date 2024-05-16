@@ -24,6 +24,7 @@ private:
     num timestep{0};
 
     std::shared_ptr<Simulation> sim;
+    size_t frameCounter;    // todo knows needed frame index
     CList simFrameCurrent;
     CList simFramePrev;
 };

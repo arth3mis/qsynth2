@@ -8,7 +8,7 @@ class Stopwatch {
 public:
 
     long nanoseconds;
-    std::chrono::steady_clock::time_point startTimePoint;
+    std::chrono::system_clock::time_point startTimePoint;
     bool isStarted = false;
     juce::String name;
 
@@ -19,12 +19,12 @@ public:
 
     void start() {
         jassert(!isStarted);
-        startTimePoint = std::chrono::high_resolution_clock::now();
+        startTimePoint = std::chrono::system_clock::now();
         isStarted = true;
     }
 
     void stop() {
-        nanoseconds += (std::chrono::high_resolution_clock::now() - startTimePoint) / std::chrono::nanoseconds(1);
+        nanoseconds += (std::chrono::system_clock::now() - startTimePoint) / std::chrono::nanoseconds(1);
         isStarted = false;
     }
 
