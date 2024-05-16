@@ -38,6 +38,7 @@ target_sources(${PROJECT_NAME}
         src/Parameter/Modulation.cpp
         src/Parameter/ModulatedParameterFloat.cpp
         src/Synthesizer/Scanner.cpp
+        src/AudioProcessing/AJAudioProcessor.cpp
 )
 
 # Sets the include directories of the plugin project.

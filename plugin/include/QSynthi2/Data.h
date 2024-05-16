@@ -4,6 +4,7 @@
 #include <mutex>
 #include <atomic>
 #include "QSynthi2/Parameter/ParameterCollection.h"
+#include "QSynthi2/Testing/Stopwatch.h"
 
 typedef List<num> SimFrame;
 
@@ -15,6 +16,15 @@ public:
     std::atomic<size_t> simHeight;
 
     ParameterCollection parameters;
+
+
+
+    Stopwatch functionCallStopwatch     {"Function calls"};
+    Stopwatch parameterStopwatch        {"Parameters    "};
+    Stopwatch modulationStopwatch        {"Modulation    "};
+    Stopwatch simulationStopwatch       {"Simulation    "};
+
+
 
 private:
     SimFrame simulationDisplayFrame;

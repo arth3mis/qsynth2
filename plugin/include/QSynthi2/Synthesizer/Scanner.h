@@ -12,11 +12,13 @@ public:
     Scanner(const std::shared_ptr<Simulation>& simRef);
 
     num getValueAt(num at, const ModulationData& modulationData);
-    void prepareToPlay(num sampleRate);
+    void prepareToPlay(num newSampleRate);
     void nextSample();
     void restart();
 
 private:
+
+    num sampleRate = 0;
 
     size_t time{0};
     num timestep{0};

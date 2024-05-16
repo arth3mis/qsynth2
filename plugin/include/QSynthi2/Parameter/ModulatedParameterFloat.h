@@ -2,6 +2,7 @@
 
 
 #include "Modulation.h"
+#include "QSynthi2/AudioProcessing/AJAudioProcessor.h"
 
 #include <utility>
 
@@ -14,26 +15,27 @@ public:
     ModulatedParameterFloat(const juce::String& name, const juce::NormalisableRange<float>& range, float defaultValue, float sliderSmoothingSeconds = 0.1f);
 
 
-    float getNormalizedBaseValue(const ModulationData& modulationData) {
-        smoothedValue.setTargetValue(range.convertTo0to1(juce::AudioParameterFloat::get()));
-        return smoothedValue.getNextValue();
-    }
+    float getNormalizedBaseValue(const ModulationData& modulationData);
 
 
     float getNormalized(const ModulationData &modulationData) {
         float value = getNormalizedBaseValue(modulationData);
 
+        /*
         for (auto& modulator : modulations) {
             value += modulator.getNormalized(modulationData);
+        }
+         */
+
+        for (size_t i = 0; i < modulations.size(); ++i) {
+            value += modulations[i].getNormalized(modulationData);
         }
 
         return value;
     }
 
 
-    float getModulated(const ModulationData& modulationData) {
-        return range.convertFrom0to1(getNormalized(modulationData));
-    }
+    float getModulated(const ModulationData& modulationData);
 
 
 
@@ -42,7 +44,7 @@ public:
     }
 
 
-    ModulatedParameterFloat* withModulation(Modulation& modulation) {
+    ModulatedParameterFloat* withModulation(const Modulation& modulation) {
         modulations.append(modulation);
         return this;
     }

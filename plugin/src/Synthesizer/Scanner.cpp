@@ -26,23 +26,30 @@ num Scanner::getValueAt(num at, const ModulationData& modulationData) {
     return (1 - timbre) * sinus + timbre * rectangle;
 }
 
-void Scanner::prepareToPlay(num sampleRate) {
-    // TODO getSimulationSpeed
+void Scanner::prepareToPlay(num newSampleRate) {
+    this->sampleRate = newSampleRate;
 }
 
 void Scanner::nextSample() {
     // TODO correct implementation
     time++;
-    if (time % 441 != 0) {
+    if (time % (size_t)(sampleRate / 8) != 0) {
         return;
     }
+
+    sharedData.functionCallStopwatch.stop();
+    sharedData.simulationStopwatch.start();
 
     simFramePrev = simFrameCurrent;
     simFrameCurrent = sim->getNextFrame(timestep, {});
 
     sharedData.setSimulationDisplayFrame(simFrameCurrent.map<num>([](const cnum c){ return std::abs(c); }));
-}
+
+    sharedData.simulationStopwatch.stop();
+    sharedData.functionCallStopwatch.start();
+ }
+
 
 void Scanner::restart() {
-    sim->reset();
+
 }
