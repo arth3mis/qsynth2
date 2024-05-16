@@ -11,9 +11,9 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
     , H(height)
     , w(static_cast<num>(width))
     , h(static_cast<num>(height)) {
-    initialPsi = CList(W * H);
-    psi = CList(W * H);
-    psiFFT = CList(W * H);
+    initialPsi = CSimMatrix().setZero();
+    psi = CSimMatrix().setZero();
+    psiFFT = CSimMatrix().setZero();
     started = false;
 }
 
@@ -25,11 +25,11 @@ QuantumSimulation& QuantumSimulation::addPotential(const Potential p) {
 }
 
 QuantumSimulation& QuantumSimulation::parabolaPotential(const V2 offset, const V2 factor) {
-    const size_t h = potentials.append(RList(W * H));
+    const size_t h = potentials.append(RSimMatrix().setZero());
     for (int i = 0; i < W * H; ++i) {
         const num x = xOf(i) - offset.x;
         const num y = yOf(i) - offset.y;
-        potentials[h][i] += factor.x * x*x + factor.y * y*y;
+        potentials[h](yIndexOf(i), xIndexOf(i)) += factor.x * x*x + factor.y * y*y;
     }
     return *this;
 }
@@ -45,7 +45,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2 pos, const int w
         else
             slitIndices.push_back(Vec2(toY(s.x), toY(s.y)));
     }
-    const size_t h = potentials.append(RList(W * H));
+    const size_t h = potentials.append(RSimMatrix().setZero());
     // horizontal barrier
     if (std::isnan(pos.x)) {
         for (int i = 0; i < W; ++i) {
@@ -55,7 +55,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2 pos, const int w
             }
             if (isSlit) continue;
             for (int j = 0; j < width; ++j) {
-                potentials[h][i * H + (py - width/2 + j)] = value;
+                potentials[h]((py - width/2 + j), i) = value;
             }
         }
     }
@@ -68,7 +68,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2 pos, const int w
             }
             if (isSlit) continue;
             for (int j = 0; j < width; ++j) {
-                potentials[h][(px - width/2 + j) * H + i] = value;
+                potentials[h](i, (px - width/2 + j)) = value;
             }
         }
     }
@@ -82,7 +82,7 @@ QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2 offset, cons
         constexpr num pi2 = juce::MathConstants<num>::twoPi;
         const num x = xOf(i) - offset.x;
         const num y = yOf(i) - offset.y;
-        (*psi)[i] +=
+        (*psi)(yIndexOf(i), xIndexOf(i)) +=
             std::exp(-cnum(0, 1) * pi2 * impulse.x * x) *
             std::exp(-cnum(0, 1) * pi2 * impulse.y * y) *
             std::exp(-( x*x / (sz.x * sz.x) + y*y / (sz.y * sz.y) ));
@@ -90,7 +90,7 @@ QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2 offset, cons
     return *this;
 }
 
-const List<SimNum>& QuantumSimulation::getNextFrame(const num timestep, const ModulationData& modulationData) {
+const CSimMatrix& QuantumSimulation::getNextFrame(const num timestep, const ModulationData& modulationData) {
     if (!started) {
         started = true;
         psi = initialPsi;
@@ -109,28 +109,40 @@ void QuantumSimulation::calculateNextPsi(const num timestep) {
     const pocketfft::stride_t stride{ static_cast<long int>(H * sizeof(cnum)), sizeof(cnum) };
 
     // potential part
-    for (size_t i = 0; i < W * H; ++i) {
-        num V = 0;
-        for (auto& potential : potentials) {
-            V += potential[i];
-        }
-        psi[i] *= std::exp(cnum(0, 1) * timestep * V);
+    // for (size_t i = 0; i < W * H; ++i) {
+        // psi[i] *= std::exp(cnum(0, 1) * timestep * V);
+    // }
+    RSimMatrix V = RSimMatrix().setZero();
+    for (const auto& potential : potentials) {
+        V += potential;
     }
+    // CSimMatrix a = V * timestep;
+    // CSimMatrix b = a * cnum(0, 1);
+    // CSimMatrix c = Eigen::exp(b.array());
+    // TODO not working
+    psi *= static_cast<CSimMatrix>(Eigen::exp((V * cnum(0, 1) * timestep).array()));
 
+    // psi.transposeInPlace();
+    //
     pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },
-        true, psi.data(), psiFFT.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
+    true, psi.data(), psiFFT.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
 
     // kinetic part
     // TODO outsource window calculation
+    RSimMatrix th;
     for (int i = 0; i < W; ++i) {
         for (int j = 0; j < H; ++j) {
             const num k = pi2 * std::min(static_cast<float>(i), w-static_cast<float>(i)) / w;
             const num l = pi2 * std::min(static_cast<float>(j), h-static_cast<float>(j)) / h;
             const num theta = (k*k + l*l) * timestep;
-            psiFFT[i*H+j] *= std::exp(cnum(0, 1) * theta);
+            th(j, i) = theta;
+            // psiFFT(j, i) *= std::exp(cnum(0, 1) * theta);
         }
     }
 
+    // TODO not working
+    psiFFT *= static_cast<CSimMatrix>(Eigen::exp((th * cnum(0, 1)).array()));
+
     pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },
-        false, psiFFT.data(), psi.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
+    false, psiFFT.data(), psi.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
 }

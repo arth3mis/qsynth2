@@ -16,6 +16,8 @@ AJAudioProcessor::AJAudioProcessor() {
     sharedData.simWidth = SIM_SIZE;
     sharedData.simHeight = SIM_SIZE;
 
+    sharedData.setSimulationDisplayFrame(std::dynamic_pointer_cast<QuantumSimulation>(sim)->getPsi());
+
     synth.setVoiceStealingEnabled (false); // TODO: Parameter
     for (auto i = 0; i < 15; ++i)
         synth.addVoice (new Voice(sim));

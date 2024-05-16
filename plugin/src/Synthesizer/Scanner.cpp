@@ -35,7 +35,7 @@ void Scanner::nextSample() {
     //      only used for testing right now, but the logic needs to move into AJAudioProcessor,
     //      which propagates the simulation and adds to frameBuffer that each Scanner can access values from.
     time++;
-    if (time % (size_t)(sampleRate / 8) != 0) {
+    if (time % (size_t)(sampleRate / 80) != 0) {
         return;
     }
 
@@ -45,7 +45,7 @@ void Scanner::nextSample() {
     simFramePrev = simFrameCurrent;
     simFrameCurrent = sim->getNextFrame(timestep, {});
 
-    sharedData.setSimulationDisplayFrame(simFrameCurrent.map<num>([](const cnum c){ return std::abs(c); }));
+    sharedData.setSimulationDisplayFrame(simFrameCurrent);//.map<num>([](const cnum c){ return std::abs(c); }));
 
     sharedData.simulationStopwatch.stop();
     sharedData.functionCallStopwatch.start();
@@ -53,5 +53,5 @@ void Scanner::nextSample() {
 
 
 void Scanner::restart() {
-
+    sim->reset();
 }

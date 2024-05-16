@@ -8,8 +8,25 @@
 #include "juce_audio_processors/juce_audio_processors.h"
 #include "QSynthi2/List/list.h"
 #include "QSynthi2/List/Vector.h"
+#include "Eigen/Dense"
+
+
+#define SIM_W 128
+#define SIM_H 128
 
 typedef double num;
+typedef Vec2<num> V2;
+
+typedef std::complex<num> cnum;
+
+typedef List<cnum> CList;
+typedef List<num> RList;
+
+typedef Eigen::Matrix<cnum, SIM_H, SIM_W> CSimMatrix;
+typedef Eigen::Matrix<num, SIM_H, SIM_W> RSimMatrix;
+
+typedef CSimMatrix SimFrame;
+
 
 typedef std::unordered_map<juce::String, num> ModulationData;
 

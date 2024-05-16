@@ -21,10 +21,10 @@ public:
     void reset() override;
 
     // getters
-    const List<SimNum>& getNextFrame(num timestep, const ModulationData& modulationData) override;
+    const CSimMatrix& getNextFrame(num timestep, const ModulationData& modulationData) override;
 
-    [[nodiscard]] const List<RList>& getPotentials() const { return potentials; }
-    [[nodiscard]] const CList& getPsi() const { return started ? psi : initialPsi; }
+    // [[nodiscard]] const List<RList>& getPotentials() const { return potentials; }
+    [[nodiscard]] const CSimMatrix& getPsi() const { return started ? psi : initialPsi; }
     [[nodiscard]] size_t getW() const { return W; }
     [[nodiscard]] size_t getH() const { return H; }
 
@@ -33,23 +33,23 @@ private:
     const size_t W, H;
     const float w, h;
 
-    List<RList> potentials;
-    CList initialPsi;
-    CList psi;
-    CList psiFFT;
+    List<RSimMatrix> potentials;
+    CSimMatrix initialPsi;
+    CSimMatrix psi;
+    CSimMatrix psiFFT;
     bool started;
 
     void calculateNextPsi(num timestep);
 
     // returns pointer to psi for started simulation, else initialPsi
-    CList* getPsiToChange() { return started ? &psi : &initialPsi; }
+    CSimMatrix* getPsiToChange() { return started ? &psi : &initialPsi; }
 
     // index to coordinates, normalized to [-1;1]
     [[nodiscard]] num xOf(const size_t i) const { return (static_cast<num>(i / W) - w/2) / (w/2); }
     [[nodiscard]] num yOf(const size_t i) const { return (static_cast<num>(i % W) - h/2) / (h/2); }
     [[nodiscard]] size_t xIndexOf(const size_t i) const { return i / W; }
     [[nodiscard]] size_t yIndexOf(const size_t i) const { return i % W; }
-    // coordinates to index
+    // coordinates [-1;1] to index
     [[nodiscard]] size_t toX(const num cx) const { return std::max(0, std::min(static_cast<int>(W-1), static_cast<int>(cx * w/2 + w/2))); }
     [[nodiscard]] size_t toY(const num cy) const { return std::max(0, std::min(static_cast<int>(H-1), static_cast<int>(cy * h/2 + h/2))); }
 };

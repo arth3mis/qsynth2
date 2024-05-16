@@ -34,12 +34,12 @@ void SimulationDisplay::timerCallback() {
 
 void SimulationDisplay::drawSimulation(juce::Graphics &g) {
     const auto frame = sharedData.getSimulationDisplayFrame();
-    if (frame.empty()) {
-        return;
-    }
+    // if (frame.empty()) {
+    //     return;
+    // }
 
-    const size_t w = sharedData.simWidth;
-    const size_t h = sharedData.simHeight;
+    const size_t w = SIM_W;
+    const size_t h = SIM_H;
 
     const float vx = static_cast<float>(getWidth()) / static_cast<float>(w);
     const float vy = static_cast<float>(getHeight()) / static_cast<float>(h);
@@ -49,7 +49,7 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
 
     for (int x = 0; x < w; x++) {
         for (int y = 0; y < h; y++) {
-            num v = frame.at(x * w + y);
+            num v = std::abs(frame(y, x));
             int rgb = std::min(255, static_cast<int>(std::round(std::pow(std::abs(v), 0.66) * 255)));
             g.setColour(juce::Colour(rgb, rgb, rgb));
             // fill rectangle

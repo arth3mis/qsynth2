@@ -6,8 +6,6 @@
 #include "QSynthi2/Parameter/ParameterCollection.h"
 #include "QSynthi2/Testing/Stopwatch.h"
 
-typedef List<num> SimFrame;
-
 class Data {
 public:
     SimFrame getSimulationDisplayFrame();
