@@ -18,12 +18,26 @@ Scanner::Scanner(const std::shared_ptr<Simulation>& simRef)
 }
 
 num Scanner::getValueAt(num at, const ModulationData& modulationData) {
+    /*
     num sinus = sin(juce::MathConstants<num>::twoPi * at);
     num rectangle = std::copysign (1.0, sinus);
     num timbre = sharedData.parameters.timbre->getModulated(modulationData);
 
-    // TODO
     return (1 - timbre) * sinus + timbre * rectangle;
+*/
+    // TODO
+
+    num x = 128 * at;
+    size_t y = (size_t)(128*sharedData.parameters.timbre->getModulated(modulationData));
+    num t = fmod(x, (num)1);
+
+    num floorX = floor(x);
+    num ceilX = ceil(x);
+
+    juce::Logger::writeToLog(juce::String(std::abs(simFrameCurrent[0])));
+
+    return (1-t) * std::abs(simFrameCurrent[(size_t)(floorX*128)+y]) + t * std::abs(simFrameCurrent[(size_t)(ceilX*128)+y]);
+
 }
 
 void Scanner::prepareToPlay(num newSampleRate) {
@@ -34,8 +48,7 @@ void Scanner::nextSample() {
     // TODO correct implementation
     //      only used for testing right now, but the logic needs to move into AJAudioProcessor,
     //      which propagates the simulation and adds to frameBuffer that each Scanner can access values from.
-    time++;
-    if (time % (size_t)(sampleRate / 8) != 0) {
+    if (time++ % (size_t)(sampleRate / 42) != 0) {
         return;
     }
 

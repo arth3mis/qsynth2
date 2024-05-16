@@ -43,8 +43,10 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
     sharedData.functionCallStopwatch.stop();
+
     sharedData.parameterStopwatch.print();
     sharedData.modulationStopwatch.print();
+    sharedData.hashMapStopwatch.print();
     sharedData.functionCallStopwatch.print();
     sharedData.simulationStopwatch.print();
 }

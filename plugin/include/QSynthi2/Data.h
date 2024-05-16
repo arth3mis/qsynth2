@@ -21,7 +21,8 @@ public:
 
     Stopwatch functionCallStopwatch     {"Function calls"};
     Stopwatch parameterStopwatch        {"Parameters    "};
-    Stopwatch modulationStopwatch        {"Modulation    "};
+    Stopwatch modulationStopwatch       {"Modulation    "};
+    Stopwatch hashMapStopwatch          {"Read Hash Map "};
     Stopwatch simulationStopwatch       {"Simulation    "};
 
 

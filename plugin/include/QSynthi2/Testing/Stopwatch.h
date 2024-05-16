@@ -18,12 +18,13 @@ public:
 
 
     void start() {
-        jassert(!isStarted);
+        if (isStarted) return;
         startTimePoint = std::chrono::system_clock::now();
         isStarted = true;
     }
 
     void stop() {
+        if (!isStarted) return;
         nanoseconds += (std::chrono::system_clock::now() - startTimePoint) / std::chrono::nanoseconds(1);
         isStarted = false;
     }

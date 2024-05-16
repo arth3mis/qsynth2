@@ -17,6 +17,7 @@ public:
         frequency.setTargetValue((num)note.getFrequencyInHertz());
 
         phase += frequency.getNextValue() / sampleRate;
+        phase = std::fmod(phase, 1);
 
         return scanner.getValueAt(phase, modulationData);
         // TODO: Implement

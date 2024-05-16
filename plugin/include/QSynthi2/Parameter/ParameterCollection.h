@@ -8,11 +8,11 @@ class ParameterCollection : public Parameters {
 public:
 
     // Declare Parameters here
-    ModulatedParameterFloat* modulationAmount = make<ModulatedParameterFloat>("ModAmount", juce::NormalisableRange<float>(0, 1), 0.2);
+    ModulatedParameterFloat* modulationAmount = make<ModulatedParameterFloat>("ModAmount", juce::NormalisableRange<float>(0, 1), 1);
 
 
-    ModulatedParameterFloat* timbre = make<ModulatedParameterFloat>("Timbre", juce::NormalisableRange<float>(0, 1), 0)
-            ->withModulation(Modulation(Modulation::Sources::PRESSURE, modulationAmount))
+    ModulatedParameterFloat* timbre = make<ModulatedParameterFloat>("Scanline Y", juce::NormalisableRange<float>(0, 1), 0)
+            //->withModulation(Modulation(Modulation::Sources::PRESSURE, modulationAmount))
             ->withModulation(Modulation(Modulation::Sources::TIMBRE, modulationAmount));
 
 
