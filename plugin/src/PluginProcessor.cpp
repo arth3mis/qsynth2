@@ -166,14 +166,6 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     audioProcessor.processBlock(buffer, midiMessages);
 
 
-
-    for (const auto &m : midiMessages) {
-        const auto midiEvent = m.getMessage();
-        const auto midiEventSample = static_cast<int>(midiEvent.getTimeStamp());
-
-        juce::Logger::writeToLog(midiEvent.getDescription());
-    }
-
 }
 
 //==============================================================================

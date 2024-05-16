@@ -25,6 +25,8 @@ public:
         sampleRate = newSampleRate;
 
         frequency.reset(newSampleRate, 0.040);
+
+        scanner.prepareToPlay(newSampleRate);
     }
 
     void restart(const juce::MPENote& note) {

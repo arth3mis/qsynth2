@@ -5,27 +5,14 @@
 
 #include "juce_audio_processors/juce_audio_processors.h"
 
-
 class AJAudioProcessor {
 public:
 
-    AJAudioProcessor() {
-        synth.setVoiceStealingEnabled (false); // TODO: Parameter
-        for (auto i = 0; i < 15; ++i)
-            synth.addVoice (new Voice());
-    }
+    AJAudioProcessor();
 
-    void prepareToPlay(double sampleRate, int samplesPerBlock) {
-        synth.setCurrentPlaybackSampleRate(sampleRate);
+    void prepareToPlay(double sampleRate, int samplesPerBlock);
 
-        juce::ignoreUnused (samplesPerBlock);
-
-    }
-
-    void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) {
-        synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-
-    }
+    void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages);
 
 protected:
 
