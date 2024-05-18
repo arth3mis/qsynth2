@@ -9,6 +9,7 @@ class AJAudioProcessor {
 public:
 
     AJAudioProcessor();
+    ~AJAudioProcessor();
 
     void prepareToPlay(double sampleRate, int samplesPerBlock);
 
@@ -23,6 +24,8 @@ protected:
     size_t timestepCounter = 0;
     size_t bufferCounterDebug = 0;
     std::shared_ptr<Simulation> sim;
-    CSimMatrix simFrameCurrent;
+    CSimMatrix* simFrameCurrent;
+    long nextFrameRequest;
+    SimThread* st;
 
 };

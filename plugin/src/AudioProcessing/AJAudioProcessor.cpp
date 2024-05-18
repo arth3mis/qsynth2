@@ -16,11 +16,20 @@ AJAudioProcessor::AJAudioProcessor() {
     sharedData.simWidth = SIM_SIZE;
     sharedData.simHeight = SIM_SIZE;
 
-    sharedData.setSimulationDisplayFrame(std::dynamic_pointer_cast<QuantumSimulation>(sim)->getPsi());
+    st = new SimThread(sim);
+    st->started = true;
+    nextFrameRequest = 0;
+
+    // sharedData.setSimulationDisplayFrame(std::dynamic_pointer_cast<QuantumSimulation>(sim)->getPsi());
 
     synth.setVoiceStealingEnabled (false); // TODO: Parameter
     for (auto i = 0; i < 15; ++i)
-        synth.addVoice (new Voice(sim));
+        synth.addVoice (new Voice(sim, st));
+}
+
+AJAudioProcessor::~AJAudioProcessor() {
+    st->terminate = true;
+    delete st;
 }
 
 void AJAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
@@ -57,13 +66,22 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     timestepCounter++;
 
     sharedData.simulationStopwatch.start();
-    simFrameCurrent = sim->getNextFrame(0.2, {});
-    sharedData.setSimulationDisplayFrame(simFrameCurrent);//.map<num>([](const cnum c){ return std::abs(c); }));
+    simFrameCurrent = st->getFrame(nextFrameRequest);
+    if (simFrameCurrent == nullptr) {
+        juce::Logger::writeToLog("frame request failed for i="+juce::String(nextFrameRequest));
+    } else {
+        nextFrameRequest = st->newestFrame;
+        sharedData.setSimulationDisplayFrame(*simFrameCurrent);
+        juce::Logger::writeToLog(juce::String(st->newestFrame) + " frames created, " + juce::String(timestepCounter)
+            +" requested. total size [GB] = ~"+juce::String(static_cast<double>(st->newestFrame) * 128*128*sizeof(cnum) / 1000000000, 3));
+    }
+    // simFrameCurrent = sim->getNextFrame(0.2, {});
+    // sharedData.setSimulationDisplayFrame(simFrameCurrent);//.map<num>([](const cnum c){ return std::abs(c); }));
     sharedData.simulationStopwatch.stop();
 
     sharedData.blockStopwatch.stop();
 
-    if (timestepCounter % steps != 0)
+    if (timestepCounter % steps != 0 || true)
         return;
 
     juce::Logger::writeToLog("samples = "+juce::String(bufferCounterDebug)+"; timesteps = "+juce::String(timestepCounter));

@@ -55,6 +55,12 @@ public:
         }
     }
 
+    void forEach(std::function<void(T)> consumer) {
+        for (size_t i = 0; i < this->size(); ++i) {
+            consumer(this->at(i));
+        }
+    }
+
     static double sumOf(const List<double>& list) {
         double sum = 0;
         for (const double x : list) {

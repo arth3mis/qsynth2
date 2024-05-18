@@ -10,10 +10,12 @@
 class Voice : public juce::MPESynthesiserVoice {
 public:
 
-    Voice(const std::shared_ptr<Simulation>& simRef)
+    Voice(const std::shared_ptr<Simulation>& simRef, SimThread* simThread)
         : sonifier(simRef) {
+        st = simThread;
     }
 
+    SimThread* st;
 
     void noteStarted() override {
         jassert (currentlyPlayingNote.isValid());
@@ -31,6 +33,7 @@ public:
 
         sonifier.restart(currentlyPlayingNote);
 
+        // st->started = true;
     }
 
 
@@ -39,12 +42,13 @@ public:
 
         gain = 0.0;
 
+        // st->started = false;
+
         // TODO: Note off behaviour
 
         if (!allowTailOff) {
             return;
         }
-
 
     }
 
