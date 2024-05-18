@@ -23,6 +23,6 @@ protected:
     size_t timestepCounter = 0;
     size_t bufferCounterDebug = 0;
     std::shared_ptr<Simulation> sim;
-    const CSimMatrix *simFrameCurrent;
+    CSimMatrix simFrameCurrent;
 
 };

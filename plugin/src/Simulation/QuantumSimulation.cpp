@@ -13,13 +13,9 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
     , H(height)
     , w(static_cast<num>(width))
     , h(static_cast<num>(height)) {
-    initialPsi = new CSimMatrix(H, W);
-    psi = new CSimMatrix(H, W);
-    psiFFT = new CSimMatrix(H, W);
-
-    initialPsi->setZero();
-    psi->setZero();
-    psiFFT->setZero();
+    initialPsi = CSimMatrix::Zero(H, W);
+    psi = CSimMatrix::Zero(H, W);
+    psiFFT = CSimMatrix::Zero(H, W);
 
     started = false;
 
@@ -107,10 +103,10 @@ QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2 offset, cons
     return *this;
 }
 
-const CSimMatrix* QuantumSimulation::getNextFrame(const num timestep, const ModulationData& modulationData) {
+const CSimMatrix& QuantumSimulation::getNextFrame(const num timestep, const ModulationData& modulationData) {
     if (!started) {
         started = true;
-        *psi = *initialPsi;
+        psi = initialPsi;
     }
 
     calculateNextPsi(timestep);
@@ -126,24 +122,23 @@ void QuantumSimulation::calculateNextPsi(const num timestep) {
 
     // potential part
     sharedData.simPotStopwatch.start();
-    // ans->;
-    psi->operator*=(static_cast<CSimMatrix>(Eigen::exp(potentials.sum() * cnum(0, 1) * timestep)));
+    psi*=(static_cast<CSimMatrix>(Eigen::exp(potentials.sum() * cnum(0, 1) * timestep)));
     sharedData.simPotStopwatch.stop();
 
     // FFT (to impulse domain)
     sharedData.simFftStopwatch.start();
     pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },
-    true, psi->data(), psiFFT->data(), static_cast<num>(1.0 / std::sqrt(w*h)));
+    true, psi.data(), psiFFT.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
     sharedData.simFftStopwatch.stop();
 
     // kinetic part
     sharedData.simKinStopwatch.start();
-    psiFFT->operator*=(static_cast<CSimMatrix>(Eigen::exp(thetaPrecalc * timestep * cnum(0, 1))));
+    psiFFT*=(static_cast<CSimMatrix>(Eigen::exp(thetaPrecalc * timestep * cnum(0, 1))));
     sharedData.simKinStopwatch.stop();
 
     // inverse FFT (to spatial domain)
     sharedData.simFftStopwatch.start();
     pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },
-    false, psiFFT->data(), psi->data(), static_cast<num>(1.0 / std::sqrt(w*h)));
+    false, psiFFT.data(), psi.data(), static_cast<num>(1.0 / std::sqrt(w*h)));
     sharedData.simFftStopwatch.stop();
 }

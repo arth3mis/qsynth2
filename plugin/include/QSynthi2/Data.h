@@ -24,6 +24,7 @@ public:
     Stopwatch simFftStopwatch           {"Sim FFT       "};
     Stopwatch simKinStopwatch           {"Sim Kin       "};
     Stopwatch simPotStopwatch           {"Sim Pot       "};
+    Stopwatch blockStopwatch            {"Block         "};
 
 
 

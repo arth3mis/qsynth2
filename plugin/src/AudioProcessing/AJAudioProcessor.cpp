@@ -16,7 +16,7 @@ AJAudioProcessor::AJAudioProcessor() {
     sharedData.simWidth = SIM_SIZE;
     sharedData.simHeight = SIM_SIZE;
 
-    sharedData.setSimulationDisplayFrame(*std::dynamic_pointer_cast<QuantumSimulation>(sim)->getPsi());
+    sharedData.setSimulationDisplayFrame(std::dynamic_pointer_cast<QuantumSimulation>(sim)->getPsi());
 
     synth.setVoiceStealingEnabled (false); // TODO: Parameter
     for (auto i = 0; i < 15; ++i)
@@ -31,7 +31,7 @@ void AJAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
 }
 
 void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages) {
-
+    sharedData.blockStopwatch.start();
     /*
      *     for (const auto &m : midiMessages) {
     const auto midiEvent = m.getMessage();
@@ -58,8 +58,10 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
 
     sharedData.simulationStopwatch.start();
     simFrameCurrent = sim->getNextFrame(0.2, {});
-    sharedData.setSimulationDisplayFrame(*simFrameCurrent);//.map<num>([](const cnum c){ return std::abs(c); }));
+    sharedData.setSimulationDisplayFrame(simFrameCurrent);//.map<num>([](const cnum c){ return std::abs(c); }));
     sharedData.simulationStopwatch.stop();
+
+    sharedData.blockStopwatch.stop();
 
     if (timestepCounter % steps != 0)
         return;
@@ -67,6 +69,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     juce::Logger::writeToLog("samples = "+juce::String(bufferCounterDebug)+"; timesteps = "+juce::String(timestepCounter));
 
     long per = bufferCounterDebug;
+    sharedData.blockStopwatch.print(per, "sample");
     sharedData.parameterStopwatch.print(per, "sample");
     sharedData.modulationStopwatch.print(per, "sample");
     sharedData.functionCallStopwatch.print(per, "sample");
