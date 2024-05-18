@@ -15,26 +15,6 @@ public:
     ModulatedParameterFloat(const juce::String& name, const juce::NormalisableRange<float>& range, float defaultValue, float sliderSmoothingSeconds = 0.1f);
 
 
-    float getNormalizedBaseValue(const ModulationData& modulationData);
-
-
-    float getNormalized(const ModulationData &modulationData) {
-        float value = getNormalizedBaseValue(modulationData);
-
-        /*
-        for (auto& modulator : modulations) {
-            value += modulator.getNormalized(modulationData);
-        }
-         */
-
-        for (size_t i = 0; i < modulations.size(); ++i) {
-            value += modulations[i].getNormalized(modulationData);
-        }
-
-        return value;
-    }
-
-
     float getModulated(const ModulationData& modulationData);
 
 
@@ -59,5 +39,9 @@ protected:
     List<Modulation> modulations;
 
 
+    float getNormalizedBaseValue(const ModulationData& modulationData);
+
+
+    float getNormalized(const ModulationData &modulationData);
 
 };
