@@ -50,7 +50,8 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     bufferCounterDebug += buffer.getNumSamples();
 
     // TEMP simulation
-    if (time++ % static_cast<size_t>(44100 / buffer.getNumSamples() / 100) != 0) {
+    const int steps = 100;
+    if (time++ % static_cast<size_t>(44100 / buffer.getNumSamples() / steps) != 0) {
         return;
     }
     timestepCounter++;
@@ -60,16 +61,20 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     sharedData.setSimulationDisplayFrame(*simFrameCurrent);//.map<num>([](const cnum c){ return std::abs(c); }));
     sharedData.simulationStopwatch.stop();
 
-    long ref = sharedData.modulationStopwatch.get();
+    if (timestepCounter % steps != 0)
+        return;
 
-    sharedData.parameterStopwatch.print(ref);
-    sharedData.modulationStopwatch.print();
-    sharedData.functionCallStopwatch.print(ref);
+    juce::Logger::writeToLog("samples = "+juce::String(bufferCounterDebug)+"; timesteps = "+juce::String(timestepCounter));
 
-    long per = timestepCounter;
-    sharedData.simulationStopwatch.print(0, per);
+    long per = bufferCounterDebug;
+    sharedData.parameterStopwatch.print(per, "sample");
+    sharedData.modulationStopwatch.print(per, "sample");
+    sharedData.functionCallStopwatch.print(per, "sample");
 
-    sharedData.simPotStopwatch.print(0, per);
-    sharedData.simFftStopwatch.print(0, per);
-    sharedData.simKinStopwatch.print(0, per);
+    per = timestepCounter;
+    sharedData.simulationStopwatch.print(per, "timestep");
+
+    sharedData.simPotStopwatch.print(per, "timestep");
+    sharedData.simFftStopwatch.print(per, "timestep");
+    sharedData.simKinStopwatch.print(per, "timestep");
 }

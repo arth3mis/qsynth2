@@ -39,12 +39,11 @@ public:
         return nanoseconds;
     }
 
-    void print(long ref=0, long per=0) {
+    void print(long per=0, juce::String perName="") {
 #if STOPWATCH_ACTIVE==1
-        juce::Logger::writeToLog(name + " took " + juce::String(nanoseconds/1000000)
-            + " ms (" + (ref==0?"":juce::String(static_cast<double>(nanoseconds) / ref * 100, 2))
-            + (ref==0?")":"% of ref / ")
-            + (per==0?"":" "+juce::String(nanoseconds/1000000.0 / per, 4)) + (per==0?"":" ms per timestep)."));
+        juce::Logger::writeToLog(name + " took " + juce::String(nanoseconds/1000000) + " ms"
+            // + (ref==0?"":" - "+juce::String(static_cast<double>(nanoseconds) / ref * 100, 2)) + (ref==0?"":"% of ref")
+            + (per==0?"":" - "+juce::String(nanoseconds/1000000.0 / per, 4)) + (per==0?"":" ms per "+perName));
 #endif
     }
 

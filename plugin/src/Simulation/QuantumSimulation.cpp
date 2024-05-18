@@ -13,9 +13,9 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
     , H(height)
     , w(static_cast<num>(width))
     , h(static_cast<num>(height)) {
-    initialPsi = new CSimMatrix();
-    psi = new CSimMatrix();
-    psiFFT = new CSimMatrix();
+    initialPsi = new CSimMatrix(H, W);
+    psi = new CSimMatrix(H, W);
+    psiFFT = new CSimMatrix(H, W);
 
     initialPsi->setZero();
     psi->setZero();
@@ -126,6 +126,7 @@ void QuantumSimulation::calculateNextPsi(const num timestep) {
 
     // potential part
     sharedData.simPotStopwatch.start();
+    // ans->;
     psi->operator*=(static_cast<CSimMatrix>(Eigen::exp(potentials.sum() * cnum(0, 1) * timestep)));
     sharedData.simPotStopwatch.stop();
 

@@ -5,6 +5,9 @@
 
 SimFrame Data::getSimulationDisplayFrame() {
     std::lock_guard lock(frameAccessMutex);
+    // if (simulationDisplayFrame == nullptr)
+        // return nullptr;
+    // return new SimFrame(*simulationDisplayFrame);
     return simulationDisplayFrame;
 }
 

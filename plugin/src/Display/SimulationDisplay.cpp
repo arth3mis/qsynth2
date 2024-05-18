@@ -34,9 +34,9 @@ void SimulationDisplay::timerCallback() {
 
 void SimulationDisplay::drawSimulation(juce::Graphics &g) {
     const auto frame = sharedData.getSimulationDisplayFrame();
-    // if (frame.empty()) {
-    //     return;
-    // }
+    if (frame.size() == 0) {
+        return;
+    }
 
     const size_t w = SIM_W;
     const size_t h = SIM_H;

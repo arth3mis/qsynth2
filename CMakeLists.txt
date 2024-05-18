@@ -81,9 +81,11 @@ else()
     # optimizations TODO
 
     add_compile_options(
-#            -march=native                       # vectorization
             -O3
-            -DEIGEN_STACK_ALLOCATION_LIMIT=0    # allow large Eigen objects on stack
+            -march=native                       # vectorization
+#            -ffast-math
+#            -fmath-errno
+#            -DEIGEN_STACK_ALLOCATION_LIMIT=0    # allow large Eigen objects on stack
     )
 
     IF (${CMAKE_BUILD_TYPE} STREQUAL "Release")
