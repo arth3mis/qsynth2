@@ -17,7 +17,7 @@ public:
 
     ParameterCollection parameters;
 
-
+    std::atomic<size_t> scanlineY{0};
 
     Stopwatch functionCallStopwatch     {"Function calls"};
     Stopwatch parameterStopwatch        {"Parameters    "};

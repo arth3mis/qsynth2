@@ -28,13 +28,15 @@ num Scanner::getValueAt(num at, const ModulationData& modulationData) {
     // TODO
 
     num x = 128 * at;
-    size_t y = (size_t)(128*sharedData.parameters.timbre->getModulated(modulationData));
+    size_t y = 127 - (size_t)(128*sharedData.parameters.timbre->getModulated(modulationData));
     num t = fmod(x, (num)1);
 
     num floorX = floor(x);
     num ceilX = ceil(x);
 
     juce::Logger::writeToLog(juce::String(std::abs(simFrameCurrent[0])));
+
+    sharedData.scanlineY = y;
 
     return (1-t) * std::abs(simFrameCurrent[(size_t)(floorX*128)+y]) + t * std::abs(simFrameCurrent[(size_t)(ceilX*128)+y]);
 
