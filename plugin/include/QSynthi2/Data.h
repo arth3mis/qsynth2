@@ -25,6 +25,7 @@ public:
     Stopwatch simKinStopwatch           {"Sim Kin       "};
     Stopwatch simPotStopwatch           {"Sim Pot       "};
     Stopwatch blockStopwatch            {"Block         "};
+    Stopwatch totalStopwatch            {"total sim     "};
 
 
 

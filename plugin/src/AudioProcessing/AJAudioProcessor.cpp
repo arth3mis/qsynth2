@@ -18,6 +18,7 @@ AJAudioProcessor::AJAudioProcessor() {
 
     st = new SimThread(sim);
     st->started = true;
+    sharedData.totalStopwatch.start();
     nextFrameRequest = 0;
 
     // sharedData.setSimulationDisplayFrame(std::dynamic_pointer_cast<QuantumSimulation>(sim)->getPsi());
@@ -29,6 +30,9 @@ AJAudioProcessor::AJAudioProcessor() {
 
 AJAudioProcessor::~AJAudioProcessor() {
     st->terminate = true;
+    sharedData.totalStopwatch.stop();
+    sharedData.totalStopwatch.print();
+    juce::Logger::writeToLog("Avg. FPS = " + juce::String(st->newestFrame / (sharedData.totalStopwatch.get()/1000000000.0), 1));
     delete st;
 }
 
@@ -81,7 +85,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
 
     sharedData.blockStopwatch.stop();
 
-    if (timestepCounter % steps != 0 || true)
+    if (timestepCounter % steps != 0)
         return;
 
     juce::Logger::writeToLog("samples = "+juce::String(bufferCounterDebug)+"; timesteps = "+juce::String(timestepCounter));
