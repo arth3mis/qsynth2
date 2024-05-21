@@ -5,11 +5,10 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "juce_audio_processors/juce_audio_processors.h"
-#include "QSynthi2/List/list.h"
+#include "QSynthi2/Juce.h"
+#include "QSynthi2/List/List.h"
 #include "QSynthi2/List/Vector.h"
-#include "Eigen/Dense"
-
+#include "QSynthi2/Eigen.h"
 
 #define SIM_W 128
 #define SIM_H 128
@@ -22,10 +21,8 @@ typedef std::complex<num> cnum;
 typedef List<cnum> CList;
 typedef List<num> RList;
 
-// typedef Eigen::Array<cnum, SIM_H, SIM_W> CSimMatrix;
-// typedef Eigen::Array<num, SIM_H, SIM_W> RSimMatrix;
 typedef Eigen::Array<cnum, Eigen::Dynamic, Eigen::Dynamic> CSimMatrix;
-typedef Eigen::Array<num, SIM_H, SIM_W> RSimMatrix;
+typedef Eigen::Array<num, Eigen::Dynamic, Eigen::Dynamic> RSimMatrix;
 
 typedef CSimMatrix SimFrame;
 

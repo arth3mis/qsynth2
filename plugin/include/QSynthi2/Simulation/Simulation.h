@@ -2,8 +2,6 @@
 #define SIMULATION_H
 
 #include "QSynthi2/types.h"
-#include "QSynthi2/List/list.h"
-
 
 class Simulation {
 public:
@@ -54,7 +52,7 @@ public:
         newestFrame = static_cast<long>(frameBuffer.append(f));
     }
 
-    CSimMatrix* getFrame(const size_t i) {
+    CSimMatrix* getFrame(const long i) {
         std::lock_guard lock(frameAccessMutex);
         if (newestFrame == -1 || i > newestFrame) {
             return nullptr;

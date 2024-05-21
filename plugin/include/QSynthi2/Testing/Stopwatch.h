@@ -1,18 +1,18 @@
 #pragma once
 
-#include "juce_audio_processors/juce_audio_processors.h"
+#include "QSynthi2/Juce.h"
 
 #define STOPWATCH_ACTIVE 1
 
 class Stopwatch {
 public:
 
-    long nanoseconds;
+    long nanoseconds = 0;
     std::chrono::system_clock::time_point startTimePoint;
     bool isStarted = false;
     juce::String name;
 
-    Stopwatch(juce::String name) : name(name) {
+    Stopwatch(juce::String displayName) : name(displayName) {
 
     }
 
@@ -36,6 +36,8 @@ public:
     }
 
     long get() {
+        if (nanoseconds == 0)
+            return (std::chrono::system_clock::now() - startTimePoint) / std::chrono::nanoseconds(1);
         return nanoseconds;
     }
 

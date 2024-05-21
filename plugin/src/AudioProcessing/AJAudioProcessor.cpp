@@ -69,26 +69,27 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     }
     timestepCounter++;
 
-    sharedData.simulationStopwatch.start();
     simFrameCurrent = st->getFrame(nextFrameRequest);
     if (simFrameCurrent == nullptr) {
-        juce::Logger::writeToLog("frame request failed for i="+juce::String(nextFrameRequest));
+        if (timestepCounter % steps == 0)
+            juce::Logger::writeToLog("frame request failed for i="+juce::String(nextFrameRequest));
     } else {
         nextFrameRequest = st->newestFrame;
         sharedData.setSimulationDisplayFrame(*simFrameCurrent);
-        juce::Logger::writeToLog(juce::String(st->newestFrame) + " frames created, " + juce::String(timestepCounter)
-            +" requested. total size [GB] = ~"+juce::String(static_cast<double>(st->newestFrame) * 128*128*sizeof(cnum) / 1000000000, 3));
+        if (timestepCounter % steps == 0)
+            juce::Logger::writeToLog(juce::String(st->newestFrame) + " frames created, " + juce::String(timestepCounter)
+                +" requested. total size [GB] = ~"+juce::String(static_cast<double>(st->newestFrame) * 128*128*sizeof(cnum) / 1000000000, 3));
     }
     // simFrameCurrent = sim->getNextFrame(0.2, {});
     // sharedData.setSimulationDisplayFrame(simFrameCurrent);//.map<num>([](const cnum c){ return std::abs(c); }));
-    sharedData.simulationStopwatch.stop();
 
     sharedData.blockStopwatch.stop();
 
     if (timestepCounter % steps != 0)
         return;
 
-    juce::Logger::writeToLog("samples = "+juce::String(bufferCounterDebug)+"; timesteps = "+juce::String(timestepCounter));
+    juce::Logger::writeToLog("samples = "+juce::String(bufferCounterDebug));//+"; timesteps = "+juce::String(timestepCounter));
+    juce::Logger::writeToLog("Avg. FPS = " + juce::String(st->newestFrame / (sharedData.totalStopwatch.get()/1000000000.0), 1));
 
     long per = bufferCounterDebug;
     sharedData.blockStopwatch.print(per, "sample");
@@ -96,10 +97,8 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     sharedData.modulationStopwatch.print(per, "sample");
     sharedData.functionCallStopwatch.print(per, "sample");
 
-    per = timestepCounter;
-    sharedData.simulationStopwatch.print(per, "timestep");
-
-    sharedData.simPotStopwatch.print(per, "timestep");
-    sharedData.simFftStopwatch.print(per, "timestep");
-    sharedData.simKinStopwatch.print(per, "timestep");
+    per = st->newestFrame;
+    sharedData.simPotStopwatch.print(per, "frame");
+    sharedData.simFftStopwatch.print(per, "frame");
+    sharedData.simKinStopwatch.print(per, "frame");
 }

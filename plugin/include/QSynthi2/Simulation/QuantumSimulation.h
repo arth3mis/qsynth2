@@ -2,7 +2,6 @@
 #define QUANTUMSIMULATION_H
 #include <complex>
 
-#include "QSynthi2/Simulation/QuantumSimulationTypes.h"
 #include "QSynthi2/Simulation/Simulation.h"
 #include "QSynthi2/Simulation/Potential.h"
 
@@ -34,7 +33,8 @@ private:
     const float w, h;
 
     List<RSimMatrix> potentials;
-    RSimMatrix thetaPrecalc;
+    CSimMatrix potentialPrecalc;
+    CSimMatrix thetaPrecalc;
     CSimMatrix initialPsi;
     CSimMatrix psi;
     CSimMatrix psiFFT;
@@ -51,8 +51,8 @@ private:
     [[nodiscard]] size_t xIndexOf(const size_t i) const { return i / W; }
     [[nodiscard]] size_t yIndexOf(const size_t i) const { return i % W; }
     // coordinates [-1;1] to index
-    [[nodiscard]] size_t toX(const num cx) const { return std::max(0, std::min(static_cast<int>(W-1), static_cast<int>(cx * w/2 + w/2))); }
-    [[nodiscard]] size_t toY(const num cy) const { return std::max(0, std::min(static_cast<int>(H-1), static_cast<int>(cy * h/2 + h/2))); }
+    [[nodiscard]] size_t toX(const num cx) const { return std::max(0lu, std::min(W-1, static_cast<size_t>(cx * w/2 + w/2))); }
+    [[nodiscard]] size_t toY(const num cy) const { return std::max(0lu, std::min(H-1, static_cast<size_t>(cy * h/2 + h/2))); }
 };
 
 #endif //QUANTUMSIMULATION_H

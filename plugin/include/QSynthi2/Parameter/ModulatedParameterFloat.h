@@ -19,7 +19,7 @@ public:
 
 
     float getNormalized(const ModulationData &modulationData) {
-        float value = getNormalizedBaseValue(modulationData);
+        float val = getNormalizedBaseValue(modulationData);
 
         /*
         for (auto& modulator : modulations) {
@@ -28,10 +28,10 @@ public:
          */
 
         for (size_t i = 0; i < modulations.size(); ++i) {
-            value += modulations[i].getNormalized(modulationData);
+            val += modulations[i].getNormalized(modulationData);
         }
 
-        return value;
+        return val;
     }
 
 

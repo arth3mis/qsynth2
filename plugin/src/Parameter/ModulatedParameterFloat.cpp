@@ -14,11 +14,11 @@ ModulatedParameterFloat::ModulatedParameterFloat() :
 
 }
 
-ModulatedParameterFloat::ModulatedParameterFloat(const juce::String &name, const juce::NormalisableRange<float> &range,
-                                                 float defaultValue, float sliderSmoothingSeconds) :
-        juce::AudioParameterFloat(juce::ParameterID(name, Parameters::VERSION), name, range, defaultValue),
-        sliderSmoothingSeconds(sliderSmoothingSeconds),
-        smoothedValue(range.convertTo0to1(defaultValue)) {
+ModulatedParameterFloat::ModulatedParameterFloat(const juce::String &name_, const juce::NormalisableRange<float> &range_,
+                                                 float defaultValue, float sliderSmoothingSeconds_) :
+        juce::AudioParameterFloat(juce::ParameterID(name_, Parameters::VERSION), name_, range_, defaultValue),
+        sliderSmoothingSeconds(sliderSmoothingSeconds_),
+        smoothedValue(range_.convertTo0to1(defaultValue)) {
 
 }
 
@@ -30,12 +30,12 @@ float ModulatedParameterFloat::getModulated(const ModulationData& modulationData
     sharedData.modulationStopwatch.start();
 
     // TODO: Clipping
-    float value = range.convertFrom0to1(getNormalized(modulationData));
+    float val = range.convertFrom0to1(getNormalized(modulationData));
 
     sharedData.modulationStopwatch.stop();
     sharedData.functionCallStopwatch.start();
 
-    return value;
+    return val;
 }
 
 float ModulatedParameterFloat::getNormalizedBaseValue(const ModulationData &modulationData) {
