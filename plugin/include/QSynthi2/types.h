@@ -1,17 +1,15 @@
-//
-// Created by art on 14.05.24.
-//
-
 #ifndef TYPES_H
 #define TYPES_H
+
+// suppress warnings
+#pragma GCC diagnostic ignored "-Wshadow"
+
 
 #include "QSynthi2/Juce.h"
 #include "QSynthi2/List/List.h"
 #include "QSynthi2/List/Vector.h"
 #include "QSynthi2/Eigen.h"
 
-#define SIM_W 128
-#define SIM_H 128
 
 typedef double num;
 typedef Vec2<num> V2;

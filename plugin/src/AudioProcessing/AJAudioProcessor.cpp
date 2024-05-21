@@ -97,8 +97,8 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     sharedData.modulationStopwatch.print(per, "sample");
     sharedData.functionCallStopwatch.print(per, "sample");
 
-    per = st->newestFrame;
-    sharedData.simPotStopwatch.print(per, "frame");
-    sharedData.simFftStopwatch.print(per, "frame");
-    sharedData.simKinStopwatch.print(per, "frame");
+    // per = st->newestFrame;
+    // sharedData.simPotStopwatch.print(per, "frame");
+    // sharedData.simFftStopwatch.print(per, "frame");
+    // sharedData.simKinStopwatch.print(per, "frame");
 }

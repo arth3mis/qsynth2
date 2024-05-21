@@ -52,7 +52,7 @@ public:
         newestFrame = static_cast<long>(frameBuffer.append(f));
     }
 
-    CSimMatrix* getFrame(const long i) {
+    CSimMatrix* getFrame(const size_t i) {
         std::lock_guard lock(frameAccessMutex);
         if (newestFrame == -1 || i > newestFrame) {
             return nullptr;
