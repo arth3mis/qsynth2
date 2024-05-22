@@ -2,8 +2,11 @@
 #define FFT_H
 
 #ifdef __GNUC__
-// Avoid library warnings
+#ifndef __clang__
 #pragma GCC system_header
+#else
+#pragma clang system_header
+#endif
 #endif
 
 #include "pocketfft_hdronly.h"

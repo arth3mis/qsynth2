@@ -1,8 +1,14 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-// suppress warnings
+// suppress warnings: https://stackoverflow.com/a/28166605
+#ifdef __GNUC__
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wshadow"
+#else
+#pragma clang diagnostic ignored "-Wshadow"
+#endif
+#endif
 
 
 #include "QSynthi2/Juce.h"
@@ -16,10 +22,10 @@ typedef Vec2<Decimal> V2;
 
 typedef std::complex<Decimal> Complex;
 
-typedef Eigen::Array<Complex, Eigen::Dynamic, Eigen::Dynamic> CSimMatrix;
-typedef Eigen::Array<Decimal, Eigen::Dynamic, Eigen::Dynamic> RSimMatrix;
+typedef Eigen::Array<Complex, Eigen::Dynamic, Eigen::Dynamic> ComplexMatrix;
+typedef Eigen::Array<Decimal, Eigen::Dynamic, Eigen::Dynamic> RealMatrix;
 
-typedef CSimMatrix SimFrame;
+typedef ComplexMatrix SimFrame;
 
 
 typedef std::unordered_map<juce::String, Decimal> ModulationData;

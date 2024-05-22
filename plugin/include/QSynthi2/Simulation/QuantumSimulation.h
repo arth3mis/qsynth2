@@ -19,10 +19,10 @@ public:
     void reset() override;
 
     // getters
-    const CSimMatrix& getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
+    const ComplexMatrix& getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
 
     // [[nodiscard]] const List<RList>& getPotentials() const { return potentials; }
-    [[nodiscard]] const CSimMatrix& getPsi() const { return started ? psi : initialPsi; }
+    [[nodiscard]] const ComplexMatrix& getPsi() const { return started ? psi : initialPsi; }
     [[nodiscard]] size_t getW() const { return W; }
     [[nodiscard]] size_t getH() const { return H; }
 
@@ -31,21 +31,21 @@ private:
     const size_t W, H;
     const float w, h;
 
-    List<RSimMatrix> potentials;
-    CSimMatrix potentialPrecalc;
-    CSimMatrix thetaPrecalc;
-    CSimMatrix initialPsi;
-    CSimMatrix psi;
-    CSimMatrix psiFFT;
+    List<RealMatrix> potentials;
+    ComplexMatrix potentialPrecalc;
+    ComplexMatrix thetaPrecalc;
+    ComplexMatrix initialPsi;
+    ComplexMatrix psi;
+    ComplexMatrix psiFFT;
     bool started;
 
     void calculateNextPsi(Decimal timestep);
 
     // returns pointer to psi for started simulation, else initialPsi
-    CSimMatrix* getPsiToChange() { return started ? &psi : &initialPsi; }
+    ComplexMatrix* getPsiToChange() { return started ? &psi : &initialPsi; }
 
     // index to coordinates, normalized to [-1;1]
-    [[nodiscard]] Decimal xOf(const size_t i) const { return (static_cast<Decimal>(i / W) - w/2) / (w/2); }
+    [[nodiscard]] Decimal xOf(const size_t i) const { return (static_cast<Decimal>(i / W) - w/2) / (w/2); }  // NOLINT(*-integer-division)
     [[nodiscard]] Decimal yOf(const size_t i) const { return (static_cast<Decimal>(i % W) - h/2) / (h/2); }
     [[nodiscard]] size_t xIndexOf(const size_t i) const { return i / W; }
     [[nodiscard]] size_t yIndexOf(const size_t i) const { return i % W; }

@@ -1,5 +1,6 @@
 #include "QSynthi2/AudioProcessing/AJAudioProcessor.h"
 #include "QSynthi2/Simulation/QuantumSimulation.h"
+#include "QSynthi2/Synthesizer/Voice.h"
 #include "QSynthi2/Data.h"
 
 extern Data sharedData;
@@ -41,7 +42,7 @@ void AJAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
 
 }
 
-void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages) {
+void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce::MidiBuffer &midiMessages) {
     sharedData.blockStopwatch.start();
     /*
      *     for (const auto &m : midiMessages) {
@@ -63,7 +64,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     bufferCounterDebug += buffer.getNumSamples();
 
     // TEMP simulation
-    const int steps = 100;
+    constexpr int steps = 100;
     if (time++ % static_cast<size_t>(samplerate / buffer.getNumSamples() / steps) != 0) {
         return;
     }
@@ -76,7 +77,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     } else {
         nextFrameRequest = st->newestFrame;
         sharedData.setSimulationDisplayFrame(*simFrameCurrent);
-        sharedData.currentFrame = simFrameCurrent;
+        sharedData.setSimulationScanFrame(*simFrameCurrent);
         if (timestepCounter % steps == 0)
             juce::Logger::writeToLog(juce::String(st->newestFrame) + " frames created, " + juce::String(timestepCounter)
                 +" requested. total size [GB] = ~"+juce::String(static_cast<double>(st->newestFrame) * 128*128*sizeof(Complex) / 1000000000, 3));

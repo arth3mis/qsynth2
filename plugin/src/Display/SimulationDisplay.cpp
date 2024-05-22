@@ -9,8 +9,7 @@ SimulationDisplay::SimulationDisplay() {
     startTimerHz(30);
 }
 
-SimulationDisplay::~SimulationDisplay() {
-}
+SimulationDisplay::~SimulationDisplay() = default;
 
 void SimulationDisplay::paint(juce::Graphics &g) {
     g.fillAll (juce::Colours::black);

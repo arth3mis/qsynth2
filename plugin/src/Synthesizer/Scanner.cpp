@@ -27,16 +27,16 @@ Decimal Scanner::getValueAt(Decimal at, const ModulationData& modulationData) {
     // TODO
 
     Decimal x = 128 * at;
-    size_t y = 127 - (size_t)(128 * sharedData.parameters.timbre->getModulated(modulationData));
+    long y = 127 - (size_t)(128 * sharedData.parameters.timbre->getModulated(modulationData));
     Decimal t = fmod(x, (Decimal)1);
 
-    Decimal floorX = floor(x);
-    Decimal ceilX = ceil(x);
+    long floorX = floor(x);
+    long ceilX = std::min(127.0, ceil(x));
 
     // juce::Logger::writeToLog(juce::String(std::abs(frame(0,0))));
 
     sharedData.scanlineY = y;
-    auto frame = sharedData.currentFrame;
+    auto frame = sharedData.getSimulationScanFrame();
 
     return (1-t) * std::abs(frame->coeff(y, floorX)) + t * std::abs(frame->coeff(y, ceilX));
 

@@ -8,7 +8,7 @@ public:
 
     virtual ~Simulation() = default;
 
-    virtual const CSimMatrix& getNextFrame(Decimal timestep, const ModulationData& modulationData) = 0;
+    virtual const ComplexMatrix& getNextFrame(Decimal timestep, const ModulationData& modulationData) = 0;
     virtual void reset() = 0;
 };
 
@@ -16,6 +16,7 @@ public:
 #include <thread>
 #include <mutex>
 #include <chrono>
+#include <memory>
 class SimThread {
 public:
 
@@ -29,13 +30,13 @@ public:
 
     ~SimThread() {
         t.join();
-        frameBuffer.forEach([](const CSimMatrix* m) { delete m; });
+        frameBuffer.forEach([](const ComplexMatrix* m) { delete m; });
     }
 
     void simulationLoop() {
         while (!terminate) {
             if (started) {
-                appendFrame(new CSimMatrix(sim->getNextFrame(0.2, {})));
+                appendFrame(new ComplexMatrix(sim->getNextFrame(0.2, {})));
             } else {
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
@@ -47,12 +48,12 @@ public:
     //      (e.g. when a request for i=0 comes in and 1000-10000 are missing, start calcing them immediately
     //      -> maybe add more worker threads to do so?
 
-    void appendFrame(CSimMatrix* f) {
+    void appendFrame(ComplexMatrix* f) {
         std::lock_guard lock(frameAccessMutex);
         newestFrame = static_cast<long>(frameBuffer.append(f));
     }
 
-    CSimMatrix* getFrame(const size_t i) {
+    ComplexMatrix* getFrame(const size_t i) {
         std::lock_guard lock(frameAccessMutex);
         if (newestFrame == -1 || i > newestFrame) {
             return nullptr;
@@ -70,7 +71,7 @@ public:
 private:
     std::thread t;
     std::shared_ptr<Simulation> sim;
-    List<CSimMatrix*> frameBuffer;
+    List<ComplexMatrix*> frameBuffer;
 };
 
 #endif //SIMULATION_H

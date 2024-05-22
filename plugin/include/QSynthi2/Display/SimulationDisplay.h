@@ -3,10 +3,11 @@
 
 #include <QSynthi2/Juce.h>
 
-class SimulationDisplay : public juce::Component, juce::Timer {
+class SimulationDisplay final : public juce::Component, juce::Timer {
 public:
+
     SimulationDisplay();
-    ~SimulationDisplay();
+    ~SimulationDisplay() override;
 
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -14,6 +15,7 @@ public:
     void timerCallback() override;
 
 private:
+
     void drawSimulation(juce::Graphics& g);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimulationDisplay)

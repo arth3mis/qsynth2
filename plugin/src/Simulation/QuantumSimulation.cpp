@@ -2,12 +2,9 @@
 
 #include "QSynthi2/Simulation/QuantumSimulation.h"
 #include "QSynthi2/Juce.h"
-#include "QSynthi2/Data.h"
 
 #define POCKETFFT_NO_MULTITHREADING
 #include "QSynthi2/FFT.h"
-
-extern Data sharedData;
 
 QuantumSimulation::QuantumSimulation(const int width, const int height)
     : Simulation()
@@ -15,10 +12,10 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
     , H(height)
     , w(static_cast<Decimal>(width))
     , h(static_cast<Decimal>(height)) {
-    initialPsi = CSimMatrix::Zero(H, W);
-    psi = CSimMatrix::Zero(H, W);
-    psiFFT = CSimMatrix::Zero(H, W);
-    thetaPrecalc = CSimMatrix(H, W);
+    initialPsi = ComplexMatrix::Zero(H, W);
+    psi = ComplexMatrix::Zero(H, W);
+    psiFFT = ComplexMatrix::Zero(H, W);
+    thetaPrecalc = ComplexMatrix(H, W);
 
     started = false;
 
@@ -42,7 +39,7 @@ QuantumSimulation& QuantumSimulation::addPotential(const Potential p) {
 }
 
 QuantumSimulation& QuantumSimulation::parabolaPotential(const V2 offset, const V2 factor) {
-    const size_t h = potentials.append(RSimMatrix::Zero(H, W));
+    const size_t h = potentials.append(RealMatrix::Zero(H, W));
     for (int i = 0; i < W * H; ++i) {
         const Decimal x = xOf(i) - offset.x;
         const Decimal y = yOf(i) - offset.y;
@@ -63,7 +60,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2 pos, const int w
         else
             slitIndices.push_back(Vec2(toY(s.x), toY(s.y)));
     }
-    const size_t h = potentials.append(RSimMatrix::Zero(H, W));
+    const size_t h = potentials.append(RealMatrix::Zero(H, W));
     // horizontal barrier
     if (std::isnan(pos.x)) {
         for (int i = 0; i < W; ++i) {
@@ -109,7 +106,7 @@ QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2 offset, cons
     return *this;
 }
 
-const CSimMatrix& QuantumSimulation::getNextFrame(const Decimal timestep, const ModulationData& modulationData) {
+const ComplexMatrix& QuantumSimulation::getNextFrame(const Decimal timestep, const ModulationData& modulationData) {
     if (!started) {
         started = true;
         psi = initialPsi;
@@ -124,27 +121,20 @@ void QuantumSimulation::reset() {
 }
 
 void QuantumSimulation::calculateNextPsi(const Decimal timestep) {
-    const pocketfft::stride_t stride{ static_cast<long int>(H * sizeof(Complex)), sizeof(Complex) };
+    static const pocketfft::stride_t stride{ static_cast<long>(H * sizeof(Complex)), sizeof(Complex) };
+    static const pocketfft::shape_t shape{ W, H };
 
     // potential part
-    // sharedData.simPotStopwatch.start();
     psi *= Eigen::exp(potentialPrecalc * timestep);
-    // sharedData.simPotStopwatch.stop();
 
     // FFT (to impulse domain)
-    // sharedData.simFftStopwatch.start();
-    pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },
+    pocketfft::c2c(shape, stride, stride, { 0, 1 },
     true, psi.data(), psiFFT.data(), static_cast<Decimal>(1.0 / std::sqrt(w*h)));
-    // sharedData.simFftStopwatch.stop();
 
     // kinetic part
-    // sharedData.simKinStopwatch.start();
     psiFFT *= Eigen::exp(thetaPrecalc * timestep);
-    // sharedData.simKinStopwatch.stop();
 
     // inverse FFT (to spatial domain)
-    // sharedData.simFftStopwatch.start();
-    pocketfft::c2c({ W, H }, stride, stride, { 0, 1 },
+    pocketfft::c2c(shape, stride, stride, { 0, 1 },
     false, psiFFT.data(), psi.data(), static_cast<Decimal>(1.0 / std::sqrt(w*h)));
-    // sharedData.simFftStopwatch.stop();
 }
