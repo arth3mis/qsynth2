@@ -1,10 +1,6 @@
-//
-// Created by Jannis Müller on 14.05.24.
-//
 #include "QSynthi2/Parameter/ModulatedParameterFloat.h"
 #include "QSynthi2/Parameter/Parameters.h"
 #include "QSynthi2/Data.h"
-
 
 extern Data sharedData;
 
@@ -21,9 +17,6 @@ ModulatedParameterFloat::ModulatedParameterFloat(const juce::String &name, const
         smoothedValue(range.convertTo0to1(defaultValue)) {
 
 }
-
-
-
 
 float ModulatedParameterFloat::getModulated(const ModulationData& modulationData) {
     sharedData.functionCallStopwatch.stop();
@@ -49,4 +42,14 @@ float ModulatedParameterFloat::getNormalizedBaseValue(const ModulationData &modu
 
     smoothedValue.setTargetValue(range.convertTo0to1(rawValue));
     return smoothedValue.getNextValue();
+}
+
+float ModulatedParameterFloat::getNormalized(const ModulationData &modulationData) {
+    float value = getNormalizedBaseValue(modulationData);
+
+    for (auto& modulator : modulations) {
+        value += modulator.getNormalized(modulationData);
+    }
+
+    return value;
 }

@@ -1,7 +1,5 @@
-//
-// Created by Jannis Müller on 15.05.24.
-//
 #include "QSynthi2/AudioProcessing/AJAudioProcessor.h"
+#include "QSynthi2/Simulation/QuantumSimulation.h"
 #include "QSynthi2/Data.h"
 
 extern Data sharedData;
@@ -25,7 +23,7 @@ AJAudioProcessor::AJAudioProcessor() {
 
     synth.setVoiceStealingEnabled (false); // TODO: Parameter
     for (auto i = 0; i < 15; ++i)
-        synth.addVoice (new Voice(sim, st));
+        synth.addVoice (new Voice());
 }
 
 AJAudioProcessor::~AJAudioProcessor() {
@@ -54,6 +52,8 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     }
      */
 
+    constexpr int samplerate = 44100;
+
 
     sharedData.functionCallStopwatch.start();
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
@@ -64,7 +64,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
 
     // TEMP simulation
     const int steps = 100;
-    if (time++ % static_cast<size_t>(44100 / buffer.getNumSamples() / steps) != 0) {
+    if (time++ % static_cast<size_t>(samplerate / buffer.getNumSamples() / steps) != 0) {
         return;
     }
     timestepCounter++;
@@ -76,9 +76,10 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     } else {
         nextFrameRequest = st->newestFrame;
         sharedData.setSimulationDisplayFrame(*simFrameCurrent);
+        sharedData.currentFrame = simFrameCurrent;
         if (timestepCounter % steps == 0)
             juce::Logger::writeToLog(juce::String(st->newestFrame) + " frames created, " + juce::String(timestepCounter)
-                +" requested. total size [GB] = ~"+juce::String(static_cast<double>(st->newestFrame) * 128*128*sizeof(cnum) / 1000000000, 3));
+                +" requested. total size [GB] = ~"+juce::String(static_cast<double>(st->newestFrame) * 128*128*sizeof(Complex) / 1000000000, 3));
     }
     // simFrameCurrent = sim->getNextFrame(0.2, {});
     // sharedData.setSimulationDisplayFrame(simFrameCurrent);//.map<num>([](const cnum c){ return std::abs(c); }));
@@ -91,11 +92,12 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::Midi
     juce::Logger::writeToLog("samples = "+juce::String(bufferCounterDebug));//+"; timesteps = "+juce::String(timestepCounter));
     juce::Logger::writeToLog("Avg. FPS = " + juce::String(st->newestFrame / (sharedData.totalStopwatch.get()/1000000000.0), 1));
 
-    long per = bufferCounterDebug;
-    sharedData.blockStopwatch.print(per, "sample");
-    sharedData.parameterStopwatch.print(per, "sample");
-    sharedData.modulationStopwatch.print(per, "sample");
-    sharedData.functionCallStopwatch.print(per, "sample");
+    long per = bufferCounterDebug / samplerate;
+    sharedData.blockStopwatch.print(per, "second");
+    sharedData.parameterStopwatch.print(per, "second");
+    sharedData.modulationStopwatch.print(per, "second");
+    sharedData.hashMapStopwatch.print(per, "second");
+    sharedData.functionCallStopwatch.print(per, "second");
 
     // per = st->newestFrame;
     // sharedData.simPotStopwatch.print(per, "frame");

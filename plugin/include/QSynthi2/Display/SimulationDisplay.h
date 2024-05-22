@@ -1,10 +1,7 @@
-//
-// Created by art on 15.05.24.
-//
-
 #ifndef SIMULATIONDISPLAY_H
 #define SIMULATIONDISPLAY_H
-#include <juce_audio_processors/juce_audio_processors.h>
+
+#include <QSynthi2/Juce.h>
 
 class SimulationDisplay : public juce::Component, juce::Timer {
 public:

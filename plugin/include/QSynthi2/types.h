@@ -6,25 +6,22 @@
 
 
 #include "QSynthi2/Juce.h"
-#include "QSynthi2/List/List.h"
-#include "QSynthi2/List/Vector.h"
+#include "QSynthi2/Container/List.h"    // needed by file that include types.h
+#include "QSynthi2/Container/Vector.h"
 #include "QSynthi2/Eigen.h"
 
 
-typedef double num;
-typedef Vec2<num> V2;
+typedef double Decimal;
+typedef Vec2<Decimal> V2;
 
-typedef std::complex<num> cnum;
+typedef std::complex<Decimal> Complex;
 
-typedef List<cnum> CList;
-typedef List<num> RList;
-
-typedef Eigen::Array<cnum, Eigen::Dynamic, Eigen::Dynamic> CSimMatrix;
-typedef Eigen::Array<num, Eigen::Dynamic, Eigen::Dynamic> RSimMatrix;
+typedef Eigen::Array<Complex, Eigen::Dynamic, Eigen::Dynamic> CSimMatrix;
+typedef Eigen::Array<Decimal, Eigen::Dynamic, Eigen::Dynamic> RSimMatrix;
 
 typedef CSimMatrix SimFrame;
 
 
-typedef std::unordered_map<juce::String, num> ModulationData;
+typedef std::unordered_map<juce::String, Decimal> ModulationData;
 
 #endif //TYPES_H

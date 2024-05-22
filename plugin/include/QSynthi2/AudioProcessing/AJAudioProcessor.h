@@ -1,9 +1,9 @@
 #pragma once
 
-#include <QSynthi2/Synthesizer/Voice.h>
-#include <QSynthi2/Synthesizer/Synthesiser.h>
-
+#include "QSynthi2/types.h"
 #include "QSynthi2/Juce.h"
+#include <QSynthi2/Synthesizer/Synthesiser.h>
+#include <QSynthi2/Simulation/Simulation.h>
 
 class AJAudioProcessor {
 public:
@@ -27,5 +27,4 @@ protected:
     CSimMatrix* simFrameCurrent;
     long nextFrameRequest;
     SimThread* st;
-
 };

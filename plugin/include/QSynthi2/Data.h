@@ -8,6 +8,7 @@
 
 class Data {
 public:
+
     SimFrame getSimulationDisplayFrame();
     void setSimulationDisplayFrame(const SimFrame& f);
     std::atomic<size_t> simWidth;
@@ -15,11 +16,13 @@ public:
 
     ParameterCollection parameters;
 
-
+    SimFrame *currentFrame;
+    std::atomic<size_t> scanlineY{0};
 
     Stopwatch functionCallStopwatch     {"Function calls"};
     Stopwatch parameterStopwatch        {"Parameters    "};
     Stopwatch modulationStopwatch       {"Modulation    "};
+    Stopwatch hashMapStopwatch          {"Read Hash Map "};
     Stopwatch simulationStopwatch       {"Simulation    "};
     Stopwatch simFftStopwatch           {"Sim FFT       "};
     Stopwatch simKinStopwatch           {"Sim Kin       "};
@@ -27,9 +30,8 @@ public:
     Stopwatch blockStopwatch            {"Block         "};
     Stopwatch totalStopwatch            {"total sim     "};
 
-
-
 private:
+
     SimFrame simulationDisplayFrame;
     std::mutex frameAccessMutex;
 };

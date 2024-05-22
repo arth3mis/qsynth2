@@ -1,28 +1,27 @@
 #pragma once
 
-
 #include "Scanner.h"
 
 class Sonifier {
 public:
 
-    Sonifier(const std::shared_ptr<Simulation>& simRef)
-        : scanner(simRef)
-        , frequency(100) {
+    Sonifier()
+        : frequency(100) {
     }
 
-    num getNextSample(const juce::MPENote& note, const ModulationData& modulationData) {
+    Decimal getNextSample(const juce::MPENote& note, const ModulationData& modulationData) {
         scanner.nextSample();
 
-        frequency.setTargetValue((num)note.getFrequencyInHertz());
+        frequency.setTargetValue((Decimal)note.getFrequencyInHertz());
 
         phase += frequency.getNextValue() / sampleRate;
+        phase = std::fmod(phase, 1);
 
         return scanner.getValueAt(phase, modulationData);
         // TODO: Implement
     }
 
-    void prepareToPlay(num newSampleRate) {
+    void prepareToPlay(Decimal newSampleRate) {
         sampleRate = newSampleRate;
 
         frequency.reset(newSampleRate, 0.040);
@@ -31,7 +30,7 @@ public:
     }
 
     void restart(const juce::MPENote& note) {
-        frequency.setCurrentAndTargetValue((num)note.getFrequencyInHertz());
+        frequency.setCurrentAndTargetValue((Decimal)note.getFrequencyInHertz());
 
         scanner.restart();
     }
@@ -42,9 +41,9 @@ protected:
 
     Scanner scanner;
 
-    num sampleRate;
-    juce::SmoothedValue<num> frequency;
+    Decimal sampleRate;
+    juce::SmoothedValue<Decimal> frequency;
 
-    num phase = 0;
+    Decimal phase = 0;
 
 };

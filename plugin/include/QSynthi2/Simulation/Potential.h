@@ -1,7 +1,3 @@
-//
-// Created by art on 14.05.24.
-//
-
 #ifndef POTENTIAL_H
 #define POTENTIAL_H
 
@@ -18,7 +14,7 @@ public:
 private:
     const PotentialType type;
 
-    RList values;
+    // RList values;
 };
 
 class ParabolaPotential : public Potential {

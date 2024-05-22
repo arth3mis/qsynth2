@@ -1,6 +1,10 @@
 
 #include "QSynthi2/Parameter/Modulation.h"
 #include "QSynthi2/Parameter/ModulatedParameterFloat.h"
+#include "QSynthi2/Data.h"
+
+
+extern Data sharedData;
 
 Modulation::Modulation(juce::String modulationSource, ModulatedParameterFloat* amount):
     modulationSource(std::move(modulationSource)), amount(amount) {
@@ -9,7 +13,7 @@ Modulation::Modulation(juce::String modulationSource, ModulatedParameterFloat* a
 }
 
 float Modulation::getNormalizedBaseValue(const ModulationData &modulationData) {
-    return amount->getNormalized(modulationData);
+    return amount->getModulated(modulationData);
 }
 
 float Modulation::getNormalized(const ModulationData &modulationData) {
@@ -22,5 +26,13 @@ float Modulation::getNormalized(const ModulationData &modulationData) {
         value += modulator.getNormalized(modulationData);
     }
 
-    return value * modulationData.at(modulationSource);
+    sharedData.modulationStopwatch.stop();
+    sharedData.hashMapStopwatch.start();
+
+    value = value * (float)modulationData.at(modulationSource);
+
+    sharedData.hashMapStopwatch.stop();
+    sharedData.modulationStopwatch.start();
+
+    return value;
 }

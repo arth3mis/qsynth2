@@ -1,6 +1,3 @@
-//
-// Created by art on 15.05.24.
-//
 #include "QSynthi2/Display/SimulationDisplay.h"
 #include <chrono>
 #include <QSynthi2/Data.h>
@@ -22,7 +19,7 @@ void SimulationDisplay::paint(juce::Graphics &g) {
 
     g.setColour (juce::Colours::white);
     g.setFont (12.0f);
-    g.drawText (std::to_string(std::chrono::system_clock::now().time_since_epoch().count()), getLocalBounds(), juce::Justification::centredBottom, true);
+    //g.drawText (std::to_string(std::chrono::system_clock::now().time_since_epoch().count()), getLocalBounds(), juce::Justification::centredBottom, true);
 }
 
 void SimulationDisplay::resized() {
@@ -38,8 +35,9 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
         return;
     }
 
-    const size_t w = 128;
-    const size_t h = 128;
+    const size_t w = sharedData.simWidth;
+    const size_t h = sharedData.simHeight;
+    const size_t scanlineY = sharedData.scanlineY;
 
     const float vx = static_cast<float>(getWidth()) / static_cast<float>(w);
     const float vy = static_cast<float>(getHeight()) / static_cast<float>(h);
@@ -49,7 +47,7 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
 
     for (int x = 0; x < w; x++) {
         for (int y = 0; y < h; y++) {
-            num v = std::abs(frame(y, x));
+            Decimal v = std::abs(frame(y, x));
             int rgb = std::min(255, static_cast<int>(std::round(std::pow(std::abs(v), 0.66) * 255)));
             g.setColour(juce::Colour(rgb, rgb, rgb));
             // fill rectangle
@@ -60,5 +58,13 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
                 vy + yOverlap * 2));
         }
     }
+
+
+    g.setColour(juce::Colour(30.f, 0.2f, 1.f, 0.5f));
+    g.fillRect(juce::Rectangle(
+           0.f,
+           static_cast<float>(scanlineY) * vy - yOverlap,
+           (float)getWidth(),
+           vy + yOverlap * 2));
 
 }

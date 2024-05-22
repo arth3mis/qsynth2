@@ -1,21 +1,15 @@
 #pragma once
 
-#include <utility>
-
-#include "QSynthi2/Juce.h"
 #include "QSynthi2/types.h"
+#include "QSynthi2/Juce.h"
 #include "QSynthi2/Parameter/Modulation.h"
 #include "Sonifier.h"
 
 class Voice : public juce::MPESynthesiserVoice {
 public:
 
-    Voice(const std::shared_ptr<Simulation>& simRef, SimThread* simThread)
-        : sonifier(simRef) {
-        st = simThread;
+    Voice() {
     }
-
-    SimThread* st;
 
     void noteStarted() override {
         jassert (currentlyPlayingNote.isValid());
@@ -32,8 +26,6 @@ public:
         // TODO: Start playing
 
         sonifier.restart(currentlyPlayingNote);
-
-        // st->started = true;
     }
 
 
@@ -41,8 +33,6 @@ public:
         jassert (currentlyPlayingNote.keyState == juce::MPENote::off);
 
         gain = 0.0;
-
-        // st->started = false;
 
         // TODO: Note off behaviour
 
@@ -82,7 +72,7 @@ public:
         currentSampleRate = newRate;
         // TODO: react
 
-        sonifier.prepareToPlay((num) newRate);
+        sonifier.prepareToPlay((Decimal) newRate);
     }
 
 
@@ -92,7 +82,7 @@ public:
 
         for (int sampleIndex = startSample; sampleIndex < startSample + numSamples; sampleIndex++) {
 
-            num sample = getNextSample();
+            Decimal sample = getNextSample();
 
             for (int channel = 0; channel < outputBuffer.getNumChannels(); channel++) {
                 outputBuffer.addSample(channel, sampleIndex, (float) sample);
@@ -115,9 +105,9 @@ protected:
     Sonifier sonifier;
 
     // TODO: Temporary
-    num gain = 0.0;
+    Decimal gain = 0.0;
 
-    num getNextSample() noexcept {
+    Decimal getNextSample() noexcept {
         // TODO Add envelopes, ...
         return gain * sonifier.getNextSample(getCurrentlyPlayingNote(), modulationData);
     }

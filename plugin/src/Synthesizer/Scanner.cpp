@@ -4,8 +4,7 @@
 extern Data sharedData;
 
 
-Scanner::Scanner(const std::shared_ptr<Simulation>& simRef)
-    : sim(simRef) {
+Scanner::Scanner() {
     // constexpr int SIM_SIZE = 128;
     // sim = std::make_unique<QuantumSimulation>(QuantumSimulation(SIM_SIZE,SIM_SIZE)
     //     .barrierPotential({-0.0, NAN}, 2, {{-0.2, -0.1}, {0.1, 0.2}}, 1e30)
@@ -17,25 +16,38 @@ Scanner::Scanner(const std::shared_ptr<Simulation>& simRef)
 
 }
 
-num Scanner::getValueAt(num at, const ModulationData& modulationData) {
+Decimal Scanner::getValueAt(Decimal at, const ModulationData& modulationData) {
+    /*
     num sinus = sin(juce::MathConstants<num>::twoPi * at);
     num rectangle = std::copysign (1.0, sinus);
     num timbre = sharedData.parameters.timbre->getModulated(modulationData);
 
-    // TODO
     return (1 - timbre) * sinus + timbre * rectangle;
+    */
+    // TODO
+
+    Decimal x = 128 * at;
+    size_t y = 127 - (size_t)(128 * sharedData.parameters.timbre->getModulated(modulationData));
+    Decimal t = fmod(x, (Decimal)1);
+
+    Decimal floorX = floor(x);
+    Decimal ceilX = ceil(x);
+
+    // juce::Logger::writeToLog(juce::String(std::abs(frame(0,0))));
+
+    sharedData.scanlineY = y;
+    auto frame = sharedData.currentFrame;
+
+    return (1-t) * std::abs(frame->coeff(y, floorX)) + t * std::abs(frame->coeff(y, ceilX));
+
 }
 
-void Scanner::prepareToPlay(num newSampleRate) {
+void Scanner::prepareToPlay(Decimal newSampleRate) {
     this->sampleRate = newSampleRate;
 }
 
 void Scanner::nextSample() {
-    // TODO correct implementation
-    //      only used for testing right now, but the logic needs to move into AJAudioProcessor,
-    //      which propagates the simulation and adds to frameBuffer that each Scanner can access values from.
-
- }
+}
 
 
 void Scanner::restart() {
