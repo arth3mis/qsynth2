@@ -38,8 +38,8 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
         return;
     }
 
-    const size_t w = SIM_W;
-    const size_t h = SIM_H;
+    const size_t w = 128;
+    const size_t h = 128;
 
     const float vx = static_cast<float>(getWidth()) / static_cast<float>(w);
     const float vy = static_cast<float>(getHeight()) / static_cast<float>(h);
