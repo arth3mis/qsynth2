@@ -8,108 +8,47 @@
 class Voice : public juce::MPESynthesiserVoice {
 public:
 
-    Voice() {
-    }
+    Voice();
 
-    void noteStarted() override {
-        jassert (currentlyPlayingNote.isValid());
-        jassert (currentlyPlayingNote.keyState == juce::MPENote::keyDown
-              || currentlyPlayingNote.keyState == juce::MPENote::sustained
-              || currentlyPlayingNote.keyState == juce::MPENote::keyDownAndSustained);
+    void noteStarted() override;
 
+    void noteStopped (bool allowTailOff) override;
 
-        notePressureChanged();
-        notePitchbendChanged();
-        noteTimbreChanged();
+    void notePitchbendChanged() override;
 
-        gain = 0.25;
-        // TODO: Start playing
+    void noteTimbreChanged() override;
 
-        sonifier.restart(currentlyPlayingNote);
-    }
-
-
-    void noteStopped (bool allowTailOff) override {
-        jassert (currentlyPlayingNote.keyState == juce::MPENote::off);
-
-        gain = 0.0;
-
-        // TODO: Note off behaviour
-
-        if (!allowTailOff) {
-            return;
-        }
-
-    }
-
-
-    void notePressureChanged() override {
-        modulationData[Modulation::Sources::PRESSURE] = currentlyPlayingNote.pressure.asUnsignedFloat();
-    }
-
-
-
-    void notePitchbendChanged() override {
-        // TODO: react
-    }
-
-
-
-    void noteTimbreChanged() override {
-        modulationData[Modulation::Sources::TIMBRE] = currentlyPlayingNote.timbre.asUnsignedFloat();
-    }
-
-
+    void notePressureChanged() override;
 
     void noteKeyStateChanged() override {}
 
+    void prepareToPlay(Decimal sampleRate, int samplesPerBlock);
 
-
-    void setCurrentSampleRate (double newRate) override {
-        if (juce::approximatelyEqual(currentSampleRate, newRate)) return;
-
-        noteStopped(false);
-        currentSampleRate = newRate;
-        // TODO: react
-
-        sonifier.prepareToPlay((Decimal) newRate);
-    }
-
-
-
-    void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override {
-        // TODO: fill outputBuffer with samples from getNextSample()
-
-        for (int sampleIndex = startSample; sampleIndex < startSample + numSamples; sampleIndex++) {
-
-            Decimal sample = getNextSample();
-
-            for (int channel = 0; channel < outputBuffer.getNumChannels(); channel++) {
-                outputBuffer.addSample(channel, sampleIndex, (float) sample);
-            }
-        }
-
-        if (gain == 0.0) {
-            clearCurrentNote(); // Important
-        }
-    }
+    // Does the preprocessing of midi and modulation sources
+    void renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
 
     using MPESynthesiserVoice::renderNextBlock; // TODO: Why? Necessary?
 
+    // Generates the audio
+    Eigen::ArrayX<Decimal> generateNextBlock();
+
+    ModulationData& getModulationData() {
+        return modulationData;
+    }
 
 
 protected:
 
     ModulationData modulationData;
 
+    juce::SmoothedValue<Decimal> velocity;
+    juce::SmoothedValue<Decimal> frequency;
+    juce::SmoothedValue<Decimal> y;
+    juce::SmoothedValue<Decimal> z;
+
     Sonifier sonifier;
 
     // TODO: Temporary
     Decimal gain = 0.0;
-
-    Decimal getNextSample() noexcept {
-        // TODO Add envelopes, ...
-        return gain * sonifier.getNextSample(getCurrentlyPlayingNote(), modulationData);
-    }
 
 };

@@ -7,14 +7,17 @@ public:
 
     Scanner();
 
-    Decimal getValueAt(Decimal at, const ModulationData& modulationData);
+    Eigen::ArrayXX<Decimal> getValuesAt(const Eigen::ArrayXX<Decimal> &position0to1, const ModulationData &modulationData);
+
     void prepareToPlay(Decimal newSampleRate);
+
     void nextSample();
+
     void restart();
 
 private:
 
-    Decimal sampleRate = 0;
+    Decimal sampleRate;
 
     size_t frameCounter;    // todo knows needed frame index
 

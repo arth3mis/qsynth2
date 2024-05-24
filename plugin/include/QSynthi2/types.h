@@ -28,6 +28,6 @@ typedef Eigen::Array<Decimal, Eigen::Dynamic, Eigen::Dynamic> RealMatrix;
 typedef ComplexMatrix SimFrame;
 
 
-typedef std::unordered_map<juce::String, Decimal> ModulationData;
+typedef std::unordered_map<juce::String, Eigen::ArrayX<Decimal>> ModulationData;
 
 #endif //TYPES_H

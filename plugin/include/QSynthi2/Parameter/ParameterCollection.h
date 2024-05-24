@@ -12,8 +12,8 @@ public:
 
 
     ModulatedParameterFloat* timbre = make<ModulatedParameterFloat>("Timbre", juce::NormalisableRange<float>(0, 1), 0)
-            ->withModulation(Modulation(Modulation::Sources::PRESSURE, modulationAmount))
-            ->withModulation(Modulation(Modulation::Sources::TIMBRE, modulationAmount));
+            ->withModulation(Modulation(Modulation::Sources::Y, modulationAmount))
+            ->withModulation(Modulation(Modulation::Sources::Z, modulationAmount));
 
 
 };

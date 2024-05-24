@@ -11,4 +11,21 @@
 
 #include "Eigen/Dense"
 
+namespace Eigen {
+
+    static juce::String toString(Eigen::ArrayX<double> array) {
+        std::ostringstream oss;
+        oss << array;
+        return juce::String(oss.str());
+    }
+
+    static juce::String toString(Eigen::ArrayXX<double> array) {
+        std::ostringstream oss;
+        oss << array;
+        return juce::String(oss.str());
+    }
+
+}
+
+
 #endif //EIGEN_H

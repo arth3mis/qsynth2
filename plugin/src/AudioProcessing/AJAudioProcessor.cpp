@@ -35,8 +35,8 @@ AJAudioProcessor::~AJAudioProcessor() {
     delete st;
 }
 
-void AJAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
-    synth.setCurrentPlaybackSampleRate(sampleRate);
+void AJAudioProcessor::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
+    synth.prepareToPlay(sampleRate, samplesPerBlock);
 
     juce::ignoreUnused (samplesPerBlock);
 
@@ -57,15 +57,26 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
 
 
     sharedData.functionCallStopwatch.start();
+    // Process MIDI
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-    sharedData.functionCallStopwatch.stop();
 
+    // TODO Process Simulation
+
+    // Process Audio
+    auto samples = synth.generateNextBlock();
+    for (int channel = 0; channel < buffer.getNumChannels(); channel++) {
+        for (int i = 0; i < buffer.getNumSamples(); i++) {
+            buffer.addSample(channel, i, static_cast<float>(samples[i]));
+        }
+    }
+
+    sharedData.functionCallStopwatch.stop();
 
     bufferCounterDebug += buffer.getNumSamples();
 
     // TEMP simulation
     constexpr int steps = 100;
-    if (time++ % static_cast<size_t>(samplerate / buffer.getNumSamples() / steps) != 0) {
+    if (time++ % std::max((size_t)1, static_cast<size_t>(samplerate / buffer.getNumSamples() / steps)) != 0) {
         return;
     }
     timestepCounter++;

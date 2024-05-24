@@ -55,7 +55,7 @@ public:
         }
     }
 
-    void forEach(std::function<void(T)> consumer) {
+   const void forEach(std::function<void(const T)> consumer) {
         for (size_t i = 0; i < this->size(); ++i) {
             consumer(this->at(i));
         }
