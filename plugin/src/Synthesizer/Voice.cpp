@@ -16,7 +16,7 @@ void Voice::noteStarted() {
     velocity.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.noteOnVelocity.asUnsignedFloat()));
 
     notePitchbendChanged();
-    frequency.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.getFrequencyInHertz()));
+    frequency.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.getFrequencyInHertz())); // TODO: Remove when implementing Portamento
     noteTimbreChanged();
     notePressureChanged();
 
@@ -66,7 +66,7 @@ void Voice::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
     juce::MPESynthesiserVoice::setCurrentSampleRate(static_cast<double>(sampleRate));
 
     velocity.reset(sampleRate, 0.005);
-    frequency.reset(sampleRate, 0.040);
+    frequency.reset(sampleRate, 0.030);
     y.reset(sampleRate, 0.020);
     z.reset(sampleRate, 0.020);
 

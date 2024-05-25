@@ -14,7 +14,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     simDisplaySize = 400;
 
-    setSize(simDisplaySize, 600);
+    setSize(simDisplaySize, 800);
 
     simulationDisplay.setSize(simDisplaySize, simDisplaySize);
     addAndMakeVisible(simulationDisplay);

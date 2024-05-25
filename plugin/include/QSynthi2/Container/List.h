@@ -77,6 +77,16 @@ public:
         return sum;
     }
 
+
+    juce::StringArray toStringArray() {
+        juce::StringArray stringArray;
+        for (size_t i = 0; i < this->size(); i++) {
+            stringArray.add(juce::String(this->at(i)));
+        }
+        return stringArray;
+    }
+
+
     // cout overload
     friend std::ostream& operator<<(std::ostream& os, const List& list) {
         os << "[";

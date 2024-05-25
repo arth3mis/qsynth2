@@ -15,7 +15,9 @@ protected:
 
     juce::UndoManager undoManager;
 
-    List<ModulatedParameterFloat*> modulatedParameters;
+    std::unordered_map<juce::String, ModulatedParameterFloat*> modulatedParameters;
+
+    List<Modulation> availableModulations;
 
 private:
     // Layout in that all Parameters are inserted
@@ -34,7 +36,7 @@ public:
 
     // Call this to make new Parameters
     template<typename T, typename... Args>
-    T *make(Args &&... args) {
+    T *add(Args &&... args) {
         jassert(layoutInCreation); // Call this only before calling connectTo()!
 
         auto unique_pointer = std::make_unique<T>(std::forward<Args>(args)...);
@@ -43,11 +45,14 @@ public:
 
         if (auto* modulatedParameterFloat = dynamic_cast<ModulatedParameterFloat*>(&reference)) {
             // Parameter is ModulatedParameterFloat
-            modulatedParameters.push_back(modulatedParameterFloat);
+            modulatedParameters[modulatedParameterFloat->getParameterID()] = modulatedParameterFloat;
         }
 
         return &reference; // Return pointer to parameter
     }
+
+    // Call this to add modulation slots for all before created parameters
+    List<Modulation> &addModulationSlots(int number);
 
     // Call this in "getStateInformation(...)". Gives DAW Plugin data to store.
     void getStateInformation(juce::MemoryBlock& destData);

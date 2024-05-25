@@ -18,12 +18,16 @@ public:
         inline static List<juce::String> ALL{VELOCITY, PITCH, Y, Z};
     };
 
+    Modulation();
 
     Modulation(juce::String modulationSource, ModulatedParameterFloat* amount);
 
     // TODO: const modulation Data
     const Eigen::ArrayX<Decimal> getModulatedNormalized(ModulationData& modulationData);
 
+    void setModulationSource(juce::String newModulationSource);
+
+    void setAmountParameter(ModulatedParameterFloat* newAmount);
 
 protected:
 
