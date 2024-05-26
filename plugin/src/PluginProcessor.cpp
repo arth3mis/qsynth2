@@ -185,34 +185,26 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 }
 
 //==============================================================================
-bool AudioPluginAudioProcessor::hasEditor() const
-{
+bool AudioPluginAudioProcessor::hasEditor() const {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()
-{
+juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor() {
     // return new juce::GenericAudioProcessorEditor(*this);
     return new AudioPluginAudioProcessorEditor(*this);
 }
 
 //==============================================================================
-void AudioPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
-{
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+void AudioPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData) {
+    sharedData.parameters.getStateInformation(destData);
 }
 
-void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
-{
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes) {
+    sharedData.parameters.setStateInformation(data, sizeInBytes);
 }
 
 //==============================================================================
 // This creates new instances of the plugin..
-juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
-{
+juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
     return new AudioPluginAudioProcessor();
 }

@@ -100,7 +100,6 @@ void Parameters::setStateInformation(const void *data, int sizeInBytes) {
     if (inputTree.isValid()) {
         treeState->replaceState(inputTree);
     }
-
 }
 
 
