@@ -2,9 +2,7 @@
 
 
 
-Voice::Voice() {
-
-}
+Voice::Voice() = default;
 
 void Voice::noteStarted() {
     jassert (currentlyPlayingNote.isValid());

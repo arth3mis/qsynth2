@@ -17,7 +17,7 @@ protected:
 
     std::unordered_map<juce::String, ModulatedParameterFloat*> modulatedParameters;
 
-    List<Modulation> availableModulations;
+    List<std::shared_ptr<Modulation>> availableModulations;
 
 private:
     // Layout in that all Parameters are inserted
@@ -52,7 +52,7 @@ public:
     }
 
     // Call this to add modulation slots for all before created parameters
-    List<Modulation> &addModulationSlots(int number);
+    List<std::shared_ptr<Modulation>> &addModulationSlots(size_t number);
 
     // Call this in "getStateInformation(...)". Gives DAW Plugin data to store.
     void getStateInformation(juce::MemoryBlock& destData);

@@ -28,6 +28,16 @@ public:
         return this->size() - 1;
     }
 
+    bool remove(const T& element) {
+        for (size_t i = 0; i < this->size(); i++) {
+            if (this->at(i) == element) {
+                this->erase(this->begin() + i);
+                return true;
+            }
+        }
+        return false;
+    }
+
     T sum() {
         if (this->empty())
             return T();
@@ -55,7 +65,7 @@ public:
         }
     }
 
-   const void forEach(std::function<void(const T)> consumer) {
+    void forEach(std::function<void(const T)> consumer) {
         for (size_t i = 0; i < this->size(); ++i) {
             consumer(this->at(i));
         }

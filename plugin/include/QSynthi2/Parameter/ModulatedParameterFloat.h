@@ -6,6 +6,10 @@
 class ModulatedParameterFloat : public juce::AudioParameterFloat {
 public:
 
+    List<std::shared_ptr<Modulation>> modulations;
+
+
+
     ModulatedParameterFloat();
 
     ModulatedParameterFloat(const juce::String& name, const juce::NormalisableRange<float>& range, float defaultValue, Decimal sliderSmoothingSeconds = 0.1);
@@ -13,9 +17,9 @@ public:
 
     void processBlock();
 
-    Eigen::ArrayX<Decimal> getModulatedNormalized(ModulationData &modulationData);
+    Eigen::ArrayX<Decimal> getModulatedNormalized(const ModulationData &modulationData);
 
-    Eigen::ArrayX<Decimal> getModulated(ModulationData &modulationData);
+    Eigen::ArrayX<Decimal> getModulated(const ModulationData &modulationData);
 
     // TODO: With given Array of ModulationData. Weighted Average by Envelope 1?
 
@@ -24,7 +28,7 @@ public:
         bufferNormalizedSliderValue = Eigen::ArrayX<Decimal>(samplesPerBlock);
     }
 
-    ModulatedParameterFloat* withModulation(Modulation modulation) {
+    ModulatedParameterFloat* withModulation(const std::shared_ptr<Modulation>& modulation) {
         modulations.append(modulation);
         return this;
     }
@@ -35,8 +39,6 @@ protected:
 
     Decimal sliderSmoothingSeconds;
     juce::SmoothedValue<Decimal> smoothedNormalizedSliderValue;
-
-    List<Modulation> modulations;
 
 
     // Listener

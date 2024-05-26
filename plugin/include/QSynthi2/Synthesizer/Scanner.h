@@ -11,8 +11,6 @@ public:
 
     void prepareToPlay(Decimal newSampleRate);
 
-    void nextSample();
-
     void restart();
 
 private:

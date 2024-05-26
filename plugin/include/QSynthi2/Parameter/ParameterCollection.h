@@ -11,6 +11,6 @@ public:
     ModulatedParameterFloat* timbre = add<ModulatedParameterFloat>("Timbre", juce::NormalisableRange<float>(0, 1), 0);
 
     // Add modulation slots at the end
-    List<Modulation> modulations = addModulationSlots(8);
+    List<std::shared_ptr<Modulation>> modulations = addModulationSlots(8);
 
 };

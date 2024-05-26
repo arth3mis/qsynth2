@@ -35,11 +35,11 @@ void ModulatedParameterFloat::processBlock() {
 
 
 
-Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulatedNormalized(ModulationData &modulationData) {
+Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulatedNormalized(const ModulationData &modulationData) {
     Eigen::ArrayX<Decimal> buffer = bufferNormalizedSliderValue;
 
     for (auto modulation : modulations) {
-        buffer += modulation.getModulatedNormalized(modulationData);
+        buffer = buffer + modulation->getModulatedNormalized(modulationData);
     }
 
     return buffer;
@@ -47,7 +47,7 @@ Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulatedNormalized(Modulatio
 
 
 
-Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulated(ModulationData &modulationData) {
+Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulated(const ModulationData &modulationData) {
     return getModulatedNormalized(modulationData).unaryExpr([this](Decimal decimal) {
         return static_cast<Decimal>(this->convertFrom0to1(static_cast<float>(decimal)));
     });
