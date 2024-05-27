@@ -1,10 +1,6 @@
-//
-// Created by Jannis Müller on 14.05.24.
-//
 #include "QSynthi2/Parameter/ModulatedParameterFloat.h"
 #include "QSynthi2/Parameter/Parameters.h"
 #include "QSynthi2/Data.h"
-
 
 extern Data sharedData;
 
@@ -15,40 +11,51 @@ ModulatedParameterFloat::ModulatedParameterFloat() :
 }
 
 ModulatedParameterFloat::ModulatedParameterFloat(const juce::String &name, const juce::NormalisableRange<float> &range,
-                                                 float defaultValue, float sliderSmoothingSeconds) :
+                                                 float defaultValue, Decimal sliderSmoothingSeconds) :
         juce::AudioParameterFloat(juce::ParameterID(name, Parameters::VERSION), name, range, defaultValue),
         sliderSmoothingSeconds(sliderSmoothingSeconds),
-        smoothedValue(range.convertTo0to1(defaultValue)) {
+        smoothedNormalizedSliderValue(range.convertTo0to1(defaultValue)) {
 
 }
 
 
 
-
-float ModulatedParameterFloat::getModulated(const ModulationData& modulationData) {
+void ModulatedParameterFloat::processBlock() {
     sharedData.functionCallStopwatch.stop();
     sharedData.modulationStopwatch.start();
 
-    // TODO: Clipping
-    float value = range.convertFrom0to1(getNormalized(modulationData));
+    // Writes the raw value in the Buffer
+    for (int i = 0; i < bufferNormalizedSliderValue.size(); ++i) {
+        bufferNormalizedSliderValue[i] = smoothedNormalizedSliderValue.getNextValue();
+    }
 
     sharedData.modulationStopwatch.stop();
     sharedData.functionCallStopwatch.start();
-
-    return value;
 }
 
-float ModulatedParameterFloat::getNormalizedBaseValue(const ModulationData &modulationData) {
-    sharedData.modulationStopwatch.stop();
-    sharedData.parameterStopwatch.start();
 
-    float rawValue = juce::AudioParameterFloat::get();
 
-    sharedData.parameterStopwatch.stop();
-    sharedData.modulationStopwatch.start();
+Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulatedNormalized(const ModulationData &modulationData) {
+    Eigen::ArrayX<Decimal> buffer = bufferNormalizedSliderValue;
 
-    smoothedValue.setTargetValue(range.convertTo0to1(rawValue));
-    return smoothedValue.getNextValue();
+    for (auto modulation : modulations) {
+        buffer = buffer + modulation->getModulatedNormalized(modulationData);
+    }
+
+    return buffer;
+}
+
+
+
+Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulated(const ModulationData &modulationData) {
+    return getModulatedNormalized(modulationData).unaryExpr([this](Decimal decimal) {
+        return static_cast<Decimal>(this->convertFrom0to1(static_cast<float>(decimal)));
+    });
+}
+
+
+void ModulatedParameterFloat::valueChanged(float newValue) {
+    smoothedNormalizedSliderValue.setTargetValue(static_cast<Decimal>(convertTo0to1(newValue)));
 }
 
 float ModulatedParameterFloat::getNormalized(const ModulationData &modulationData) {

@@ -51,6 +51,17 @@ CPMAddPackage(
 )
 include_directories(${LIB_DIR}/pocketfft)
 
+# Adds Eigen
+CPMAddPackage(
+        NAME Eigen
+        GIT_TAG 3.4.0
+        VERSION 3.4.0
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen
+        DOWNLOAD_ONLY true
+        SOURCE_DIR ${LIB_DIR}/eigen
+)
+include_directories(${LIB_DIR}/eigen)
+
 # This command allows running tests from the "build" folder (the one where CMake generates the project to).
 enable_testing()
 
@@ -68,9 +79,16 @@ else()
 #    add_compile_options(-Wall -Wextra -Wpedantic)
 
     # optimizations TODO
-    add_compile_options(-O3)
+
+    add_compile_options(
+            -O0
+            -march=native       # vectorization
+    )
+
     IF (${CMAKE_BUILD_TYPE} STREQUAL "Release")
 #        add_compile_options(-O3)
+    ELSE ()
+#        add_compile_options(-O0)
     ENDIF()
 endif()
 
@@ -80,5 +98,3 @@ add_subdirectory(plugin)
 
 # Adds all the targets configured in the "test" folder.
 add_subdirectory(test)
-
-add_subdirectory(simsdl)

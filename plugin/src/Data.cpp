@@ -8,7 +8,15 @@ SimFrame Data::getSimulationDisplayFrame() {
     return simulationDisplayFrame;
 }
 
+SimFrame* Data::getSimulationScanFrame() {
+    return &simulationScanFrame;
+}
+
 void Data::setSimulationDisplayFrame(const SimFrame& f) {
     std::lock_guard lock(frameAccessMutex);
     simulationDisplayFrame = f;
+}
+
+void Data::setSimulationScanFrame(const SimFrame& f) {
+    simulationScanFrame = f;
 }

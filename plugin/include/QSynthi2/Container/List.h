@@ -28,6 +28,26 @@ public:
         return this->size() - 1;
     }
 
+    bool remove(const T& element) {
+        for (size_t i = 0; i < this->size(); i++) {
+            if (this->at(i) == element) {
+                this->erase(this->begin() + i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    T sum() {
+        if (this->empty())
+            return T();
+        T res = this->at(0);
+        for (size_t i = 1; i < this->size(); ++i) {
+            res += this->at(i);
+        }
+        return res;
+    }
+
     template<class U>
     List<U> map(std::function<U(T)> mapper) const {
         List<U> copiedList(this->size());
@@ -42,6 +62,12 @@ public:
     void mapMutable(std::function<T(T)> mapper) {
         for (size_t i = 0; i < this->size(); ++i) {
             this->at(i) = mapper(this->at(i));
+        }
+    }
+
+    void forEach(std::function<void(const T)> consumer) {
+        for (size_t i = 0; i < this->size(); ++i) {
+            consumer(this->at(i));
         }
     }
 
@@ -60,6 +86,16 @@ public:
         }
         return sum;
     }
+
+
+    juce::StringArray toStringArray() {
+        juce::StringArray stringArray;
+        for (size_t i = 0; i < this->size(); i++) {
+            stringArray.add(juce::String(this->at(i)));
+        }
+        return stringArray;
+    }
+
 
     // cout overload
     friend std::ostream& operator<<(std::ostream& os, const List& list) {

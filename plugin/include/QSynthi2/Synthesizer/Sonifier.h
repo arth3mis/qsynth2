@@ -1,39 +1,40 @@
 #pragma once
 
-
 #include "Scanner.h"
 
 class Sonifier {
 public:
 
-    Sonifier(const std::shared_ptr<Simulation>& simRef)
-        : scanner(simRef)
-        , frequency(100) {
+    Sonifier() {
     }
 
-    num getNextSample(const juce::MPENote& note, const ModulationData& modulationData) {
-        scanner.nextSample();
+    // TODO: Swappable implementation with timber sonifier
+    Eigen::ArrayX<Decimal> generateNextBlock(const ModulationData& modulationData) {
+        jassert(modulationData.contains(Modulation::Sources::PITCH)); // Pitch isn't already evaluated
+        auto frequency = modulationData.at(Modulation::Sources::PITCH);
+        jassert(frequency.size() == samplesPerBlock); // Pitch wasn't set properly
 
-        frequency.setTargetValue((num)note.getFrequencyInHertz());
+        auto phases = Eigen::ArrayX<Decimal>(samplesPerBlock);
 
-        phase += frequency.getNextValue() / sampleRate;
-        phase = std::fmod(phase, 1);
+        for(int i = 0; i < phases.size(); i++) {
+            phase0to1 += frequency[i] / sampleRate;
+            phase0to1 = fmod(phase0to1, 1);
 
-        return scanner.getValueAt(phase, modulationData);
-        // TODO: Implement
+            phases[i] = phase0to1;
+        }
+
+        return scanner.getValuesAt(phases, modulationData);
     }
 
-    void prepareToPlay(num newSampleRate) {
+    void prepareToPlay(Decimal newSampleRate, int samplesPerBlock) {
         sampleRate = newSampleRate;
-
-        frequency.reset(newSampleRate, 0.040);
+        this->samplesPerBlock = samplesPerBlock;
 
         scanner.prepareToPlay(newSampleRate);
     }
 
-    void restart(const juce::MPENote& note) {
-        frequency.setCurrentAndTargetValue((num)note.getFrequencyInHertz());
-
+    void restart() {
+        phase0to1 = 0;
         scanner.restart();
     }
 
@@ -41,11 +42,10 @@ public:
 
 protected:
 
+    Decimal phase0to1;
+
     Scanner scanner;
 
-    num sampleRate;
-    juce::SmoothedValue<num> frequency;
-
-    num phase = 0;
-
+    Decimal sampleRate;
+    int samplesPerBlock;
 };

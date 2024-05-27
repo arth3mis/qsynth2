@@ -7,13 +7,21 @@
 class ParameterCollection : public Parameters {
 public:
 
+
     // Declare Parameters here
-    ModulatedParameterFloat* modulationAmount = make<ModulatedParameterFloat>("ModAmount", juce::NormalisableRange<float>(0, 1), 0.7f);
+    ModulatedParameterFloat* timbre = add<ModulatedParameterFloat>(
+        "Timbre", juce::NormalisableRange<float>(0, 1),
+        0);
+    ModulatedParameterFloat* simulationSpeedFactor = add<ModulatedParameterFloat>(
+        "Simulation speed", juce::NormalisableRange<float>(0, 1, 0, 0.5, false),
+        1);
+    ModulatedParameterFloat* simulationStepsPerSecond = add<ModulatedParameterFloat>(
+        "Simulation steps per second", juce::NormalisableRange<float>(10, 400, 1, 0.5, false),
+        100);
 
 
-    ModulatedParameterFloat* timbre = make<ModulatedParameterFloat>("Scanline Y", juce::NormalisableRange<float>(0, 1), 0.15f)
-            //->withModulation(Modulation(Modulation::Sources::PRESSURE, modulationAmount))
-            ->withModulation(Modulation(Modulation::Sources::TIMBRE, modulationAmount));
-
-
+    // Add modulation slots
+    ParameterCollection() {
+        addModulationSlots(8);
+    }
 };

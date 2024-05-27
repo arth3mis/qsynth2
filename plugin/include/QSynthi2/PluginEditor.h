@@ -1,7 +1,7 @@
 #pragma once
 
-#include "PluginProcessor.h"
-#include "Display/SimulationDisplay.h"
+#include "QSynthi2/PluginProcessor.h"
+#include "QSynthi2/Display/SimulationDisplay.h"
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor

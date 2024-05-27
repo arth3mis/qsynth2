@@ -1,16 +1,33 @@
-//
-// Created by art on 14.05.24.
-//
-
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "juce_audio_processors/juce_audio_processors.h"
-#include "QSynthi2/List/list.h"
-#include "QSynthi2/List/Vector.h"
+// suppress warnings: https://stackoverflow.com/a/28166605
+#ifdef __GNUC__
+#ifndef __clang__
+#pragma GCC diagnostic ignored "-Wshadow"
+#else
+#pragma clang diagnostic ignored "-Wshadow"
+#endif
+#endif
 
-typedef double num;
 
-typedef std::unordered_map<juce::String, num> ModulationData;
+#include "QSynthi2/Juce.h"
+#include "QSynthi2/Container/List.h"    // needed by file that include types.h
+#include "QSynthi2/Container/Vector.h"
+#include "QSynthi2/Eigen.h"
+
+
+typedef double Decimal;
+typedef Vec2<Decimal> V2;
+
+typedef std::complex<Decimal> Complex;
+
+typedef Eigen::Array<Complex, Eigen::Dynamic, Eigen::Dynamic> ComplexMatrix;
+typedef Eigen::Array<Decimal, Eigen::Dynamic, Eigen::Dynamic> RealMatrix;
+
+typedef ComplexMatrix SimFrame;
+
+
+typedef std::unordered_map<juce::String, Eigen::ArrayX<Decimal>> ModulationData;
 
 #endif //TYPES_H

@@ -1,34 +1,38 @@
 #ifndef DATA_H
 #define DATA_H
-#include "QSynthi2/types.h"
 #include <mutex>
 #include <atomic>
 #include "QSynthi2/Parameter/ParameterCollection.h"
 #include "QSynthi2/Testing/Stopwatch.h"
 
-typedef List<num> SimFrame;
-
 class Data {
 public:
+
+    // context: audio thread <-> GUI thread
     SimFrame getSimulationDisplayFrame();
+    SimFrame* getSimulationScanFrame();
     void setSimulationDisplayFrame(const SimFrame& f);
+    void setSimulationScanFrame(const SimFrame& f);
+
     std::atomic<size_t> simWidth;
     std::atomic<size_t> simHeight;
+    std::atomic<long> scanlineY{0};
 
-    ParameterCollection parameters;
-
-    std::atomic<size_t> scanlineY{0};
+    // context: audio thread
+    //
+    ParameterCollection* parameters;
 
     Stopwatch functionCallStopwatch     {"Function calls"};
     Stopwatch parameterStopwatch        {"Parameters    "};
     Stopwatch modulationStopwatch       {"Modulation    "};
-    Stopwatch hashMapStopwatch          {"Read Hash Map "};
-    Stopwatch simulationStopwatch       {"Simulation    "};
-
-
+    Stopwatch hashMapStopwatch          {"Read Hashmap  "};
+    Stopwatch blockStopwatch            {"Block         "};
+    Stopwatch totalStopwatch            {"total sim     "};
 
 private:
+
     SimFrame simulationDisplayFrame;
+    SimFrame simulationScanFrame;
     std::mutex frameAccessMutex;
 };
 

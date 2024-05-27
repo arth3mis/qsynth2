@@ -1,6 +1,3 @@
-//
-// Created by art on 15.05.24.
-//
 #include "QSynthi2/Display/SimulationDisplay.h"
 #include <chrono>
 #include <QSynthi2/Data.h>
@@ -12,8 +9,7 @@ SimulationDisplay::SimulationDisplay() {
     startTimerHz(30);
 }
 
-SimulationDisplay::~SimulationDisplay() {
-}
+SimulationDisplay::~SimulationDisplay() = default;
 
 void SimulationDisplay::paint(juce::Graphics &g) {
     g.fillAll (juce::Colours::black);
@@ -34,7 +30,7 @@ void SimulationDisplay::timerCallback() {
 
 void SimulationDisplay::drawSimulation(juce::Graphics &g) {
     const auto frame = sharedData.getSimulationDisplayFrame();
-    if (frame.empty()) {
+    if (frame.size() == 0) {
         return;
     }
 
@@ -50,7 +46,7 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
 
     for (int x = 0; x < w; x++) {
         for (int y = 0; y < h; y++) {
-            num v = frame.at(x * w + y);
+            Decimal v = std::abs(frame(y, x));
             int rgb = std::min(255, static_cast<int>(std::round(std::pow(std::abs(v), 0.66) * 255)));
             g.setColour(juce::Colour(rgb, rgb, rgb));
             // fill rectangle

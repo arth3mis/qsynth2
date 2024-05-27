@@ -1,6 +1,6 @@
 #pragma once
 
-#include "juce_audio_processors/juce_audio_processors.h"
+#include "QSynthi2/Juce.h"
 #include <QSynthi2/types.h>
 
 class ModulatedParameterFloat;
@@ -10,27 +10,35 @@ public:
 
     class Sources {
     public:
-        inline static const juce::String VELOCITY{"velocity"};
-        inline static const juce::String PRESSURE{"pressure"};
-        inline static const juce::String TIMBRE{"timbre"};
+        inline static const juce::String VELOCITY{"Velocity"};
+        inline static const juce::String PITCH{"Pitch"};
+        inline static const juce::String Y{"Keyboard Y"};
+        inline static const juce::String Z{"Keyboard Z"};
 
-        inline static const List<juce::String> ALL{VELOCITY, PRESSURE, TIMBRE};
+        inline static List<juce::String> ALL{VELOCITY, PITCH, Y, Z};
     };
 
+    Modulation();
 
     Modulation(juce::String modulationSource, ModulatedParameterFloat* amount);
 
-    float getNormalizedBaseValue(const ModulationData& modulationData);
+    Eigen::ArrayX<Decimal> getModulatedNormalized(const ModulationData& modulationData);
 
-    float getNormalized(const ModulationData& modulationData);
+    void setModulatedParameterId(juce::String newModulatedParameterId);
+    juce::String getModulatedParameterId();
 
+    void setModulationSource(juce::String newModulationSource);
 
+    void setAmountParameter(ModulatedParameterFloat* newAmount);
+
+    void prepareToPlay(int newSamplesPerBlock);
 
 protected:
 
-    juce::String modulationSource;
-    ModulatedParameterFloat* amount;
+    int samplesPerBlock;
 
-    List<Modulation> modulations;
+    juce::String modulatedParameterId;
+    juce::String modulationSource;
+    ModulatedParameterFloat* amount = nullptr;
 
 };

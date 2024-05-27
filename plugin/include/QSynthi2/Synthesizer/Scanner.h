@@ -1,30 +1,22 @@
 #pragma once
 
-
-#include <QSynthi2/Simulation/QuantumSimulation.h>
-#include <QSynthi2/Simulation/Simulation.h>
-
 #include "QSynthi2/types.h"
 
 class Scanner {
 public:
 
-    Scanner(const std::shared_ptr<Simulation>& simRef);
+    Scanner();
 
-    num getValueAt(num at, const ModulationData& modulationData);
-    void prepareToPlay(num newSampleRate);
-    void nextSample();
+    Eigen::ArrayXX<Decimal> getValuesAt(const Eigen::ArrayXX<Decimal> &position0to1, const ModulationData &modulationData);
+
+    void prepareToPlay(Decimal newSampleRate);
+
     void restart();
 
 private:
 
-    num sampleRate = 0;
+    Decimal sampleRate;
 
-    size_t time{0};
-    num timestep{0};
-
-    std::shared_ptr<Simulation> sim;
     size_t frameCounter;    // todo knows needed frame index
-    CList simFrameCurrent;
-    CList simFramePrev;
+
 };
