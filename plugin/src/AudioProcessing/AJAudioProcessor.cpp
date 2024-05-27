@@ -66,9 +66,13 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     //  for each sample:
     //      - calculate timesteps per sample (can change inside the block)
     //      - save 1D array of frame interpolation indices
+    //  - (later) ask simulation how many frames are ready.
+    //      - If too few:
+    //          - If offline rendering: Wait until simulation is ready
+    //          - Else: slow down simulation speed for audio processing to just use available frames
     //  - request n frames from simulation (pass n, receive shared pointers; sim updates atomic currentBufferN)
     //  - save timesteps for scanner (vector<shared_ptr<Frame>>, prob. in Data.h)
-    //  -
+    //
 
     // Process Audio
     auto samples = synth.generateNextBlock();
