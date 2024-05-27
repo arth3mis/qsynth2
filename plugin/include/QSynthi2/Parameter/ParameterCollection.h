@@ -7,7 +7,6 @@
 class ParameterCollection : public Parameters {
 public:
 
-
     // Declare Parameters here
     ModulatedParameterFloat* timbre = add<ModulatedParameterFloat>(
         "Timbre", juce::NormalisableRange<float>(0, 1),

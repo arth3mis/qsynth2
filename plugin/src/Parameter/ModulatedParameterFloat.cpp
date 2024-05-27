@@ -57,13 +57,3 @@ Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulated(const ModulationDat
 void ModulatedParameterFloat::valueChanged(float newValue) {
     smoothedNormalizedSliderValue.setTargetValue(static_cast<Decimal>(convertTo0to1(newValue)));
 }
-
-float ModulatedParameterFloat::getNormalized(const ModulationData &modulationData) {
-    float value = getNormalizedBaseValue(modulationData);
-
-    for (auto& modulator : modulations) {
-        value += modulator.getNormalized(modulationData);
-    }
-
-    return value;
-}
