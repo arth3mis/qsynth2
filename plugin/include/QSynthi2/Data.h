@@ -8,6 +8,7 @@
 class Data {
 public:
 
+    // context: audio thread <-> GUI thread
     SimFrame getSimulationDisplayFrame();
     SimFrame* getSimulationScanFrame();
     void setSimulationDisplayFrame(const SimFrame& f);
@@ -17,6 +18,8 @@ public:
     std::atomic<size_t> simHeight;
     std::atomic<long> scanlineY{0};
 
+    // context: audio thread
+    //
     ParameterCollection* parameters;
 
     Stopwatch functionCallStopwatch     {"Function calls"};

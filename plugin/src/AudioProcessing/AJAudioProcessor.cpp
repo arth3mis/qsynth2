@@ -61,6 +61,14 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
     // TODO Process Simulation
+    //  - retrieve modData from synth
+    //  - update parameters in simulation: bufferSize, dt (later: gaussian, potential etc)
+    //  for each sample:
+    //      - calculate timesteps per sample (can change inside the block)
+    //      - save 1D array of frame interpolation indices
+    //  - request n frames from simulation (pass n, receive shared pointers; sim updates atomic currentBufferN)
+    //  - save timesteps for scanner (vector<shared_ptr<Frame>>, prob. in Data.h)
+    //  -
 
     // Process Audio
     auto samples = synth.generateNextBlock();
