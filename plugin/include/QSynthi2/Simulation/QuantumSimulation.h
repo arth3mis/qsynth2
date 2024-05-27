@@ -21,7 +21,7 @@ public:
     // getters
     const ComplexMatrix& getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
 
-    // [[nodiscard]] const List<RList>& getPotentials() const { return potentials; }
+    [[nodiscard]] const List<RealMatrix>& getPotentials() const { return potentials; }
     [[nodiscard]] const ComplexMatrix& getPsi() const { return started ? psi : initialPsi; }
     [[nodiscard]] size_t getW() const { return W; }
     [[nodiscard]] size_t getH() const { return H; }

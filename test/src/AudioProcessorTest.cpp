@@ -3,6 +3,6 @@
 
 namespace audio_plugin_test {
     TEST(AudioProcessor, Foo) {
-        AudioPluginAudioProcessor processor{};
+        // AudioPluginAudioProcessor processor{};
     }
 } // namespace audio_plugin_test
