@@ -12,10 +12,9 @@ set(CMAKE_CXX_STANDARD 20)
 # either as an environment variable or pass it to the cmake script with -DCPM_SOURCE_CACHE=<path>.
 
 IF (${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    # save release lib builds in cmake-build-release[...] folder
-    set(LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/libs)
+    set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs-release)
 ELSE()
-    set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs)
+    set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs-debug)
 ENDIF()
 
 # Downloads CPM if not already downloaded. CPM is an easy-to-use package manager nicely integrated with CMake.
@@ -67,28 +66,15 @@ enable_testing()
 
 
 if(MSVC)
-# Enables all warnings and treats warnings as errors.
-# This needs to be added AFTER all the third-party dependencies.
-#    add_compile_options(/Wall /WX)
-
-    # optimizations
-    IF (${CMAKE_BUILD_TYPE} STREQUAL "Release")
-#        add_compile_options(/Ox)
-    ENDIF()
+    #
 else()
-#    add_compile_options(-Wall -Wextra -Wpedantic)
-
-    # optimizations TODO
-
-    add_compile_options(
-            -O0
-            -march=native       # vectorization
-    )
-
     IF (${CMAKE_BUILD_TYPE} STREQUAL "Release")
-#        add_compile_options(-O3)
-    ELSE ()
-#        add_compile_options(-O0)
+        #
+    ELSEIF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        add_compile_options(
+                -O0
+                -march=native       # vectorization
+        )
     ENDIF()
 endif()
 
