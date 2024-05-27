@@ -17,7 +17,7 @@ public:
     std::atomic<size_t> simHeight;
     std::atomic<long> scanlineY{0};
 
-    ParameterCollection parameters;
+    ParameterCollection* parameters;
 
     Stopwatch functionCallStopwatch     {"Function calls"};
     Stopwatch parameterStopwatch        {"Parameters    "};

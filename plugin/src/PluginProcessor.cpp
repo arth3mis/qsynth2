@@ -37,12 +37,14 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     if (juce::Logger::getCurrentLogger() == nullptr)
         juce::Logger::setCurrentLogger(new SimpleLogger());
 
-    sharedData.parameters.connectTo(*this);
-
+    sharedData.parameters = new ParameterCollection();
+    sharedData.parameters->connectTo(*this);
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
 {
+    delete sharedData.parameters;
+    sharedData.parameters = nullptr;
 }
 
 //==============================================================================
@@ -125,7 +127,7 @@ void AudioPluginAudioProcessor::changeProgramName (int index, const juce::String
 
 void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    sharedData.parameters.prepareToPlay(static_cast<Decimal>(sampleRate), samplesPerBlock);
+    sharedData.parameters->prepareToPlay(static_cast<Decimal>(sampleRate), samplesPerBlock);
     audioProcessor.prepareToPlay(sampleRate, samplesPerBlock);
 }
 
@@ -178,7 +180,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         buffer.clear (i, 0, buffer.getNumSamples());
 
 
-    sharedData.parameters.processBlock();
+    sharedData.parameters->processBlock();
     audioProcessor.processBlock(buffer, midiMessages);
 
 
@@ -196,11 +198,11 @@ juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor() {
 
 //==============================================================================
 void AudioPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData) {
-    sharedData.parameters.getStateInformation(destData);
+    sharedData.parameters->getStateInformation(destData);
 }
 
 void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes) {
-    sharedData.parameters.setStateInformation(data, sizeInBytes);
+    sharedData.parameters->setStateInformation(data, sizeInBytes);
 }
 
 //==============================================================================

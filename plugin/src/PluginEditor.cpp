@@ -10,7 +10,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     juce::ignoreUnused (processorRef);
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setResizable (true, false);
+    setResizable (true, true);
 
     simDisplaySize = 400;
 
@@ -19,6 +19,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     simulationDisplay.setSize(simDisplaySize, simDisplaySize);
     addAndMakeVisible(simulationDisplay);
 
+    gpe->setResizable(true, false);
     addAndMakeVisible(gpe);
 }
 
@@ -44,4 +45,5 @@ void AudioPluginAudioProcessorEditor::resized()
     // subcomponents in your editor..
     simulationDisplay.setTopLeftPosition(0, 0);
     gpe->setTopLeftPosition(0, simDisplaySize);
+    gpe->setSize(getWidth(), getHeight() - simDisplaySize);
 }
