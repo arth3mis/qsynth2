@@ -50,8 +50,8 @@ private:
     [[nodiscard]] size_t xIndexOf(const size_t i) const { return i / W; }
     [[nodiscard]] size_t yIndexOf(const size_t i) const { return i % W; }
     // coordinates [-1;1] to index
-    [[nodiscard]] size_t toX(const Decimal cx) const { return std::max(0lu, std::min(W-1, static_cast<size_t>(cx * w/2 + w/2))); }
-    [[nodiscard]] size_t toY(const Decimal cy) const { return std::max(0lu, std::min(H-1, static_cast<size_t>(cy * h/2 + h/2))); }
+    [[nodiscard]] size_t toX(const Decimal cx) const { return std::max(static_cast<size_t>(0), std::min(W - 1, static_cast<size_t>(cx * w / 2 + w / 2))); }
+    [[nodiscard]] size_t toY(const Decimal cy) const { return std::max(static_cast<size_t>(0), std::min(H-1, static_cast<size_t>(cy * h/2 + h/2))); }
 };
 
 #endif //QUANTUMSIMULATION_H

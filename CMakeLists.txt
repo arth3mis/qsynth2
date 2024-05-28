@@ -11,10 +11,10 @@ set(CMAKE_CXX_STANDARD 20)
 # If you want to install them system wide, set CPM_SOURCE_CACHE with the path to the dependencies
 # either as an environment variable or pass it to the cmake script with -DCPM_SOURCE_CACHE=<path>.
 
-IF (${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs-release)
-ELSE()
+IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs-debug)
+ELSE()
+    set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs-release)
 ENDIF()
 
 # Downloads CPM if not already downloaded. CPM is an easy-to-use package manager nicely integrated with CMake.
@@ -65,18 +65,16 @@ include_directories(${LIB_DIR}/eigen)
 enable_testing()
 
 
-if(MSVC)
+IF(MSVC)
     #
-else()
-    IF (${CMAKE_BUILD_TYPE} STREQUAL "Release")
-        #
-    ELSEIF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+ELSE()
+    IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
         add_compile_options(
                 -O0
                 -march=native       # vectorization
         )
     ENDIF()
-endif()
+ENDIF()
 
 
 # Adds all the targets configured in the "plugin" folder.

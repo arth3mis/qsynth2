@@ -46,26 +46,39 @@ another way of building ("Projucer"), this does **not** apply to this project!
 ---
 
 ### VS Code
+
 Please install the CMake extension (twxs.cmake) inside Visual Studio Code.
 
-Using the CMake tab, select 
-
-Visual Studio Code should be able to detect the project and
-offer you to configure it. If it doesn't, make sure that the  is installed.
+Visual Studio Code should be able to detect the project and offer you to configure it.
 You can also right-click the file ``CMakeLists.txt`` in the project root directory and select "Configure All Projects".
 
-In the CMake tab of VS Code, you will now find the "Project Outline" containing
-the buildable targets. Select ``AudioPlugin_All``
+In the CMake tab on the left side of VS Code, you will now find the "Project Outline" containing
+the buildable targets. Select ``AudioPlugin_All`` as the default build target or build it
+via the button or right-clicking.
+
 
 ### CLion
 
-CLion should detect everything automatically.
+CLion should detect everything automatically, load the CMake project and add the configurations.
+If not, please search for "CLion reload CMake project" online.
+Select ``AudioPlugin_All`` in the dropdown menu at the top and click the Build button next to the menu.
+
 
 ### Microsoft Visual Studio
 
-(not tested yet)
+If you open the project with Visual Studio 2022, it will show a CMake overview page
+and add the file ``CMakeSettings.json``. Go to this file and add the configuration "x64-Release".
+Click on this configuration and set the **Configuration type** from "RelWithDebInfo" to "Release".
+Save the file (Ctrl+S) to reload the CMake project.
+
+Select the "x64-Release" configuration in the dropdown menu to the left of the start button.
+Then, at the very top, click on Build→Install. The plugins will be created in 
+``out/build/x64-Release/plugin/AudioPlugin_artefacts/Release/`` 
+(note that the individual files are not directly in this folder, but further down the path).
+
 
 ### Manual build
+
 Run these commands in the root directory of the project:
 ```
 mkdir build
@@ -79,6 +92,12 @@ Then run the final build command.
 ```
 cmake --build . --target AudioPlugin_All -j 8
 ```
+If you use the CMake executable by Visual Studio, you need to pass
+the configuration with the build command:
+```
+cmake --build . --target AudioPlugin_All -j 8 --config Release
+```
+
 
 ---
 
