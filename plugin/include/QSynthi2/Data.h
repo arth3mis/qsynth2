@@ -18,9 +18,15 @@ public:
     std::atomic<size_t> simHeight;
     std::atomic<long> scanlineY{0};
 
-    // context: audio thread
-    //
+    // context: audio thread, GUI thread, simulation thread
     ParameterCollection* parameters;
+
+    // context: audio thread
+    // TODO: find different word for index
+    Decimal currentSimulationFrameIndex = 0;
+    Eigen::ArrayX<Decimal> relativeSimulationFrameIndices = {};
+    List<ComplexMatrix> relativeSimulationFrames = {};
+
 
     Stopwatch functionCallStopwatch     {"Function calls"};
     Stopwatch parameterStopwatch        {"Parameters    "};
