@@ -65,7 +65,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     // TODO: Get from Parameters
     Eigen::ArrayX<Decimal> simulationFrameIncrement = Eigen::ArrayX<Decimal>(buffer.getNumSamples()).setOnes() * 100 / sampleRate;
 
-    size_t firstSimulationFrameIndex = static_cast<size_t>(floor(sharedData.currentSimulationFrameIndex));
+    auto firstSimulationFrameIndex = static_cast<size_t>(floor(sharedData.currentSimulationFrameIndex));
 
     // Calculate needed timestamps
     for (long sample = 0; sample < static_cast<long>(samplesPerBlock); sample++) {
