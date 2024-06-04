@@ -22,9 +22,18 @@ public:
     // context: audio thread
     //
     std::vector<std::shared_ptr<SimFrame>> scannerFrames;
+
+    // thread-safe
+    //
     ParameterCollection* parameters;
 
-    Stopwatch totalStopwatch            {"total sim (needed for FPS)"};
+    // context: audio thread
+    // TODO: find different word for index
+    Decimal currentSimulationFrameIndex = 0;
+    Eigen::ArrayX<Decimal> relativeSimulationFrameIndices = {};
+    List<ComplexMatrix> relativeSimulationFrames = {};
+
+    Stopwatch totalStopwatch            {"total sim     "};
 
 private:
 

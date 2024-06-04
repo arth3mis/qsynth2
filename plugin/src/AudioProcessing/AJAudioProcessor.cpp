@@ -33,35 +33,53 @@ AJAudioProcessor::~AJAudioProcessor() {
     delete st;
 }
 
-void AJAudioProcessor::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
-    synth.prepareToPlay(sampleRate, samplesPerBlock);
+void AJAudioProcessor::prepareToPlay(Decimal newSampleRate, int newSamplesPerBlock) {
+    sampleRate = newSampleRate;
+    samplesPerBlock = static_cast<size_t>(newSamplesPerBlock);
+    synth.prepareToPlay(newSampleRate, newSamplesPerBlock);
 
     juce::ignoreUnused (samplesPerBlock);
 
 }
 
 void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce::MidiBuffer &midiMessages) {
-    for (const auto &m : midiMessages) {
-        const auto midiEvent = m.getMessage();
-        const auto midiEventSample = static_cast<int>(midiEvent.getTimeStamp());
-        juce::Logger::writeToLog(midiEvent.getDescription());
+    /*
+     *     for (const auto &m : midiMessages) {
+    const auto midiEvent = m.getMessage();
+    const auto midiEventSample = static_cast<int>(midiEvent.getTimeStamp());
+
+    juce::Logger::writeToLog(midiEvent.getDescription());
     }
+    */
 
     // Process MIDI
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
+
+
+    // TODO: Get from Parameters
+    Eigen::ArrayX<Decimal> simulationFrameIncrement = Eigen::ArrayX<Decimal>(buffer.getNumSamples()).setOnes() * 100 / sampleRate;
+
+    size_t firstSimulationFrameIndex = static_cast<size_t>(floor(sharedData.currentSimulationFrameIndex));
+
+    // Calculate needed timestamps
+    for (long sample = 0; sample < static_cast<long>(samplesPerBlock); sample++) {
+        sharedData.currentSimulationFrameIndex += simulationFrameIncrement[sample];
+        sharedData.relativeSimulationFrameIndices[sample] = sharedData.currentSimulationFrameIndex - firstSimulationFrameIndex;
+    }
+
+    size_t neededSimulationFrames = static_cast<size_t>(ceil(sharedData.currentSimulationFrameIndex)) - firstSimulationFrameIndex;
+
+
 
     // TODO Process Simulation
     //  - retrieve modData from synth
     List<ModulationData> mds;
     //  - update parameters in simulation: bufferSize, dt (later: gaussian, potential etc)
     st->updateParameters(sharedData.parameters, mds);
-    //  for each sample:
-    //      - calculate timesteps per sample (can change inside the block)
-    //      - save 1D array of frame interpolation indices
-    Eigen::ArrayX<Decimal> a(buffer.getNumSamples());
-    for (int i = 0; i < buffer.getNumSamples(); ++i) {
-        a[i] = 42.0;
-    }
+    //  for each sample: ✅
+    //      - calculate timesteps per sample (can change inside the block) ✅
+    //      - save 1D array of frame interpolation indices ✅
     //  - (later) ask simulation how many frames are ready.
     //      - If too few:
     //          - If offline rendering: Wait until simulation is ready
