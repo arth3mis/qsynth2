@@ -3,6 +3,7 @@
 #include "QSynthi2/Juce.h"
 #include <QSynthi2/Synthesizer/Synthesiser.h>
 #include <QSynthi2/Simulation/Simulation.h>
+#include <QSynthi2/Simulation/SimThread.h>
 
 class AJAudioProcessor {
 public:
@@ -21,9 +22,7 @@ protected:
 
     size_t time = 0;
     size_t timestepCounter = 0;
-    size_t bufferCounterDebug = 0;
     std::shared_ptr<Simulation> sim;
     ComplexMatrix* simFrameCurrent;
-    long nextFrameRequest;
     SimThread* st;
 };

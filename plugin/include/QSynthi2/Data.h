@@ -9,6 +9,7 @@ class Data {
 public:
 
     // context: audio thread <-> GUI thread
+    //
     SimFrame getSimulationDisplayFrame();
     SimFrame* getSimulationScanFrame();
     void setSimulationDisplayFrame(const SimFrame& f);
@@ -20,17 +21,15 @@ public:
 
     // context: audio thread
     //
+    std::vector<std::shared_ptr<SimFrame>> scannerFrames;
     ParameterCollection* parameters;
 
-    Stopwatch functionCallStopwatch     {"Function calls"};
-    Stopwatch parameterStopwatch        {"Parameters    "};
-    Stopwatch modulationStopwatch       {"Modulation    "};
-    Stopwatch hashMapStopwatch          {"Read Hashmap  "};
-    Stopwatch blockStopwatch            {"Block         "};
-    Stopwatch totalStopwatch            {"total sim     "};
+    Stopwatch totalStopwatch            {"total sim (needed for FPS)"};
 
 private:
 
+    // context: audio thread <-> GUI thread
+    //
     SimFrame simulationDisplayFrame;
     SimFrame simulationScanFrame;
     std::mutex frameAccessMutex;

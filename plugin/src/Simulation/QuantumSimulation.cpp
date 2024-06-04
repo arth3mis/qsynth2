@@ -118,6 +118,9 @@ const ComplexMatrix& QuantumSimulation::getNextFrame(const Decimal timestep, con
 
 void QuantumSimulation::reset() {
     started = false;
+
+    double b = 42.1;
+    int i = b;
 }
 
 void QuantumSimulation::calculateNextPsi(const Decimal timestep) {

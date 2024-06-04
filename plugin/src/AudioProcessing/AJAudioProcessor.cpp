@@ -18,7 +18,6 @@ AJAudioProcessor::AJAudioProcessor() {
     st = new SimThread(sim);
     st->started = true;
     sharedData.totalStopwatch.start();
-    nextFrameRequest = 0;
 
     // sharedData.setSimulationDisplayFrame(std::dynamic_pointer_cast<QuantumSimulation>(sim)->getPsi());
 
@@ -30,7 +29,6 @@ AJAudioProcessor::AJAudioProcessor() {
 AJAudioProcessor::~AJAudioProcessor() {
     st->terminate = true;
     sharedData.totalStopwatch.stop();
-    sharedData.totalStopwatch.print();
     juce::Logger::writeToLog("Avg. FPS = " + juce::String(st->newestFrame / (sharedData.totalStopwatch.get()/1000000000.0), 1));
     delete st;
 }
@@ -43,34 +41,34 @@ void AJAudioProcessor::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
 }
 
 void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce::MidiBuffer &midiMessages) {
-    sharedData.blockStopwatch.start();
-    /*
-     *     for (const auto &m : midiMessages) {
-    const auto midiEvent = m.getMessage();
-    const auto midiEventSample = static_cast<int>(midiEvent.getTimeStamp());
-
-    juce::Logger::writeToLog(midiEvent.getDescription());
+    for (const auto &m : midiMessages) {
+        const auto midiEvent = m.getMessage();
+        const auto midiEventSample = static_cast<int>(midiEvent.getTimeStamp());
+        juce::Logger::writeToLog(midiEvent.getDescription());
     }
-     */
 
-    constexpr int samplerate = 44100;
-
-
-    sharedData.functionCallStopwatch.start();
     // Process MIDI
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
     // TODO Process Simulation
     //  - retrieve modData from synth
+    List<ModulationData> mds;
     //  - update parameters in simulation: bufferSize, dt (later: gaussian, potential etc)
+    st->updateParameters(sharedData.parameters, mds);
     //  for each sample:
     //      - calculate timesteps per sample (can change inside the block)
     //      - save 1D array of frame interpolation indices
+    Eigen::ArrayX<Decimal> a(buffer.getNumSamples());
+    for (int i = 0; i < buffer.getNumSamples(); ++i) {
+        a[i] = 42.0;
+    }
     //  - (later) ask simulation how many frames are ready.
     //      - If too few:
     //          - If offline rendering: Wait until simulation is ready
     //          - Else: slow down simulation speed for audio processing to just use available frames
     //  - request n frames from simulation (pass n, receive shared pointers; sim updates atomic currentBufferN)
+    int n = 10;
+    sharedData.scannerFrames = st->getFrames(n);
     //  - save timesteps for scanner (vector<shared_ptr<Frame>>, prob. in Data.h)
     //
 
@@ -81,50 +79,4 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
             buffer.addSample(channel, i, static_cast<float>(samples[i]));
         }
     }
-
-    sharedData.functionCallStopwatch.stop();
-
-    bufferCounterDebug += buffer.getNumSamples();
-
-    // TEMP simulation
-    constexpr int steps = 100;
-    if (time++ % std::max((size_t)1, static_cast<size_t>(samplerate / buffer.getNumSamples() / steps)) != 0) {
-        return;
-    }
-    timestepCounter++;
-
-    simFrameCurrent = st->getFrame(nextFrameRequest);
-    if (simFrameCurrent == nullptr) {
-        if (timestepCounter % steps == 0)
-            juce::Logger::writeToLog("frame request failed for i="+juce::String(nextFrameRequest));
-    } else {
-        nextFrameRequest = st->newestFrame;
-        sharedData.setSimulationDisplayFrame(*simFrameCurrent);
-        sharedData.setSimulationScanFrame(*simFrameCurrent);
-        if (timestepCounter % steps == 0)
-            juce::Logger::writeToLog(juce::String(st->newestFrame) + " frames created, " + juce::String(timestepCounter)
-                +" requested. total size [GB] = ~"+juce::String(static_cast<double>(st->newestFrame) * 128*128*sizeof(Complex) / 1000000000, 3));
-    }
-    // simFrameCurrent = sim->getNextFrame(0.2, {});
-    // sharedData.setSimulationDisplayFrame(simFrameCurrent);//.map<num>([](const cnum c){ return std::abs(c); }));
-
-    sharedData.blockStopwatch.stop();
-
-    if (timestepCounter % steps != 0)
-        return;
-
-    juce::Logger::writeToLog("samples = "+juce::String(bufferCounterDebug));//+"; timesteps = "+juce::String(timestepCounter));
-    juce::Logger::writeToLog("Avg. FPS = " + juce::String(st->newestFrame / (sharedData.totalStopwatch.get()/1000000000.0), 1));
-
-    long per = bufferCounterDebug / samplerate;
-    sharedData.blockStopwatch.print(per, "second");
-    sharedData.parameterStopwatch.print(per, "second");
-    sharedData.modulationStopwatch.print(per, "second");
-    sharedData.hashMapStopwatch.print(per, "second");
-    sharedData.functionCallStopwatch.print(per, "second");
-
-    // per = st->newestFrame;
-    // sharedData.simPotStopwatch.print(per, "frame");
-    // sharedData.simFftStopwatch.print(per, "frame");
-    // sharedData.simKinStopwatch.print(per, "frame");
 }
