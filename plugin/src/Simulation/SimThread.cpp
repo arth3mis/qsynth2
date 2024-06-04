@@ -1,4 +1,5 @@
 #include "QSynthi2/Simulation/SimThread.h"
+#include <QSynthi2/Parameter/ParameterCollection.h>
 #include <chrono>
 
 SimThread::SimThread(const std::shared_ptr<Simulation> &s) {
@@ -16,23 +17,24 @@ SimThread::~SimThread() {
 
 void SimThread::simulationLoop() {
     // parameters
-    Decimal timestep;
-    Decimal speed;
+    Decimal timestep = 0;
+    Decimal speed = 0;
+    newParameters = true;
 
     while (!terminate) {
-        if (started) {
-            // update parameters
-            if (newParameters) {
-                std::lock_guard lock(parameterMutex);
-                timestep = this->timestep;
-                speed = this->speed;
-                newParameters = false;
-            }
+        // update parameters
+        if (newParameters) {
+            std::lock_guard lock(parameterMutex);
+            timestep = this->timestep;
+            speed = this->speed;
+            newParameters = false;
+        }
 
-            appendFrame(new SimFrame(sim->getNextFrame(0.2, {})));
+        if (started && frameBuffer.size() < bufferTargetSize) {
+            appendFrame(new SimFrame(sim->getNextFrame(timestep, {})));
         } else {
             // todo try both busy waiting and sleep with new buffer method
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
     }
 }
@@ -40,11 +42,15 @@ void SimThread::simulationLoop() {
 void SimThread::updateParameters(const ParameterCollection* pc, const List<ModulationData>& md) {
     std::lock_guard lock(parameterMutex);
     newParameters = true;
+
+    // TODO temp
+    bufferTargetSize = 50;
 }
 
 void SimThread::appendFrame(SimFrame* f) {
     std::lock_guard lock(frameMutex);
-    newestFrame = frameBuffer.append(f);
+    frameBuffer.append(f);
+    ++newestFrame;
 }
 
 std::vector<std::shared_ptr<SimFrame>> SimThread::getFrames(const size_t n) {

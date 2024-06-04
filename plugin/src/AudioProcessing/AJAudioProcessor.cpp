@@ -38,6 +38,8 @@ void AJAudioProcessor::prepareToPlay(Decimal newSampleRate, int newSamplesPerBlo
     samplesPerBlock = static_cast<size_t>(newSamplesPerBlock);
     synth.prepareToPlay(newSampleRate, newSamplesPerBlock);
 
+    sharedData.relativeSimulationFrameIndices = Eigen::ArrayX<Decimal>(samplesPerBlock);
+
     juce::ignoreUnused (samplesPerBlock);
 
 }
@@ -68,7 +70,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         sharedData.relativeSimulationFrameIndices[sample] = sharedData.currentSimulationFrameIndex - firstSimulationFrameIndex;
     }
 
-    size_t neededSimulationFrames = static_cast<size_t>(ceil(sharedData.currentSimulationFrameIndex)) - firstSimulationFrameIndex;
+    size_t neededSimulationFrames = 1 + static_cast<size_t>(ceil(sharedData.currentSimulationFrameIndex)) - firstSimulationFrameIndex;
 
 
 
@@ -76,6 +78,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     //  - retrieve modData from synth
     List<ModulationData> mds;
     //  - update parameters in simulation: bufferSize, dt (later: gaussian, potential etc)
+    // todo buffer must be at least 2x requested frame count (?)
     st->updateParameters(sharedData.parameters, mds);
     //  for each sample: ✅
     //      - calculate timesteps per sample (can change inside the block) ✅
@@ -84,11 +87,15 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     //      - If too few:
     //          - If offline rendering: Wait until simulation is ready
     //          - Else: slow down simulation speed for audio processing to just use available frames
+    size_t framesReady = st->frameReadyCount();
+    if (framesReady < neededSimulationFrames) {
+        // TODO handle (see above)
+    }
     //  - request n frames from simulation (pass n, receive shared pointers; sim updates atomic currentBufferN)
-    int n = 10;
-    sharedData.scannerFrames = st->getFrames(n);
     //  - save timesteps for scanner (vector<shared_ptr<Frame>>, prob. in Data.h)
-    //
+    sharedData.scannerFrames = st->getFrames(neededSimulationFrames);
+    juce::Logger::writeToLog("got frames: " + juce::String(sharedData.scannerFrames.size())
+        + " of " + juce::String(neededSimulationFrames));
 
     // Process Audio
     auto samples = synth.generateNextBlock();

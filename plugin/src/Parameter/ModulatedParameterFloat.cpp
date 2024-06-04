@@ -21,16 +21,10 @@ ModulatedParameterFloat::ModulatedParameterFloat(const juce::String &name, const
 
 
 void ModulatedParameterFloat::processBlock() {
-    sharedData.functionCallStopwatch.stop();
-    sharedData.modulationStopwatch.start();
-
     // Writes the raw value in the Buffer
     for (int i = 0; i < bufferNormalizedSliderValue.size(); ++i) {
         bufferNormalizedSliderValue[i] = smoothedNormalizedSliderValue.getNextValue();
     }
-
-    sharedData.modulationStopwatch.stop();
-    sharedData.functionCallStopwatch.start();
 }
 
 

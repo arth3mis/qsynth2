@@ -6,7 +6,8 @@
 #include <thread>
 #include <mutex>
 #include <memory>
-#include <QSynthi2/Parameter/ParameterCollection.h>
+
+class ParameterCollection;
 
 class SimThread {
 public:
