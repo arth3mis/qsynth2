@@ -70,7 +70,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     // Calculate needed timestamps
     for (long sample = 0; sample < static_cast<long>(samplesPerBlock); sample++) {
         sharedData.currentSimulationFrameIndex += simulationFrameIncrement[sample];
-        sharedData.relativeSimulationFrameIndices[sample] = sharedData.currentSimulationFrameIndex - firstSimulationFrameIndex;
+        sharedData.relativeSimulationFrameIndices[sample] = sharedData.currentSimulationFrameIndex - static_cast<Decimal>(firstSimulationFrameIndex);
     }
 
     size_t neededSimulationFrames = static_cast<size_t>(ceil(sharedData.currentSimulationFrameIndex)) - firstSimulationFrameIndex;
