@@ -12,7 +12,6 @@ SimulationThread::SimulationThread(const std::shared_ptr<Simulation> &s) {
 
 SimulationThread::~SimulationThread() {
     t.join();
-    frameBuffer.forEach([](const SimulationFrame* m) { delete m; });
 }
 
 void SimulationThread::simulationLoop() {
@@ -31,7 +30,7 @@ void SimulationThread::simulationLoop() {
         }
 
         if (started && frameBuffer.size() < bufferTargetSize) {
-            appendFrame(new SimulationFrame(sim->getNextFrame(timestep, {})));
+            appendFrame(std::make_shared<SimulationFrame>(sim->getNextFrame(timestep, {})));
         } else {
             // todo try both busy waiting and sleep with new buffer method
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -47,7 +46,7 @@ void SimulationThread::updateParameters(const ParameterCollection* pc, const Lis
     bufferTargetSize = 50;
 }
 
-void SimulationThread::appendFrame(SimulationFrame* f) {
+void SimulationThread::appendFrame(const std::shared_ptr<SimulationFrame>& f) {
     std::lock_guard lock(frameMutex);
     frameBuffer.append(f);
     ++newestFrame;
@@ -59,7 +58,7 @@ std::vector<std::shared_ptr<SimulationFrame>> SimulationThread::getFrames(const 
 
     const auto first = frameBuffer.begin();
     const auto last = std::next(first, static_cast<long>(std::min(n, frameBuffer.size())));
-    auto subList = std::vector<std::shared_ptr<SimulationFrame>>(first, last);
+    auto subList = List<std::shared_ptr<SimulationFrame>>(first, last);
     frameBuffer.erase(first, last);
     return subList;
 }

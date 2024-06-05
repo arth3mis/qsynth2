@@ -18,6 +18,8 @@ public:
 
     List(size_t size, T initialValue) : std::vector<T>(size, initialValue) { }
 
+    List(typename std::vector<T>::iterator first, typename std::vector<T>::iterator last) : std::vector<T>(first, last) { }
+
 
     static List list2D(size_t size0, size_t size1, T initialValue) {
         return List(size0, List(size1, initialValue));

@@ -17,7 +17,7 @@ public:
 
     void simulationLoop();
     void updateParameters(const ParameterCollection* pc, const List<ModulationData>& md);
-    void appendFrame(SimulationFrame* f);
+    void appendFrame(const std::shared_ptr<SimulationFrame>& f);
     std::vector<std::shared_ptr<SimulationFrame>> getFrames(size_t n);
     size_t frameReadyCount();
 
@@ -39,7 +39,7 @@ private:
     // frames
     std::mutex frameMutex;
     std::atomic<size_t> bufferTargetSize;
-    List<SimulationFrame*> frameBuffer;
+    List<std::shared_ptr<SimulationFrame>> frameBuffer;
 };
 
 #endif //SIMTHREAD_H
