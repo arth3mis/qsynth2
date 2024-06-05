@@ -16,7 +16,7 @@ public:
     ~SimulationThread();
 
     void simulationLoop();
-    void updateParameters(const ParameterCollection* pc, const List<ModulationData>& md);
+    void updateParameters(const ParameterCollection* parameterCollection, const List<ModulationData*>& modulationData);
     void appendFrame(const std::shared_ptr<SimulationFrame>& f);
     FrameList getFrames(size_t n);
     size_t frameReadyCount();

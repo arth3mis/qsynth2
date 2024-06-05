@@ -12,8 +12,8 @@ AJAudioProcessor::AJAudioProcessor() {
         .barrierPotential({-0.0, NAN}, 2, {{-0.2, -0.1}, {0.1, 0.2}}, 1e30)
         .parabolaPotential({0, 0}, {2, 1.5})
         .gaussianDistribution({-0.4, 0}, {0.25, 0.25}, {4, 0})));
-    sharedData.simWidth = SIM_SIZE;
-    sharedData.simHeight = SIM_SIZE;
+    sharedData.simulationWidth = SIM_SIZE;
+    sharedData.simulationHeight = SIM_SIZE;
 
     simulationThread = new SimulationThread(simulation);
     simulationThread->started = true;
@@ -73,7 +73,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
 
 
     // todo - retrieve modData from synth
-    const List<ModulationData> modulationData;
+    List<ModulationData*> modulationData = synth.getActiveVoices().map<ModulationData*>([](Voice* v){ return v->getModulationData(); });
 
     // TODO: - update parameters in simulation: bufferSize, dt (later: gaussian, potential etc)
     simulationThread->updateParameters(sharedData.parameters, modulationData);

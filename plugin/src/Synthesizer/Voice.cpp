@@ -79,6 +79,7 @@ void Voice::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
 
 
 void Voice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) {
+    activeThisBlock = true;
 
     for (int i = startSample; i < startSample + numSamples; i++) {
         // TODO: Optimize this, maybe pointers to Arrays?
@@ -98,7 +99,15 @@ void Voice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSam
 
 Eigen::ArrayX<Decimal> Voice::generateNextBlock() {
     // TODO: replace with envelope
+    activeThisBlock = false;
+
     return gain * sonifier.generateNextBlock(modulationData);
+}
+
+
+
+bool Voice::isActiveThisBlock() {
+    return activeThisBlock;
 }
 
 

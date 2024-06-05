@@ -1,6 +1,7 @@
 #pragma once
 
 #include "QSynthi2/types.h"
+#include "QSynthi2/Parameter/ParameterCollection.h"
 
 class Scanner {
 public:

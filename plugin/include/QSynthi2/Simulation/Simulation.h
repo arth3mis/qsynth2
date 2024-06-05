@@ -2,6 +2,7 @@
 #define SIMULATION_H
 
 #include "QSynthi2/types.h"
+#include "QSynthi2/Parameter/ModulationData.h"
 
 class Simulation {
 public:

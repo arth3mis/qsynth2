@@ -41,6 +41,7 @@ target_sources(${PROJECT_NAME}
         src/Parameter/Parameters.cpp
         src/Synthesizer/Scanner.cpp
         src/Synthesizer/Voice.cpp
+        src/Synthesizer/Sonifier.cpp
         src/AudioProcessing/AJAudioProcessor.cpp
 )
 

@@ -17,7 +17,6 @@ SimulationThread::~SimulationThread() {
 void SimulationThread::simulationLoop() {
     // parameters
     Decimal timestep = 0;
-    Decimal speed = 0;
     newParameters = true;
 
     while (!terminate) {
@@ -39,12 +38,13 @@ void SimulationThread::simulationLoop() {
     }
 }
 
-void SimulationThread::updateParameters(const ParameterCollection* pc, const List<ModulationData>& md) {
+void SimulationThread::updateParameters(const ParameterCollection* parameterCollection, const List<ModulationData*> &modulationData) {
     std::lock_guard lock(parameterMutex);
     newParameters = true;
 
     // TODO read from parameter
-    bufferTargetSize = 8;
+    bufferTargetSize = 50;
+
 }
 
 void SimulationThread::appendFrame(const std::shared_ptr<SimulationFrame>& f) {

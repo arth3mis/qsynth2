@@ -32,12 +32,16 @@ public:
     // Generates the audio
     Eigen::ArrayX<Decimal> generateNextBlock();
 
-    ModulationData& getModulationData() {
-        return modulationData;
+    ModulationData* getModulationData() {
+        return &modulationData;
     }
+
+    bool isActiveThisBlock();
 
 
 protected:
+
+    bool activeThisBlock = false;
 
     ModulationData modulationData;
 

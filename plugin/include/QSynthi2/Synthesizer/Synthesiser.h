@@ -27,16 +27,26 @@ public:
 
 
 
-    Eigen::ArrayX<Decimal> generateNextBlock() {
-        auto samples = Eigen::ArrayX<Decimal>(samplesPerBlock).setZero();
+    List<Voice*> getActiveVoices() {
+        List<Voice*> activeVoices;
 
         for (auto mpeVoice : voices) {
-            if (mpeVoice->isActive()) { // TODO: Use more accurate method to find out if the voice was active in this block
-                if (auto *voice = dynamic_cast<Voice *>(mpeVoice)) {
-                    samples += voice->generateNextBlock();
+            if (auto *voice = dynamic_cast<Voice *>(mpeVoice)) {
+                if (voice->isActiveThisBlock()) {
+                    activeVoices.append(voice);
                 }
             }
         }
+
+        return activeVoices;
+    }
+
+
+
+    Eigen::ArrayX<Decimal> generateNextBlock() {
+        auto samples = Eigen::ArrayX<Decimal>(samplesPerBlock).setZero();
+
+        getActiveVoices().forEach([&](Voice* v){ samples += v->generateNextBlock(); });
 
         return samples;
     }

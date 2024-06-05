@@ -34,9 +34,8 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
         return;
     }
 
-    const size_t w = sharedData.simWidth;
-    const size_t h = sharedData.simHeight;
-    const size_t scanlineY = sharedData.scanlineY;
+    const size_t w = sharedData.simulationWidth;
+    const size_t h = sharedData.simulationHeight;
 
     const float vx = static_cast<float>(getWidth()) / static_cast<float>(w);
     const float vy = static_cast<float>(getHeight()) / static_cast<float>(h);
@@ -58,12 +57,13 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
         }
     }
 
-
+    /* temp scanline
     g.setColour(juce::Colour(30.f, 0.2f, 1.f, 0.5f));
     g.fillRect(juce::Rectangle(
            0.f,
            static_cast<float>(scanlineY) * vy - yOverlap,
            (float)getWidth(),
            vy + yOverlap * 2));
+           */
 
 }

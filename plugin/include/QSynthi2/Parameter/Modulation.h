@@ -1,6 +1,5 @@
 #pragma once
 
-#include "QSynthi2/Juce.h"
 #include <QSynthi2/types.h>
 #include <QSynthi2/Parameter/ModulationData.h>
 
