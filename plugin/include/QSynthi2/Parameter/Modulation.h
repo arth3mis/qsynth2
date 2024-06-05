@@ -2,6 +2,7 @@
 
 #include "QSynthi2/Juce.h"
 #include <QSynthi2/types.h>
+#include <QSynthi2/Parameter/ModulationData.h>
 
 class ModulatedParameterFloat;
 
@@ -22,7 +23,7 @@ public:
 
     Modulation(juce::String modulationSource, ModulatedParameterFloat* amount);
 
-    Eigen::ArrayX<Decimal> getModulatedNormalized(const ModulationData& modulationData);
+    Eigen::ArrayX<Decimal> getModulatedNormalized(const ModulationData& modulationData, int samplesPerBlock);
 
     void setModulatedParameterId(juce::String newModulatedParameterId);
     juce::String getModulatedParameterId();
@@ -31,11 +32,7 @@ public:
 
     void setAmountParameter(ModulatedParameterFloat* newAmount);
 
-    void prepareToPlay(int newSamplesPerBlock);
-
 protected:
-
-    int samplesPerBlock;
 
     juce::String modulatedParameterId;
     juce::String modulationSource;
