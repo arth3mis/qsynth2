@@ -38,6 +38,10 @@ public:
         this->erase(this->begin() + static_cast<long>(index), this->begin() + static_cast<long>(index + number));
     }
 
+    void append(const std::vector<T> &other) {
+        this->insert(this->end(), other.begin(), other.end());
+    }
+
     T sum() {
         if (this->empty())
             return T();

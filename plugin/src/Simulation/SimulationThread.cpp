@@ -43,7 +43,7 @@ void SimulationThread::updateParameters(const ParameterCollection* pc, const Lis
     std::lock_guard lock(parameterMutex);
     newParameters = true;
 
-    // TODO temp
+    // TODO read from parameter
     bufferTargetSize = 50;
 }
 
@@ -55,6 +55,8 @@ void SimulationThread::appendFrame(SimulationFrame* f) {
 
 std::vector<std::shared_ptr<SimulationFrame>> SimulationThread::getFrames(const size_t n) {
     std::lock_guard lock(frameMutex);
+    jassert(frameBuffer.size() >= 2 * n); // buffer must at least double the size of requested frames, so the simulation thread can write in one half while the audio thread reads the other half
+
     const auto first = frameBuffer.begin();
     const auto last = std::next(first, static_cast<long>(std::min(n, frameBuffer.size())));
     auto subList = std::vector<std::shared_ptr<SimulationFrame>>(first, last);

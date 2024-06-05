@@ -55,13 +55,11 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
 
     auto frameBufferNewFirstFrame = static_cast<size_t>(floor(currentSimulationFrame));
 
-    juce::Logger::writeToLog("new: " + juce::String(sharedData.frameBufferFirstFrame) + " old: " + juce::String(frameBufferNewFirstFrame));
-
+    // Remove past frames
     sharedData.frameBuffer.remove(0, frameBufferNewFirstFrame - sharedData.frameBufferFirstFrame);
     sharedData.frameBufferFirstFrame = frameBufferNewFirstFrame;
 
-
-    // Calculate needed timestamps
+    // Calculate needed frames
     for (long sample = 0; sample < static_cast<long>(samplesPerBlock); sample++) {
         sharedData.frameBufferTimestamps[sample] = currentSimulationFrame - static_cast<Decimal>(frameBufferNewFirstFrame);
         currentSimulationFrame += simulationFrameIncrement[sample];
@@ -70,31 +68,25 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     size_t neededSimulationFrames = static_cast<size_t>(ceil(currentSimulationFrame)) - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
 
 
-
-
-    //  - retrieve modData from synth
+    // todo - retrieve modData from synth
     List<ModulationData> modulationData;
 
-    //  - update parameters in simulation: bufferSize, dt (later: gaussian, potential etc)
-    // todo buffer must be at least 2x requested frame count (?)
+    // TODO: - update parameters in simulation: bufferSize, dt (later: gaussian, potential etc)
     simulationThread->updateParameters(sharedData.parameters, modulationData);
 
 
     // TODO
-    //  - (later) ask simulation how many frames are ready.
-    //      - If too few:
-    //          - If offline rendering: Wait until simulation is ready
-    //          - Else: slow down simulation speed for audio processing to just use available frames
+    //  - If offline rendering: Busy wait until simulation is ready
+    //  - Else: slow down simulation speed for audio processing to just use available frames
     while (simulationThread->frameReadyCount() <= neededSimulationFrames) {
         // busy wait
     }
+    juce::Logger::writeToLog("Simulation thread is " + juce::String(simulationThread->frameReadyCount() - neededSimulationFrames) + " frames ahead.");
 
-    //  - request n frames from simulation (pass n, receive shared pointers; sim updates atomic currentBufferN)
-    //  - save timesteps for scanner (vector<shared_ptr<Frame>>, prob. in Data.h)
     auto newFrames = simulationThread->getFrames(neededSimulationFrames);
-    sharedData.frameBuffer.insert(sharedData.frameBuffer.end(), newFrames.begin(), newFrames.end());
-    juce::Logger::writeToLog("got frames: " + juce::String(newFrames.size())
-        + " of " + juce::String(neededSimulationFrames));
+    sharedData.frameBuffer.append(newFrames);
+
+    // juce::Logger::writeToLog("got frames: " + juce::String(newFrames.size()) + " of " + juce::String(neededSimulationFrames));
 
 
     // Process Audio
