@@ -110,10 +110,6 @@ void Parameters::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
     for (auto& [id, parameter]: modulatedParameters) {
         parameter->prepareToPlay(sampleRate, samplesPerBlock);
     }
-
-    for (const auto& modulation : availableModulations) {
-        modulation->prepareToPlay(samplesPerBlock);
-    }
 }
 
 

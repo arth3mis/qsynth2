@@ -24,14 +24,13 @@ Modulation::Modulation(juce::String modulationSource, ModulatedParameterFloat* a
 
 
 
-Eigen::ArrayX<Decimal> Modulation::getModulatedNormalized(const ModulationData& modulationData) {
+Eigen::ArrayX<Decimal> Modulation::getModulatedNormalized(const ModulationData& modulationData, int samplesPerBlock) {
     // Return zeros if source isn't set.
-    // TODO: is there a more performant way of doing this? Only if needed
-    if (modulationSource.equalsIgnoreCase("")) return Eigen::ArrayX<Decimal>(samplesPerBlock).setZero();
+    // TODO: is there a more performant way of detecting this case? Only if needed
+    if (modulationSource.equalsIgnoreCase("")) return Eigen::ArrayXd::Constant(samplesPerBlock, 0);
 
     jassert(modulationData.contains(modulationSource)); // Invalid modulationSource. Isn't set in modulationData!
-    jassert(modulationData.at(modulationSource).size() == amount->getModulated(modulationData).size()); // Block sizes arent equal
-    return modulationData.at(modulationSource) * amount->getModulated(modulationData);
+    return modulationData.at(modulationSource, samplesPerBlock) * amount->getModulated(modulationData, samplesPerBlock);
 }
 
 
@@ -54,8 +53,4 @@ void Modulation::setModulationSource(juce::String newModulationSource) {
 
 void Modulation::setAmountParameter(ModulatedParameterFloat* newAmount) {
     amount = newAmount;
-}
-
-void Modulation::prepareToPlay(int newSamplesPerBlock) {
-    samplesPerBlock = newSamplesPerBlock;
 }

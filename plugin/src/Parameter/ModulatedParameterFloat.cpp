@@ -33,7 +33,35 @@ Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulatedNormalized(const Mod
     Eigen::ArrayX<Decimal> buffer = bufferNormalizedSliderValue;
 
     for (auto modulation : modulations) {
-        buffer = buffer + modulation->getModulatedNormalized(modulationData);
+        auto modulationValues = modulation->getModulatedNormalized(modulationData, static_cast<int>(buffer.size()));
+        if (modulationValues.size() == 1) modulationValues = modulationValues.replicate(buffer.size(), 1);
+
+        jassert(buffer.size() == modulationValues.size());
+        buffer += modulationValues;
+    }
+
+    return buffer;
+}
+
+
+Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulatedNormalized(const ModulationData &modulationData, int samplesPerBlock) {
+    if (samplesPerBlock == bufferNormalizedSliderValue.size()) return getModulatedNormalized(modulationData);
+    jassert(samplesPerBlock > 0 && samplesPerBlock < bufferNormalizedSliderValue.size()); // Current implementation only works for numbers smaller than the buffer size
+
+    auto buffer = Eigen::ArrayX<Decimal>(samplesPerBlock);
+
+    for (long i = 0; i < samplesPerBlock; i++) {
+        auto index = static_cast<long>(round(static_cast<Decimal>(i + 1) / static_cast<Decimal>(samplesPerBlock) * static_cast<Decimal>(bufferNormalizedSliderValue.size() - 1)));
+        jassert(index >= 0 && index < bufferNormalizedSliderValue.size());
+        buffer[i] = bufferNormalizedSliderValue[index];
+    }
+
+    for (auto modulation : modulations) {
+        auto modulationValues = modulation->getModulatedNormalized(modulationData, static_cast<int>(buffer.size()));
+        if (modulationValues.size() == 1) modulationValues = modulationValues.replicate(buffer.size(), 1);
+
+        jassert(buffer.size() == modulationValues.size());
+        buffer += modulationValues;
     }
 
     return buffer;
@@ -46,6 +74,32 @@ Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulated(const ModulationDat
         return static_cast<Decimal>(this->convertFrom0to1(static_cast<float>(decimal)));
     });
 }
+
+
+
+Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulated(const ModulationData &modulationData, int samplesPerBlock) {
+    return getModulatedNormalized(modulationData, samplesPerBlock).unaryExpr([this](Decimal decimal) {
+        return static_cast<Decimal>(this->convertFrom0to1(static_cast<float>(decimal)));
+    });
+}
+
+
+
+Eigen::ArrayX<Decimal>ModulatedParameterFloat::getModulated(const List<ModulationData> &modulationDataList, int samplesPerBlock) {
+    auto buffer = Eigen::ArrayX<Decimal>(samplesPerBlock).setZero();
+    auto weights = Eigen::ArrayX<Decimal>(samplesPerBlock).setZero();
+
+    for (const auto& modulationData : modulationDataList) {
+        weights += 1; // TODO: replace 1 with modulationData.at(Modulation::Sources::ENVELOPE1)
+    }
+
+    for (const auto& modulationData : modulationDataList) {
+        buffer += getModulated(modulationData, samplesPerBlock) * 1 / weights; // TODO: replace 1 with modulationData.at(Modulation::Sources::ENVELOPE1)
+    }
+
+    return buffer;
+}
+
 
 
 void ModulatedParameterFloat::valueChanged(float newValue) {
