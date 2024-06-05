@@ -15,16 +15,14 @@ public:
     void setSimulationDisplayFrame(const SimulationFrame& f);
     void setSimulationScanFrame(const SimulationFrame& f);
 
-    std::atomic<size_t> simWidth;
-    std::atomic<size_t> simHeight;
-    std::atomic<long> scanlineY{0};
+    std::atomic<size_t> simulationWidth;
+    std::atomic<size_t> simulationHeight;
 
     // thread-safe
     //
     ParameterCollection* parameters;
 
     // context: audio thread
-    // TODO: find different word for index
     Eigen::ArrayX<Decimal> frameBufferTimestamps;
     size_t frameBufferFirstFrame = 0;
     List<std::shared_ptr<SimulationFrame>> frameBuffer;

@@ -85,7 +85,7 @@ Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulated(const ModulationDat
 
 
 
-Eigen::ArrayX<Decimal>ModulatedParameterFloat::getModulated(const List<ModulationData> &modulationDataList, int samplesPerBlock) {
+Eigen::ArrayX<Decimal>ModulatedParameterFloat::getModulated(const List<ModulationData*> &modulationDataList, int samplesPerBlock) {
     auto buffer = Eigen::ArrayX<Decimal>(samplesPerBlock).setZero();
     auto weights = Eigen::ArrayX<Decimal>(samplesPerBlock).setZero();
 
@@ -94,7 +94,7 @@ Eigen::ArrayX<Decimal>ModulatedParameterFloat::getModulated(const List<Modulatio
     }
 
     for (const auto& modulationData : modulationDataList) {
-        buffer += getModulated(modulationData, samplesPerBlock) * 1 / weights; // TODO: replace 1 with modulationData.at(Modulation::Sources::ENVELOPE1)
+        buffer += getModulated(*modulationData, samplesPerBlock) * 1 / weights; // TODO: replace 1 with modulationData.at(Modulation::Sources::ENVELOPE1)
     }
 
     return buffer;

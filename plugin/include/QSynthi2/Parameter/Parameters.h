@@ -2,7 +2,6 @@
 #include "QSynthi2/Juce.h"
 #include "ModulatedParameterFloat.h"
 
-
 class Parameters {
 
 public:

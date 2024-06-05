@@ -10,8 +10,10 @@ public:
 
     }
 
-    const Eigen::ArrayX<Decimal> at(const juce::String &key, long number) {
-        auto values = this->at(key);
+
+
+    Eigen::ArrayX<Decimal> at(const juce::String &key, long number) const {
+        auto values = std::unordered_map<juce::String, Eigen::ArrayX<Decimal>>::at(key);
 
         jassert(number <= values.size()); // current implementation only works for numbers <= the original size
         if (number == values.size()) return values;
@@ -25,10 +27,6 @@ public:
         }
 
         return trimmedValues;
-    }
-
-    const Eigen::ArrayX<Decimal> at(const juce::String &key) {
-        return std::unordered_map<juce::String, Eigen::ArrayX<Decimal>>::at(key);
     }
 
 };

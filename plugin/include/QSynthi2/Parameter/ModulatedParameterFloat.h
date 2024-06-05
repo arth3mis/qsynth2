@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Modulation.h"
-#include "QSynthi2/AudioProcessing/AJAudioProcessor.h"
 
 class ModulatedParameterFloat : public juce::AudioParameterFloat {
 public:
@@ -25,7 +24,7 @@ public:
 
     Eigen::ArrayX<Decimal> getModulated(const ModulationData &modulationData, int samplesPerBlock);
 
-    Eigen::ArrayX<Decimal> getModulated(const List<ModulationData> &modulationData, int samplesPerBlock);
+    Eigen::ArrayX<Decimal> getModulated(const List<ModulationData*> &modulationData, int samplesPerBlock);
 
     // TODO: With given Array of ModulationData. Weighted Average by Envelope #1?
     // and number of wanted samples

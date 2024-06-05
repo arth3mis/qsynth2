@@ -24,6 +24,5 @@ protected:
     Synthesiser synth { instrument };
 
     Decimal currentSimulationFrame = 0;
-
     SimulationThread* simulationThread;
 };

@@ -36,7 +36,8 @@ public:
     }
 
     void remove(size_t index, size_t number = 1) {
-        jassert(index + number < this->size()); // Remove more elements than there are in the List
+        jassert(index >= 0 && index < this->size() && number >= 0);
+        jassert(index + number <= this->size()); // Remove more elements than there are in the List
         this->erase(this->begin() + static_cast<long>(index), this->begin() + static_cast<long>(index + number));
     }
 
