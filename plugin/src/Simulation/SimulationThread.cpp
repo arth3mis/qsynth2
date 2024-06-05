@@ -63,6 +63,7 @@ std::vector<std::shared_ptr<SimulationFrame>> SimulationThread::getFrames(const 
 }
 
 size_t SimulationThread::frameReadyCount() {
+    // TODO: use atomic for size?
     std::lock_guard lock(frameMutex);
     return frameBuffer.size();
 }

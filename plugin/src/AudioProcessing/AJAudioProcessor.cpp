@@ -67,7 +67,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         currentSimulationFrame += simulationFrameIncrement[sample];
     }
 
-    size_t neededSimulationFrames = 1 + static_cast<size_t>(ceil(currentSimulationFrame)) - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
+    size_t neededSimulationFrames = static_cast<size_t>(ceil(currentSimulationFrame)) - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
 
 
 
@@ -80,13 +80,13 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     simulationThread->updateParameters(sharedData.parameters, modulationData);
 
 
+    // TODO
     //  - (later) ask simulation how many frames are ready.
     //      - If too few:
     //          - If offline rendering: Wait until simulation is ready
     //          - Else: slow down simulation speed for audio processing to just use available frames
-    size_t framesReady = simulationThread->frameReadyCount();
-    if (framesReady < neededSimulationFrames) {
-        // TODO handle (see above)
+    while (simulationThread->frameReadyCount() <= neededSimulationFrames) {
+        // busy wait
     }
 
     //  - request n frames from simulation (pass n, receive shared pointers; sim updates atomic currentBufferN)

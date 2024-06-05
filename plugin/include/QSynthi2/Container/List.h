@@ -35,9 +35,7 @@ public:
 
     void remove(size_t index, size_t number = 1) {
         jassert(index + number < this->size()); // Remove more elements than there are in the List
-        for (size_t i = 0; i < this->size(); i++) {
-            this->erase(this->begin() + index);
-        }
+        this->erase(this->begin() + static_cast<long>(index), this->begin() + static_cast<long>(index + number));
     }
 
     T sum() {
