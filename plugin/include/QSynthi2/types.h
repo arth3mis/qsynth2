@@ -25,7 +25,7 @@ typedef std::complex<Decimal> Complex;
 typedef Eigen::Array<Complex, Eigen::Dynamic, Eigen::Dynamic> ComplexMatrix;
 typedef Eigen::Array<Decimal, Eigen::Dynamic, Eigen::Dynamic> RealMatrix;
 
-typedef ComplexMatrix SimFrame;
+typedef ComplexMatrix SimulationFrame;
 
 
 typedef std::unordered_map<juce::String, Eigen::ArrayX<Decimal>> ModulationData;

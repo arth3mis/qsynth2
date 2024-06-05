@@ -21,7 +21,8 @@ public:
 
     Eigen::ArrayX<Decimal> getModulated(const ModulationData &modulationData);
 
-    // TODO: With given Array of ModulationData. Weighted Average by Envelope 1?
+    // TODO: With given Array of ModulationData. Weighted Average by Envelope #1?
+    // and number of wanted samples
 
     void prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
         smoothedNormalizedSliderValue.reset(sampleRate, sliderSmoothingSeconds);

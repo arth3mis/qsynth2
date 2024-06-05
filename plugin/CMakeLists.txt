@@ -34,7 +34,7 @@ target_sources(${PROJECT_NAME}
         src/Data.cpp
         src/Display/SimulationDisplay.cpp
         src/Simulation/Simulation.cpp
-        src/Simulation/SimThread.cpp
+        src/Simulation/SimulationThread.cpp
         src/Simulation/QuantumSimulation.cpp
         src/Parameter/Modulation.cpp
         src/Parameter/ModulatedParameterFloat.cpp

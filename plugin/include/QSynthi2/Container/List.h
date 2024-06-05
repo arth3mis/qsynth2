@@ -28,14 +28,16 @@ public:
         return this->size() - 1;
     }
 
-    bool remove(const T& element) {
+    void remove(const T& element) {
+        auto it = std::find(this->begin(), this->end(), element);
+        this->erase(it);
+    }
+
+    void remove(size_t index, size_t number = 1) {
+        jassert(index + number < this->size()); // Remove more elements than there are in the List
         for (size_t i = 0; i < this->size(); i++) {
-            if (this->at(i) == element) {
-                this->erase(this->begin() + i);
-                return true;
-            }
+            this->erase(this->begin() + index);
         }
-        return false;
     }
 
     T sum() {

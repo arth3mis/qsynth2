@@ -10,18 +10,14 @@ public:
 
     // context: audio thread <-> GUI thread
     //
-    SimFrame getSimulationDisplayFrame();
-    SimFrame* getSimulationScanFrame();
-    void setSimulationDisplayFrame(const SimFrame& f);
-    void setSimulationScanFrame(const SimFrame& f);
+    SimulationFrame getSimulationDisplayFrame();
+    SimulationFrame* getSimulationScanFrame();
+    void setSimulationDisplayFrame(const SimulationFrame& f);
+    void setSimulationScanFrame(const SimulationFrame& f);
 
     std::atomic<size_t> simWidth;
     std::atomic<size_t> simHeight;
     std::atomic<long> scanlineY{0};
-
-    // context: audio thread
-    //
-    std::vector<std::shared_ptr<SimFrame>> scannerFrames;
 
     // thread-safe
     //
@@ -29,9 +25,9 @@ public:
 
     // context: audio thread
     // TODO: find different word for index
-    Decimal currentSimulationFrameIndex = 0;
-    Eigen::ArrayX<Decimal> relativeSimulationFrameIndices;
-    List<ComplexMatrix> relativeSimulationFrames;
+    Eigen::ArrayX<Decimal> frameBufferTimestamps;
+    size_t frameBufferFirstFrame = 0;
+    List<std::shared_ptr<SimulationFrame>> frameBuffer;
 
     Stopwatch totalStopwatch            {"total sim     "};
 
@@ -39,8 +35,8 @@ private:
 
     // context: audio thread <-> GUI thread
     //
-    SimFrame simulationDisplayFrame;
-    SimFrame simulationScanFrame;
+    SimulationFrame simulationDisplayFrame;
+    SimulationFrame simulationScanFrame;
     std::mutex frameAccessMutex;
 };
 

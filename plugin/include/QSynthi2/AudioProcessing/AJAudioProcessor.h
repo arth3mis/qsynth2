@@ -3,7 +3,7 @@
 #include "QSynthi2/Juce.h"
 #include <QSynthi2/Synthesizer/Synthesiser.h>
 #include <QSynthi2/Simulation/Simulation.h>
-#include <QSynthi2/Simulation/SimThread.h>
+#include <QSynthi2/Simulation/SimulationThread.h>
 
 class AJAudioProcessor {
 public:
@@ -17,18 +17,13 @@ public:
 
 protected:
 
-    Decimal sampleRate;
-    size_t samplesPerBlock;
+    Decimal sampleRate = 0;
+    size_t samplesPerBlock = 0;
 
     juce::MPEInstrument instrument { juce::MPEZone (juce::MPEZone::Type::lower, 15) };
     Synthesiser synth { instrument };
 
+    Decimal currentSimulationFrame = 0;
 
-
-    // TODO: Remove
-    size_t time = 0;
-    size_t timestepCounter = 0;
-    std::shared_ptr<Simulation> sim;
-    ComplexMatrix* simFrameCurrent;
-    SimThread* st;
+    SimulationThread* simulationThread;
 };

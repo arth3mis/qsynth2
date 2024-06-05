@@ -3,20 +3,20 @@
 //
 #include "QSynthi2/Data.h"
 
-SimFrame Data::getSimulationDisplayFrame() {
+SimulationFrame Data::getSimulationDisplayFrame() {
     std::lock_guard lock(frameAccessMutex);
     return simulationDisplayFrame;
 }
 
-SimFrame* Data::getSimulationScanFrame() {
+SimulationFrame* Data::getSimulationScanFrame() {
     return &simulationScanFrame;
 }
 
-void Data::setSimulationDisplayFrame(const SimFrame& f) {
+void Data::setSimulationDisplayFrame(const SimulationFrame& f) {
     std::lock_guard lock(frameAccessMutex);
     simulationDisplayFrame = f;
 }
 
-void Data::setSimulationScanFrame(const SimFrame& f) {
+void Data::setSimulationScanFrame(const SimulationFrame& f) {
     simulationScanFrame = f;
 }

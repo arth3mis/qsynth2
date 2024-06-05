@@ -9,16 +9,16 @@
 
 class ParameterCollection;
 
-class SimThread {
+class SimulationThread {
 public:
 
-    explicit SimThread(const std::shared_ptr<Simulation>& s);
-    ~SimThread();
+    explicit SimulationThread(const std::shared_ptr<Simulation>& s);
+    ~SimulationThread();
 
     void simulationLoop();
     void updateParameters(const ParameterCollection* pc, const List<ModulationData>& md);
-    void appendFrame(SimFrame* f);
-    std::vector<std::shared_ptr<SimFrame>> getFrames(size_t n);
+    void appendFrame(SimulationFrame* f);
+    std::vector<std::shared_ptr<SimulationFrame>> getFrames(size_t n);
     size_t frameReadyCount();
 
     std::atomic<bool> started;
@@ -39,7 +39,7 @@ private:
     // frames
     std::mutex frameMutex;
     std::atomic<size_t> bufferTargetSize;
-    List<SimFrame*> frameBuffer;
+    List<SimulationFrame*> frameBuffer;
 };
 
 #endif //SIMTHREAD_H

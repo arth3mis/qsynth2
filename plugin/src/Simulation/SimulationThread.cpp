@@ -1,21 +1,21 @@
-#include "QSynthi2/Simulation/SimThread.h"
+#include "QSynthi2/Simulation/SimulationThread.h"
 #include <QSynthi2/Parameter/ParameterCollection.h>
 #include <chrono>
 
-SimThread::SimThread(const std::shared_ptr<Simulation> &s) {
+SimulationThread::SimulationThread(const std::shared_ptr<Simulation> &s) {
     sim = s;
     newestFrame = -1;
     started = false;
     terminate = false;
-    t = std::thread(&SimThread::simulationLoop, this);
+    t = std::thread(&SimulationThread::simulationLoop, this);
 }
 
-SimThread::~SimThread() {
+SimulationThread::~SimulationThread() {
     t.join();
-    frameBuffer.forEach([](const SimFrame* m) { delete m; });
+    frameBuffer.forEach([](const SimulationFrame* m) { delete m; });
 }
 
-void SimThread::simulationLoop() {
+void SimulationThread::simulationLoop() {
     // parameters
     Decimal timestep = 0;
     Decimal speed = 0;
@@ -31,7 +31,7 @@ void SimThread::simulationLoop() {
         }
 
         if (started && frameBuffer.size() < bufferTargetSize) {
-            appendFrame(new SimFrame(sim->getNextFrame(timestep, {})));
+            appendFrame(new SimulationFrame(sim->getNextFrame(timestep, {})));
         } else {
             // todo try both busy waiting and sleep with new buffer method
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -39,7 +39,7 @@ void SimThread::simulationLoop() {
     }
 }
 
-void SimThread::updateParameters(const ParameterCollection* pc, const List<ModulationData>& md) {
+void SimulationThread::updateParameters(const ParameterCollection* pc, const List<ModulationData>& md) {
     std::lock_guard lock(parameterMutex);
     newParameters = true;
 
@@ -47,22 +47,22 @@ void SimThread::updateParameters(const ParameterCollection* pc, const List<Modul
     bufferTargetSize = 50;
 }
 
-void SimThread::appendFrame(SimFrame* f) {
+void SimulationThread::appendFrame(SimulationFrame* f) {
     std::lock_guard lock(frameMutex);
     frameBuffer.append(f);
     ++newestFrame;
 }
 
-std::vector<std::shared_ptr<SimFrame>> SimThread::getFrames(const size_t n) {
+std::vector<std::shared_ptr<SimulationFrame>> SimulationThread::getFrames(const size_t n) {
     std::lock_guard lock(frameMutex);
     const auto first = frameBuffer.begin();
     const auto last = std::next(first, static_cast<long>(std::min(n, frameBuffer.size())));
-    auto subList = std::vector<std::shared_ptr<SimFrame>>(first, last);
+    auto subList = std::vector<std::shared_ptr<SimulationFrame>>(first, last);
     frameBuffer.erase(first, last);
     return subList;
 }
 
-size_t SimThread::frameReadyCount() {
+size_t SimulationThread::frameReadyCount() {
     std::lock_guard lock(frameMutex);
     return frameBuffer.size();
 }
