@@ -18,28 +18,29 @@ public:
     void simulationLoop();
     void updateParameters(const ParameterCollection* pc, const List<ModulationData>& md);
     void appendFrame(const std::shared_ptr<SimulationFrame>& f);
-    std::vector<std::shared_ptr<SimulationFrame>> getFrames(size_t n);
+    FrameList getFrames(size_t n);
     size_t frameReadyCount();
 
     std::atomic<bool> started;
     std::atomic<bool> terminate;
 
     std::atomic<long> newestFrame;
+    size_t sleepCounter = 0;
 
 private:
     std::thread t;
-    std::shared_ptr<Simulation> sim;
+    std::shared_ptr<Simulation> simulation;
 
     // parameters
     std::mutex parameterMutex;
     std::atomic<bool> newParameters;
-    Decimal timestep = 0;
+    Decimal timestep = 0.2;
     Decimal speed = 0;
 
     // frames
     std::mutex frameMutex;
     std::atomic<size_t> bufferTargetSize;
-    List<std::shared_ptr<SimulationFrame>> frameBuffer;
+    FrameList frameBuffer;
 };
 
 #endif //SIMTHREAD_H

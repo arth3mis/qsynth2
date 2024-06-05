@@ -17,7 +17,6 @@ AJAudioProcessor::AJAudioProcessor() {
 
     simulationThread = new SimulationThread(simulation);
     simulationThread->started = true;
-    sharedData.totalStopwatch.start();
 
     // sharedData.setSimulationDisplayFrame(std::dynamic_pointer_cast<QuantumSimulation>(sim)->getPsi());
 
@@ -28,8 +27,10 @@ AJAudioProcessor::AJAudioProcessor() {
 
 AJAudioProcessor::~AJAudioProcessor() {
     simulationThread->terminate = true;
-    sharedData.totalStopwatch.stop();
-    juce::Logger::writeToLog("Avg. FPS = " + juce::String(simulationThread->newestFrame / (sharedData.totalStopwatch.get() / 1000000000.0), 1));
+    // if (simulationThread->newestFrame > 0)
+    //     juce::Logger::writeToLog("simulation thread sleep times: " + juce::String(simulationThread->sleepCounter)
+    //         + " / " + juce::String(simulationThread->newestFrame+1) + " frames = "
+    //         + juce::String(static_cast<double>(simulationThread->sleepCounter)/(simulationThread->newestFrame+1)));
     delete simulationThread;
 }
 
@@ -39,6 +40,8 @@ void AJAudioProcessor::prepareToPlay(Decimal newSampleRate, int newSamplesPerBlo
     synth.prepareToPlay(newSampleRate, newSamplesPerBlock);
 
     sharedData.frameBufferTimestamps = Eigen::ArrayX<Decimal>(samplesPerBlock);
+
+    totalStopwatch.start();
 
     juce::ignoreUnused (samplesPerBlock);
 
@@ -51,9 +54,10 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     // TODO: Reset simulation when no note is played?
 
     // TODO: Get from Parameters
-    Eigen::ArrayX<Decimal> simulationFrameIncrement = Eigen::ArrayX<Decimal>(buffer.getNumSamples()).setOnes() * 100 / sampleRate;
+    constexpr int FPS = 100;
+    Eigen::ArrayX<Decimal> simulationFrameIncrement = Eigen::ArrayX<Decimal>(buffer.getNumSamples()).setOnes() * FPS / sampleRate;
 
-    auto frameBufferNewFirstFrame = static_cast<size_t>(floor(currentSimulationFrame));
+    const auto frameBufferNewFirstFrame = static_cast<size_t>(floor(currentSimulationFrame));
 
     // Remove past frames
     sharedData.frameBuffer.remove(0, frameBufferNewFirstFrame - sharedData.frameBufferFirstFrame);
@@ -65,11 +69,11 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         currentSimulationFrame += simulationFrameIncrement[sample];
     }
 
-    size_t neededSimulationFrames = static_cast<size_t>(ceil(currentSimulationFrame)) - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
+    const size_t neededSimulationFrames = static_cast<size_t>(ceil(currentSimulationFrame)) - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
 
 
     // todo - retrieve modData from synth
-    List<ModulationData> modulationData;
+    const List<ModulationData> modulationData;
 
     // TODO: - update parameters in simulation: bufferSize, dt (later: gaussian, potential etc)
     simulationThread->updateParameters(sharedData.parameters, modulationData);
@@ -83,8 +87,10 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     }
     juce::Logger::writeToLog("Simulation thread is " + juce::String(simulationThread->frameReadyCount() - neededSimulationFrames) + " frames ahead.");
 
-    auto newFrames = simulationThread->getFrames(neededSimulationFrames);
-    sharedData.frameBuffer.append(newFrames);
+    // append the shared frame buffer
+    // this also sets the latest simulation frame as the display frame (if a new one arrived)
+    const auto newFrames = simulationThread->getFrames(neededSimulationFrames);
+    sharedData.appendFrameBuffer(newFrames);
 
     // juce::Logger::writeToLog("got frames: " + juce::String(newFrames.size()) + " of " + juce::String(neededSimulationFrames));
 
@@ -96,5 +102,20 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         for (int i = 0; i < buffer.getNumSamples(); i++) {
             buffer.addSample(channel, i, static_cast<float>(samples[i]));
         }
+    }
+
+    // FPS counter
+    ++fpsChecks;
+    sampleCounter += buffer.getNumSamples();
+    frameCounter += newFrames.size();
+    if (fpsChecks > 50) {
+        fps = std::round(frameCounter / (totalStopwatch.get() / 1000000000.0));
+        totalStopwatch.reset();
+        fpsChecks = 0;
+        frameCounter = 0;
+    }
+    if (sampleCounter / static_cast<int>(sampleRate/2) > fpsPrints) {
+        juce::Logger::writeToLog("current simulation FPS = " + juce::String(fps));
+        ++fpsPrints;
     }
 }

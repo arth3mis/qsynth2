@@ -3,7 +3,6 @@
 #include <mutex>
 #include <atomic>
 #include "QSynthi2/Parameter/ParameterCollection.h"
-#include "QSynthi2/Testing/Stopwatch.h"
 
 class Data {
 public:
@@ -11,13 +10,13 @@ public:
     // context: audio thread <-> GUI thread
     //
     SimulationFrame getSimulationDisplayFrame();
-    SimulationFrame* getSimulationScanFrame();
+    SimulationFrame* getSimulationScanFrame(); // todo remove?
     void setSimulationDisplayFrame(const SimulationFrame& f);
-    void setSimulationScanFrame(const SimulationFrame& f);
+    void setSimulationScanFrame(const SimulationFrame& f); // todo remove?
 
     std::atomic<size_t> simWidth;
     std::atomic<size_t> simHeight;
-    std::atomic<long> scanlineY{0};
+    std::atomic<long> scanlineY{0}; // todo remove
 
     // thread-safe
     //
@@ -27,9 +26,9 @@ public:
     // TODO: find different word for index
     Eigen::ArrayX<Decimal> frameBufferTimestamps;
     size_t frameBufferFirstFrame = 0;
-    List<std::shared_ptr<SimulationFrame>> frameBuffer;
+    FrameList frameBuffer;
 
-    Stopwatch totalStopwatch            {"total sim     "};
+    void appendFrameBuffer(const FrameList& frames);
 
 private:
 

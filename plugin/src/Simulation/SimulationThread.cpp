@@ -3,7 +3,7 @@
 #include <chrono>
 
 SimulationThread::SimulationThread(const std::shared_ptr<Simulation> &s) {
-    sim = s;
+    simulation = s;
     newestFrame = -1;
     started = false;
     terminate = false;
@@ -30,10 +30,11 @@ void SimulationThread::simulationLoop() {
         }
 
         if (started && frameBuffer.size() < bufferTargetSize) {
-            appendFrame(std::make_shared<SimulationFrame>(sim->getNextFrame(timestep, {})));
+            appendFrame(std::make_shared<SimulationFrame>(simulation->getNextFrame(timestep, {})));
         } else {
-            // todo try both busy waiting and sleep with new buffer method
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            // todo try both busy waiting and sleep with new buffer method -> busy waiting seems to work
+            // ++sleepCounter;
+            // std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
 }
@@ -43,7 +44,7 @@ void SimulationThread::updateParameters(const ParameterCollection* pc, const Lis
     newParameters = true;
 
     // TODO read from parameter
-    bufferTargetSize = 50;
+    bufferTargetSize = 8;
 }
 
 void SimulationThread::appendFrame(const std::shared_ptr<SimulationFrame>& f) {
@@ -52,19 +53,18 @@ void SimulationThread::appendFrame(const std::shared_ptr<SimulationFrame>& f) {
     ++newestFrame;
 }
 
-std::vector<std::shared_ptr<SimulationFrame>> SimulationThread::getFrames(const size_t n) {
+FrameList SimulationThread::getFrames(const size_t n) {
     std::lock_guard lock(frameMutex);
     jassert(frameBuffer.size() >= 2 * n); // buffer must at least double the size of requested frames, so the simulation thread can write in one half while the audio thread reads the other half
 
     const auto first = frameBuffer.begin();
     const auto last = std::next(first, static_cast<long>(std::min(n, frameBuffer.size())));
-    auto subList = List<std::shared_ptr<SimulationFrame>>(first, last);
+    auto subList = FrameList(first, last);
     frameBuffer.erase(first, last);
     return subList;
 }
 
 size_t SimulationThread::frameReadyCount() {
-    // TODO: use atomic for size?
     std::lock_guard lock(frameMutex);
     return frameBuffer.size();
 }

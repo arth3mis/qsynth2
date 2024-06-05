@@ -4,6 +4,7 @@
 #include <QSynthi2/Synthesizer/Synthesiser.h>
 #include <QSynthi2/Simulation/Simulation.h>
 #include <QSynthi2/Simulation/SimulationThread.h>
+#include <QSynthi2/Testing/Stopwatch.h>
 
 class AJAudioProcessor {
 public:
@@ -26,4 +27,8 @@ protected:
     Decimal currentSimulationFrame = 0;
 
     SimulationThread* simulationThread;
+
+    // FPS calculation
+    Stopwatch totalStopwatch {"fps timer"};
+    size_t fpsChecks = 0, sampleCounter = 0, frameCounter = 0, fpsPrints = 0, fps = 0;
 };
