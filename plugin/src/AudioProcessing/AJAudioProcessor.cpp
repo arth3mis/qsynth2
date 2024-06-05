@@ -51,11 +51,16 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
 
     // Process MIDI
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
-    // TODO: Reset simulation when no note is played?
 
-    // TODO: Get from Parameters
-    constexpr int FPS = 100;
-    Eigen::ArrayX<Decimal> simulationFrameIncrement = Eigen::ArrayX<Decimal>(buffer.getNumSamples()).setOnes() * FPS / sampleRate;
+    // Update simulation parameters
+    auto activeVoices = synth.getActiveVoices();
+    List<ModulationData*> modulationDataList = activeVoices.map<ModulationData*>([](Voice* v){ return v->getModulationData(); });
+    Eigen::ArrayX<Decimal> simulationFrameIncrement = sharedData.parameters->simulationStepsPerSecond->getModulated(modulationDataList, static_cast<int>(samplesPerBlock)) / sampleRate;
+    simulationThread->updateParameters(sharedData.parameters, modulationDataList);
+
+    if (activeVoices.empty()) {
+        // TODO: reset simulation here
+    }
 
     const auto frameBufferNewFirstFrame = static_cast<size_t>(floor(currentSimulationFrame));
 
@@ -71,12 +76,6 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
 
     const size_t neededSimulationFrames = static_cast<size_t>(ceil(currentSimulationFrame)) - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
 
-
-    // todo - retrieve modData from synth
-    List<ModulationData*> modulationData = synth.getActiveVoices().map<ModulationData*>([](Voice* v){ return v->getModulationData(); });
-
-    // TODO: - update parameters in simulation: bufferSize, dt (later: gaussian, potential etc)
-    simulationThread->updateParameters(sharedData.parameters, modulationData);
 
 
     // TODO

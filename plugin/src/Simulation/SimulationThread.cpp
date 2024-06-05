@@ -24,11 +24,11 @@ void SimulationThread::simulationLoop() {
         if (newParameters) {
             std::lock_guard lock(parameterMutex);
             timestep = this->timestep;
-            speed = this->speed;
             newParameters = false;
         }
 
         if (started && frameBuffer.size() < bufferTargetSize) {
+            if (juce::approximatelyEqual(timestep, static_cast<Decimal>(0))) appendFrame(std::make_shared<SimulationFrame>(*frameBuffer.back()));
             appendFrame(std::make_shared<SimulationFrame>(simulation->getNextFrame(timestep, {})));
         } else {
             // todo try both busy waiting and sleep with new buffer method -> busy waiting seems to work
@@ -42,9 +42,14 @@ void SimulationThread::updateParameters(const ParameterCollection* parameterColl
     std::lock_guard lock(parameterMutex);
     newParameters = true;
 
-    // TODO read from parameter
-    bufferTargetSize = 50;
+    Decimal simulationStepsPerSecond = parameterCollection->simulationStepsPerSecond->getModulated(modulationData, 1)[0];
+    Decimal simulationSpeedFactor = parameterCollection->simulationSpeedFactor->getModulated(modulationData, 1)[0];
+    Decimal simulationBufferSeconds = parameterCollection->simulationBufferSeconds->getModulated(modulationData, 1)[0];
 
+    // TODO read from parameter
+    bufferTargetSize = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));
+
+    timestep = simulationSpeedFactor / simulationStepsPerSecond;
 }
 
 void SimulationThread::appendFrame(const std::shared_ptr<SimulationFrame>& f) {
@@ -55,7 +60,7 @@ void SimulationThread::appendFrame(const std::shared_ptr<SimulationFrame>& f) {
 
 FrameList SimulationThread::getFrames(const size_t n) {
     std::lock_guard lock(frameMutex);
-    jassert(frameBuffer.size() >= 2 * n); // buffer must at least double the size of requested frames, so the simulation thread can write in one half while the audio thread reads the other half
+    jassert(bufferTargetSize >= 2 * n); // buffer must at least double the size of requested frames, so the simulation thread can write in one half while the audio thread reads the other half
 
     const auto first = frameBuffer.begin();
     const auto last = std::next(first, static_cast<long>(std::min(n, frameBuffer.size())));

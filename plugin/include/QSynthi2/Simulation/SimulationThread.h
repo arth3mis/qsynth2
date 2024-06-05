@@ -35,7 +35,6 @@ private:
     std::mutex parameterMutex;
     std::atomic<bool> newParameters;
     Decimal timestep = 0.2;
-    Decimal speed = 0;
 
     // frames
     std::mutex frameMutex;

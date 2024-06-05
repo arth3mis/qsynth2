@@ -12,6 +12,12 @@ public:
 
 
 
+    Eigen::ArrayX<Decimal> at(const juce::String &key) const {
+        return std::unordered_map<juce::String, Eigen::ArrayX<Decimal>>::at(key);
+    }
+
+
+
     Eigen::ArrayX<Decimal> at(const juce::String &key, long number) const {
         auto values = std::unordered_map<juce::String, Eigen::ArrayX<Decimal>>::at(key);
 

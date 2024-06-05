@@ -16,6 +16,8 @@ public:
 
     void processBlock();
 
+    Eigen::ArrayX<Decimal> convertFrom0to1(const Eigen::ArrayX<Decimal> values0to1);
+
     Eigen::ArrayX<Decimal> getModulatedNormalized(const ModulationData &modulationData);
 
     Eigen::ArrayX<Decimal> getModulatedNormalized(const ModulationData &modulationData, int samplesPerBlock);
