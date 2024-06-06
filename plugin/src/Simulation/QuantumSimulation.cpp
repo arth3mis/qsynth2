@@ -1,10 +1,7 @@
-#include <cmath>
-
 #include "QSynthi2/Simulation/QuantumSimulation.h"
 #include "QSynthi2/Juce.h"
-
-#define POCKETFFT_NO_MULTITHREADING
 #include "QSynthi2/FFT.h"
+#include <cmath>
 
 QuantumSimulation::QuantumSimulation(const int width, const int height)
     : Simulation()
@@ -118,9 +115,6 @@ const ComplexMatrix& QuantumSimulation::getNextFrame(const Decimal timestep, con
 
 void QuantumSimulation::reset() {
     started = false;
-
-    double b = 42.1;
-    int i = b;
 }
 
 void QuantumSimulation::calculateNextPsi(const Decimal timestep) {

@@ -21,6 +21,8 @@ public:
     FrameList getFrames(size_t n);
     size_t frameReadyCount();
 
+    void resetSimulation() const;
+
     std::atomic<bool> started;
     std::atomic<bool> terminate;
 

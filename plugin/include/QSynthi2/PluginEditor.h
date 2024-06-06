@@ -23,5 +23,7 @@ private:
     SimulationDisplay simulationDisplay;
     int simDisplaySize;
 
+    juce::TextButton resetButton{"Reset Simulation"};
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

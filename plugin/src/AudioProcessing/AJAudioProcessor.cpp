@@ -52,6 +52,12 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     // Process MIDI
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
+    // buttons
+    if (sharedData.resetSimulation) {
+        simulationThread->resetSimulation();
+        sharedData.resetSimulation = false;
+    }
+
     // Update simulation parameters
     auto activeVoices = synth.getActiveVoices();
     List<ModulationData*> modulationDataList = activeVoices.map<ModulationData*>([](Voice* v){ return v->getModulationData(); });

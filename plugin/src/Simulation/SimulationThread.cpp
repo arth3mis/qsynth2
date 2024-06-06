@@ -73,3 +73,7 @@ size_t SimulationThread::frameReadyCount() {
     std::lock_guard lock(frameMutex);
     return frameBuffer.size();
 }
+
+void SimulationThread::resetSimulation() const {
+    simulation->reset();
+}

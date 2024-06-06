@@ -9,6 +9,7 @@
 #endif
 #endif
 
+#define POCKETFFT_NO_MULTITHREADING
 #include "pocketfft_hdronly.h"
 
 #endif //FFT_H

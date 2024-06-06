@@ -1,5 +1,8 @@
 #include "QSynthi2/PluginProcessor.h"
 #include "QSynthi2/PluginEditor.h"
+#include <QSynthi2/Data.h>
+
+extern Data sharedData;
 
 
 //==============================================================================
@@ -18,6 +21,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     simulationDisplay.setSize(simDisplaySize, simDisplaySize);
     addAndMakeVisible(simulationDisplay);
+
+    resetButton.onClick = [&]{ sharedData.resetSimulation = true; };
+    addAndMakeVisible(resetButton);
 
     gpe->setResizable(true, false);
     addAndMakeVisible(gpe);
@@ -44,6 +50,9 @@ void AudioPluginAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     simulationDisplay.setTopLeftPosition(0, 0);
-    gpe->setTopLeftPosition(0, simDisplaySize);
+
+    resetButton.setBounds(20, simDisplaySize+10, 130, 25);
+
+    gpe->setTopLeftPosition(0, simDisplaySize+40);
     gpe->setSize(getWidth(), getHeight() - simDisplaySize);
 }
