@@ -61,7 +61,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     // Update simulation parameters
     auto activeVoices = synth.getActiveVoices();
     List<ModulationData*> modulationDataList = activeVoices.map<ModulationData*>([](Voice* v){ return v->getModulationData(); });
-    Eigen::ArrayX<Decimal> simulationFrameIncrement = sharedData.parameters->simulationStepsPerSecond->getModulated(modulationDataList, static_cast<int>(samplesPerBlock)) / sampleRate;
+    Eigen::ArrayX<Decimal> simulationFrameIncrement = sharedData.parameters->simulationStepsPerSecond->getModulated(modulationDataList) / sampleRate;
     simulationThread->updateParameters(sharedData.parameters, modulationDataList);
 
     if (activeVoices.empty()) {
@@ -87,10 +87,13 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     // TODO
     //  - If offline rendering: Busy wait until simulation is ready
     //  - Else: slow down simulation speed for audio processing to just use available frames
-    while (simulationThread->frameReadyCount() <= neededSimulationFrames) {
-        // busy wait
+    if (simulationThread->frameReadyCount() <= neededSimulationFrames) {
+        juce::Logger::writeToLog("Busy wait for simulation thread.");
+        while (simulationThread->frameReadyCount() <= neededSimulationFrames) {
+            // busy wait
+        }
     }
-    juce::Logger::writeToLog("Simulation thread is " + juce::String(simulationThread->frameReadyCount() - neededSimulationFrames) + " frames ahead.");
+    // juce::Logger::writeToLog("Simulation thread is " + juce::String(simulationThread->frameReadyCount() - neededSimulationFrames) + " frames ahead.");
 
     // append the shared frame buffer
     // this also sets the latest simulation frame as the display frame (if a new one arrived)

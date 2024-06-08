@@ -1,6 +1,3 @@
-//
-// Created by art on 15.05.24.
-//
 #include "QSynthi2/Data.h"
 
 SimulationFrame Data::getSimulationDisplayFrame() {

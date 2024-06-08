@@ -16,20 +16,17 @@ public:
 
     void processBlock();
 
-    Eigen::ArrayX<Decimal> convertFrom0to1(const Eigen::ArrayX<Decimal> values0to1);
+    Eigen::ArrayX<Decimal> convertFrom0to1(const Eigen::ArrayX<Decimal> &values0to1);
 
     Eigen::ArrayX<Decimal> getModulatedNormalized(const ModulationData &modulationData);
 
-    Eigen::ArrayX<Decimal> getModulatedNormalized(const ModulationData &modulationData, int samplesPerBlock);
+    Decimal getSingleModulatedNormalized(const ModulationData &modulationData);
 
     Eigen::ArrayX<Decimal> getModulated(const ModulationData &modulationData);
 
-    Eigen::ArrayX<Decimal> getModulated(const ModulationData &modulationData, int samplesPerBlock);
+    Eigen::ArrayX<Decimal> getModulated(const List<ModulationData*> &modulationDataList);
 
-    Eigen::ArrayX<Decimal> getModulated(const List<ModulationData*> &modulationData, int samplesPerBlock);
-
-    // TODO: With given Array of ModulationData. Weighted Average by Envelope #1?
-    // and number of wanted samples
+    Decimal getSingleModulated(const List<ModulationData*> &modulationDataList);
 
     void prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
         smoothedNormalizedSliderValue.reset(sampleRate, sliderSmoothingSeconds);

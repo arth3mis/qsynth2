@@ -68,9 +68,7 @@ void Voice::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
     y.reset(sampleRate, 0.020);
     z.reset(sampleRate, 0.020);
 
-    Modulation::Sources::ALL.forEach([&](const juce::String& modulationSource){
-        modulationData[modulationSource] = Eigen::ArrayX<Decimal>(samplesPerBlock);
-    });
+    modulationData.prepareToPlay(samplesPerBlock);
 
     sonifier.prepareToPlay(sampleRate, samplesPerBlock);
 
@@ -81,13 +79,10 @@ void Voice::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
 void Voice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) {
     activeThisBlock = true;
 
-    for (int i = startSample; i < startSample + numSamples; i++) {
-        // TODO: Optimize this, maybe pointers to Arrays?
-        modulationData[Modulation::Sources::VELOCITY][i] = velocity.getNextValue();
-        modulationData[Modulation::Sources::PITCH][i] = frequency.getNextValue();
-        modulationData[Modulation::Sources::Y][i] = y.getNextValue();
-        modulationData[Modulation::Sources::Z][i] = z.getNextValue();
-    }
+    modulationData.write(ModulationData::Sources::VELOCITY, velocity);
+    modulationData.write(ModulationData::Sources::PITCH, frequency);
+    modulationData.write(ModulationData::Sources::Y, y);
+    modulationData.write(ModulationData::Sources::Z, z);
 
 
     if (gain == 0.0) {

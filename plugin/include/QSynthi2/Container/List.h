@@ -36,7 +36,8 @@ public:
     }
 
     void remove(size_t index, size_t number = 1) {
-        jassert(index >= 0 && index < this->size() && number >= 0);
+        if (number == 0) return;
+        jassert(index >= 0 && index < this->size() && number > 0);
         jassert(index + number <= this->size()); // Remove more elements than there are in the List
         this->erase(this->begin() + static_cast<long>(index), this->begin() + static_cast<long>(index + number));
     }
@@ -72,9 +73,26 @@ public:
         }
     }
 
+    size_t indexOf(const T &element) {
+        auto iterator = find(this->begin(), this->end(), element);
+
+        // If element was found
+        if (iterator != this->end()) {
+            return iterator - this->begin();
+        }
+
+        return static_cast<size_t>(-1);
+    }
+
     void forEach(std::function<void(const T)> consumer) {
         for (size_t i = 0; i < this->size(); ++i) {
             consumer(this->at(i));
+        }
+    }
+
+    void forEachIndexed(std::function<void(size_t, const T)> consumer) {
+        for (size_t i = 0; i < this->size(); ++i) {
+            consumer(i, this->at(i));
         }
     }
 

@@ -38,13 +38,13 @@ void SimulationThread::simulationLoop() {
     }
 }
 
-void SimulationThread::updateParameters(const ParameterCollection* parameterCollection, const List<ModulationData*> &modulationData) {
+void SimulationThread::updateParameters(const ParameterCollection* parameterCollection, const List<ModulationData*> &modulationDataList) {
     std::lock_guard lock(parameterMutex);
     newParameters = true;
 
-    Decimal simulationStepsPerSecond = parameterCollection->simulationStepsPerSecond->getModulated(modulationData, 1)[0];
-    Decimal simulationSpeedFactor = parameterCollection->simulationSpeedFactor->getModulated(modulationData, 1)[0];
-    Decimal simulationBufferSeconds = parameterCollection->simulationBufferSeconds->getModulated(modulationData, 1)[0];
+    Decimal simulationStepsPerSecond = parameterCollection->simulationStepsPerSecond->getSingleModulated(modulationDataList);
+    Decimal simulationSpeedFactor = parameterCollection->simulationSpeedFactor->getSingleModulated(modulationDataList);
+    Decimal simulationBufferSeconds = parameterCollection->simulationBufferSeconds->getSingleModulated(modulationDataList);
 
     // TODO read from parameter
     bufferTargetSize = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));

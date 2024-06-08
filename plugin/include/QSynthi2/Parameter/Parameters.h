@@ -16,7 +16,7 @@ protected:
 
     std::unordered_map<juce::String, ModulatedParameterFloat*> modulatedParameters;
 
-    List<std::shared_ptr<Modulation>> availableModulations;
+    List<std::shared_ptr<Modulation>> modulations;
 
 private:
     // Layout in that all Parameters are inserted

@@ -23,7 +23,23 @@ public:
     ModulatedParameterFloat* simulationBufferSeconds = add<ModulatedParameterFloat>(
         "Simulation buffer seconds",
         juce::NormalisableRange<float>(0, 2, 0, 0.5f, false),
-        0.1f);
+        0.2f);
+
+
+
+    ModulatedParameterFloat* lineOfInterestX = add<ModulatedParameterFloat>(
+            "Line of interest x",
+            juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
+            0.f);
+    ModulatedParameterFloat* lineOfInterestY = add<ModulatedParameterFloat>(
+            "Line of interest y",
+            juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
+            0.f);
+    ModulatedParameterFloat* lineOfInterestRotation = add<ModulatedParameterFloat>(
+            "Line of interest rotation",
+            juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
+            0.f);
+
 
 
     // Add modulation slots

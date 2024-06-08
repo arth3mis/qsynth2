@@ -23,7 +23,7 @@ void Parameters::connectTo(juce::AudioProcessor &processorToConnectTo) {
 List<std::shared_ptr<Modulation>> &Parameters::addModulationSlots(size_t number) {
     jassert(layoutInCreation); // Call this before calling connectTo()
     jassert(number > 0); // number must be greater 0
-    jassert(availableModulations.empty()); // Call this method only once, or change implementation to support multiple calls
+    jassert(modulations.empty()); // Call this method only once, or change implementation to support multiple calls
 
     const juce::String modulationTargetName = "Modulation Target";
     const juce::String modulationSourceName = "Modulation Source";
@@ -37,7 +37,7 @@ List<std::shared_ptr<Modulation>> &Parameters::addModulationSlots(size_t number)
     for (size_t i = 0; i < number; i++) modulationTargetIds.push_back(modulationAmountName + " " + juce::String(i + 1));
 
     // Add all modulations
-    for (size_t i = 0; i < number; i++) availableModulations.push_back(std::make_shared<Modulation>());
+    for (size_t i = 0; i < number; i++) modulations.push_back(std::make_shared<Modulation>());
 
     // Create the Parameters for Modulation
     for (size_t i = 0; i < number; i++) {
@@ -46,10 +46,10 @@ List<std::shared_ptr<Modulation>> &Parameters::addModulationSlots(size_t number)
         auto* modulationTargetParameter = add<juce::AudioParameterChoice>(juce::ParameterID(modulationTargetName + " " + juce::String(i + 1), Parameters::VERSION), modulationTargetName + " " + juce::String(i + 1), modulationTargetIds.toStringArray(), 0);
         modulationTargetParameter->addListener(new LambdaListener([this, i, modulationTargetName, modulationSourceName, modulationAmountName, modulationTargetIds] (float newValue) {
 
-            auto& modulation = this->availableModulations[i];
+            auto& modulation = this->modulations[i];
 
             // Cleanup old Modulation
-            juce::String oldModulatedParameterId = this->availableModulations[i]->getModulatedParameterId();
+            juce::String oldModulatedParameterId = this->modulations[i]->getModulatedParameterId();
             if (this->modulatedParameters.contains(oldModulatedParameterId)) {
                 this->modulatedParameters[oldModulatedParameterId]->modulations.remove(modulation);
             }
@@ -67,23 +67,27 @@ List<std::shared_ptr<Modulation>> &Parameters::addModulationSlots(size_t number)
         }));
 
         // Modulation Source
-        auto* modulationSourceParameter = add<juce::AudioParameterChoice>(juce::ParameterID(modulationSourceName + " " + juce::String(i + 1), Parameters::VERSION), modulationSourceName + " " + juce::String(i + 1), Modulation::Sources::ALL.toStringArray(), 0);
+        auto* modulationSourceParameter = add<juce::AudioParameterChoice>(
+                juce::ParameterID(modulationSourceName + " " + juce::String(i + 1), Parameters::VERSION),
+                modulationSourceName + " " + juce::String(i + 1),
+                ModulationData::Sources::ALL.map<juce::String>([](ModulationData::Source s) { return s.getName(); }).toStringArray(),
+                0);
+
         modulationSourceParameter->addListener(new LambdaListener([this, i] (float newValue) {
 
-            auto& modulation = this->availableModulations[i];
+            auto& modulation = this->modulations[i];
 
-            juce::String modulationSource = Modulation::Sources::ALL[static_cast<size_t>(round(newValue * static_cast<float>(Modulation::Sources::ALL.size() - 1)))];
-            modulation->setModulationSource(modulationSource);
+            modulation->setModulationSourceId(static_cast<size_t>(round(newValue * static_cast<float>(ModulationData::Sources::ALL.size() - 1))));
 
         }));
 
         // Modulation Amount
         auto* modulationAmountParameter = add<ModulatedParameterFloat>(modulationAmountName + " " + juce::String(i + 1), juce::NormalisableRange<float>(-1, 1, 0, 0.66f, true), 0);
-        availableModulations[i]->setAmountParameter(modulationAmountParameter);
+        modulations[i]->setAmountParameter(modulationAmountParameter);
 
     }
 
-    return availableModulations;
+    return modulations;
 }
 
 
@@ -109,6 +113,10 @@ void Parameters::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
 
     for (auto& [id, parameter]: modulatedParameters) {
         parameter->prepareToPlay(sampleRate, samplesPerBlock);
+    }
+
+    for (auto& modulation: modulations) {
+        modulation->prepareToPlay(samplesPerBlock);
     }
 }
 

@@ -10,27 +10,35 @@ extern Data sharedData;
 
 
 
-Modulation::Modulation() : modulationSource(Modulation::Sources::ALL[0]) {
+Modulation::Modulation() : modulationSourceId(static_cast<size_t>(0)) {
 
 }
 
 
 
-Modulation::Modulation(juce::String modulationSource, ModulatedParameterFloat* amount):
-    modulationSource(std::move(modulationSource)), amount(amount) {
+Modulation::Modulation(size_t modulationSourceId, ModulatedParameterFloat* amount):
+    modulationSourceId(modulationSourceId), amount(amount) {
 
 
 }
 
 
 
-Eigen::ArrayX<Decimal> Modulation::getModulatedNormalized(const ModulationData& modulationData, int samplesPerBlock) {
+Eigen::ArrayX<Decimal> Modulation::getModulatedNormalized(const ModulationData& modulationData) {
     // Return zeros if source isn't set.
     // TODO: is there a more performant way of detecting this case? Only if needed
-    if (modulationSource.equalsIgnoreCase("")) return Eigen::ArrayXd::Constant(samplesPerBlock, 0);
+    if (modulationSourceId == static_cast<size_t>(-1)) return Eigen::ArrayXd::Constant(samplesPerBlock, 0);
 
-    jassert(modulationData.contains(modulationSource)); // Invalid modulationSource. Isn't set in modulationData!
-    return modulationData.at(modulationSource, samplesPerBlock) * amount->getModulated(modulationData, samplesPerBlock);
+    jassert(modulationSourceId < modulationData.size()); // Invalid modulationSource. Isn't set in modulationData!
+    return modulationData[modulationSourceId] * amount->getModulated(modulationData);
+}
+
+
+
+Decimal Modulation::getSingleModulatedNormalized(const ModulationData &modulationData) {
+
+    jassert(modulationData.size() > modulationSourceId); // Invalid modulationSource. Isn't set in modulationData!
+    return modulationData[modulationSourceId][0] * amount->getSingleModulatedNormalized(modulationData);
 }
 
 
@@ -47,10 +55,14 @@ juce::String Modulation::getModulatedParameterId() {
 
 
 
-void Modulation::setModulationSource(juce::String newModulationSource) {
-    modulationSource = std::move(newModulationSource);
+void Modulation::setModulationSourceId(size_t newModulationSourceId) {
+    modulationSourceId = newModulationSourceId;
 }
 
 void Modulation::setAmountParameter(ModulatedParameterFloat* newAmount) {
     amount = newAmount;
+}
+
+void Modulation::prepareToPlay(int newSamplesPerBlock) {
+    samplesPerBlock = newSamplesPerBlock;
 }

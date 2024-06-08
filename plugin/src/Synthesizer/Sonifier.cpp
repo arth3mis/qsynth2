@@ -6,8 +6,8 @@ Sonifier::Sonifier() = default;
 
 
 Eigen::ArrayX<Decimal> Sonifier::generateNextBlock(const ModulationData &modulationData) {
-    jassert(modulationData.contains(Modulation::Sources::PITCH)); // Pitch isn't already evaluated
-    auto frequency = modulationData.at(Modulation::Sources::PITCH);
+    jassert(modulationData.isSourceValid(ModulationData::Sources::PITCH)); // Pitch isn't already evaluated
+    auto frequency = modulationData[ModulationData::Sources::PITCH.getId()];
     jassert(frequency.size() == samplesPerBlock); // Pitch wasn't set properly
 
     auto phases = Eigen::ArrayX<Decimal>(samplesPerBlock);

@@ -16,8 +16,6 @@ public:
 
 private:
 
-    Decimal sampleRate;
-
-    size_t frameCounter;    // todo knows needed frame index
+    Decimal sampleRate = 0;
 
 };
