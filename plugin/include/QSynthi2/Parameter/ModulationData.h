@@ -12,34 +12,25 @@ public:
     class Source {
     public:
 
-        Source(juce::String newName) : name(std::move(newName)) { }
-
-        const juce::String& getName() const { return name; }
-        size_t getId() const { return id; }
-        void setId(size_t newId) { id = newId; }
-
-    protected:
+        explicit Source(juce::String newName, size_t newId) : name(std::move(newName)), id(newId) { }
 
         const juce::String name;
-        size_t id = static_cast<size_t>(-1);
+        const size_t id;
 
     };
 
     class Sources {
     public:
-        inline static const Source VELOCITY{"Velocity"};
-        inline static const Source PITCH{"Pitch"};
-        inline static const Source Y{"Keyboard Y"};
-        inline static const Source Z{"Keyboard Z"};
+        inline static const Source VELOCITY{"Velocity", 0};
+        inline static const Source PITCH{"Pitch", 1};
+        inline static const Source Y{"Keyboard Y", 2};
+        inline static const Source Z{"Keyboard Z", 3};
 
-        inline static List<Source> ALL{VELOCITY, PITCH, Y, Z};
+        inline static List<Source> ALL = List<Source>({VELOCITY, PITCH, Y, Z});
     };
 
 
     ModulationData() : List<Eigen::ArrayX<Decimal>>() {
-        Sources::ALL.forEachIndexed([](size_t i, Source source){
-            source.setId(i);
-        });
     }
 
     void prepareToPlay(int samplesPerBlock) {
@@ -50,23 +41,27 @@ public:
         }
     }
 
-    void write(const Source& source, juce::SmoothedValue<Decimal> smoothedValue) {
+    void write(const Source& source, juce::SmoothedValue<Decimal> &smoothedValue, int startSample, int numSamples) {
+        jassert(isSourceValid(source)); // ModulationData::Source is not valid
+
         // TODO: check if the mutable thing works
-        Eigen::ArrayX<Decimal> data = this->at(source.getId());
+        Eigen::ArrayX<Decimal> data = this->at(source.id);
         Decimal currentValue = smoothedValue.getCurrentValue();
         Decimal targetValue = smoothedValue.getTargetValue();
 
-        if (juce::approximatelyEqual(currentValue, targetValue) && juce::approximatelyEqual(data[0], targetValue)) {
+        if (juce::approximatelyEqual(currentValue, targetValue) && juce::approximatelyEqual(data(0), targetValue)) {
             return;
         }
 
-        for (int i = 0; i < data.size(); ++i) {
-            data[i] = smoothedValue.getNextValue();
+        for (int i = startSample; i < startSample + numSamples; i++) {
+            data(i) = smoothedValue.getNextValue();
         }
+
+        this->at(source.id) = data;
     }
 
-    bool isSourceValid (const Source& source) const {
-        return source.getId() >= 0 && source.getId() < this->size() && this->at(source.getId()).size() > 0;
+    [[nodiscard]] bool isSourceValid (const Source& source) const {
+        return source.id >= 0 && source.id < this->size() && this->at(source.id).size() > 0;
     }
 
 };

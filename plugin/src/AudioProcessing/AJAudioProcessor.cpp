@@ -83,7 +83,6 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     const size_t neededSimulationFrames = static_cast<size_t>(ceil(currentSimulationFrame)) - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
 
 
-
     // TODO
     //  - If offline rendering: Busy wait until simulation is ready
     //  - Else: slow down simulation speed for audio processing to just use available frames

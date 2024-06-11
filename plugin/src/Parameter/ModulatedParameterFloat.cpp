@@ -10,11 +10,11 @@ ModulatedParameterFloat::ModulatedParameterFloat() :
 
 }
 
-ModulatedParameterFloat::ModulatedParameterFloat(const juce::String &name, const juce::NormalisableRange<float> &range,
+ModulatedParameterFloat::ModulatedParameterFloat(const juce::String &newName, const juce::NormalisableRange<float> &newRange,
                                                  float defaultValue, Decimal sliderSmoothingSeconds) :
-        juce::AudioParameterFloat(juce::ParameterID(name, Parameters::VERSION), name, range, defaultValue),
+        juce::AudioParameterFloat(juce::ParameterID(newName, Parameters::VERSION), newName, newRange, defaultValue),
         sliderSmoothingSeconds(sliderSmoothingSeconds),
-        smoothedNormalizedSliderValue(range.convertTo0to1(defaultValue)) {
+        smoothedNormalizedSliderValue(newRange.convertTo0to1(defaultValue)) {
 
 }
 

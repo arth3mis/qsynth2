@@ -54,6 +54,7 @@ void Voice::noteTimbreChanged() {
 
 
 void Voice::notePressureChanged() {
+    juce::Logger::writeToLog("Note Pressure changed: " + juce::String(currentlyPlayingNote.pressure.asUnsignedFloat()));
     z.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat()));
 }
 
@@ -77,14 +78,17 @@ void Voice::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
 
 
 void Voice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSample, int numSamples) {
+    juce::ignoreUnused(outputBuffer);
+
     activeThisBlock = true;
 
-    modulationData.write(ModulationData::Sources::VELOCITY, velocity);
-    modulationData.write(ModulationData::Sources::PITCH, frequency);
-    modulationData.write(ModulationData::Sources::Y, y);
-    modulationData.write(ModulationData::Sources::Z, z);
+    modulationData.write(ModulationData::Sources::VELOCITY, velocity, startSample, numSamples);
+    modulationData.write(ModulationData::Sources::PITCH, frequency, startSample, numSamples);
+    modulationData.write(ModulationData::Sources::Y, y, startSample, numSamples);
+    modulationData.write(ModulationData::Sources::Z, z, startSample, numSamples);
 
 
+    // TODO: use Envelopes
     if (gain == 0.0) {
         clearCurrentNote(); // Important
     }

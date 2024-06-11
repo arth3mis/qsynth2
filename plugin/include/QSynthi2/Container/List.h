@@ -90,10 +90,11 @@ public:
         }
     }
 
-    void forEachIndexed(std::function<void(size_t, const T)> consumer) {
+    List<T> forEachIndexed(std::function<void(size_t, const T)> consumer) {
         for (size_t i = 0; i < this->size(); ++i) {
             consumer(i, this->at(i));
         }
+        return *this;
     }
 
     static double sumOf(const List<double>& list) {
