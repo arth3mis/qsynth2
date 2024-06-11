@@ -66,6 +66,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
 
     if (activeVoices.empty()) {
         // TODO: reset simulation here
+        // simulationThread->resetSimulation();
     }
 
     const auto frameBufferNewFirstFrame = static_cast<size_t>(floor(currentSimulationFrame));

@@ -84,13 +84,13 @@ public:
         return static_cast<size_t>(-1);
     }
 
-    void forEach(std::function<void(const T)> consumer) {
+    void forEach(std::function<void(T)> consumer) {
         for (size_t i = 0; i < this->size(); ++i) {
             consumer(this->at(i));
         }
     }
 
-    void forEachIndexed(std::function<void(size_t, const T)> consumer) {
+    void forEachIndexed(std::function<void(size_t, T)> consumer) {
         for (size_t i = 0; i < this->size(); ++i) {
             consumer(i, this->at(i));
         }

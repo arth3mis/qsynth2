@@ -21,10 +21,12 @@ public:
     FrameList getFrames(size_t n);
     size_t frameReadyCount();
 
-    void resetSimulation() const;
+    void resetSimulation();
 
     std::atomic<bool> started;
     std::atomic<bool> terminate;
+
+    std::atomic<bool> reset;
 
     std::atomic<long> newestFrame;
     size_t sleepCounter = 0;

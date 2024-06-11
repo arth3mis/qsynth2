@@ -7,6 +7,7 @@ SimulationThread::SimulationThread(const std::shared_ptr<Simulation> &s) {
     newestFrame = -1;
     started = false;
     terminate = false;
+    reset = false;
     t = std::thread(&SimulationThread::simulationLoop, this);
 }
 
@@ -28,7 +29,12 @@ void SimulationThread::simulationLoop() {
         }
 
         if (started && frameBuffer.size() < bufferTargetSize) {
-            if (juce::approximatelyEqual(timestep, static_cast<Decimal>(0))) appendFrame(std::make_shared<SimulationFrame>(*frameBuffer.back()));
+            if (reset) {
+                reset = false;
+                simulation->reset();
+            } else if (juce::approximatelyEqual(timestep, static_cast<Decimal>(0))) {
+                appendFrame(std::make_shared<SimulationFrame>(*frameBuffer.back()));
+            }
             appendFrame(std::make_shared<SimulationFrame>(simulation->getNextFrame(timestep, {})));
         } else {
             // todo try both busy waiting and sleep with new buffer method -> busy waiting seems to work
@@ -74,6 +80,6 @@ size_t SimulationThread::frameReadyCount() {
     return frameBuffer.size();
 }
 
-void SimulationThread::resetSimulation() const {
-    simulation->reset();
+void SimulationThread::resetSimulation() {
+    reset = true;
 }
