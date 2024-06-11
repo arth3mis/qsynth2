@@ -54,7 +54,6 @@ void Voice::noteTimbreChanged() {
 
 
 void Voice::notePressureChanged() {
-    juce::Logger::writeToLog("Note Pressure changed: " + juce::String(currentlyPlayingNote.pressure.asUnsignedFloat()));
     z.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat()));
 }
 
