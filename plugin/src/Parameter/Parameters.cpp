@@ -70,7 +70,7 @@ List<std::shared_ptr<Modulation>> &Parameters::addModulationSlots(size_t number)
         auto* modulationSourceParameter = add<juce::AudioParameterChoice>(
                 juce::ParameterID(modulationSourceName + " " + juce::String(i + 1), Parameters::VERSION),
                 modulationSourceName + " " + juce::String(i + 1),
-                ModulationData::Sources::ALL.map<juce::String>([](ModulationData::Source s) { return s.getName(); }).toStringArray(),
+                ModulationData::Sources::ALL.map<juce::String>([](const ModulationData::Source& s) { return s.name; }).toStringArray(),
                 0);
 
         modulationSourceParameter->addListener(new LambdaListener([this, i] (float newValue) {

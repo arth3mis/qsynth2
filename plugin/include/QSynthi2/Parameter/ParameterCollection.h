@@ -28,17 +28,17 @@ public:
 
 
     ModulatedParameterFloat* lineOfInterestX = add<ModulatedParameterFloat>(
-            "Line of interest x",
-            juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
-            0.f);
+        "Line of interest x",
+        juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
+        0.f);
     ModulatedParameterFloat* lineOfInterestY = add<ModulatedParameterFloat>(
-            "Line of interest y",
-            juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
-            0.f);
+        "Line of interest y",
+        juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
+        0.f);
     ModulatedParameterFloat* lineOfInterestRotation = add<ModulatedParameterFloat>(
-            "Line of interest rotation",
-            juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
-            0.f);
+        "Line of interest rotation",
+        juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
+        0.f);
 
 
 
