@@ -16,9 +16,7 @@ void SimulationDisplay::paint(juce::Graphics &g) {
 
     drawSimulation(g);
 
-    g.setColour (juce::Colours::white);
-    g.setFont (12.0f);
-    //g.drawText (std::to_string(std::chrono::system_clock::now().time_since_epoch().count()), getLocalBounds(), juce::Justification::centredBottom, true);
+    drawScanlines(g);
 }
 
 void SimulationDisplay::resized() {
@@ -57,13 +55,48 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
         }
     }
 
-    /* temp scanline
-    g.setColour(juce::Colour(30.f, 0.2f, 1.f, 0.5f));
-    g.fillRect(juce::Rectangle(
-           0.f,
-           static_cast<float>(scanlineY) * vy - yOverlap,
-           (float)getWidth(),
-           vy + yOverlap * 2));
-           */
+}
 
+void SimulationDisplay::drawScanlines(juce::Graphics &g) {
+
+    for (const auto& voiceData : sharedData.voiceData) {
+        if (!voiceData->isActive()) continue;
+
+        auto line = juce::Line<float>(
+                simulationXToScreenX(voiceData->scanlineStartX),
+                simulationYToScreenY(voiceData->scanlineStartY),
+                simulationXToScreenX(voiceData->scanlineEndX),
+                simulationYToScreenY(voiceData->scanlineEndY));
+
+        g.setColour(juce::Colour(0.13f, 0.6f, 1.f, 0.1f * static_cast<float>(voiceData->gain)));
+        g.drawLine(line, 10);
+
+        g.setColour(juce::Colour(0.13f, 0.7f, 1.f, 0.1f * static_cast<float>(voiceData->gain)));
+        g.drawLine(line, 8);
+
+        g.setColour(juce::Colour(0.13f, 0.8f, 1.f, 0.2f * static_cast<float>(voiceData->gain)));
+        g.drawLine(line, 6);
+
+        g.setColour(juce::Colour(0.13f, 0.8f, 1.f, 0.3f * static_cast<float>(voiceData->gain)));
+        g.drawLine(line, 4);
+
+        g.setColour(juce::Colour(0.13f, 0.9f, 1.f, 0.3f * static_cast<float>(voiceData->gain)));
+        g.drawLine(line, 2);
+
+        g.setColour(juce::Colour(0.13f, 0.05f, 1.f, 1.f));
+        g.drawLine(line, 1);
+
+    }
+
+}
+
+
+float SimulationDisplay::simulationXToScreenX(Decimal simulationX) {
+    return static_cast<float>((simulationX + 1) / 2 * getWidth());
+}
+
+
+
+float SimulationDisplay::simulationYToScreenY(Decimal simulationY) {
+    return static_cast<float>((simulationY + 1) / 2 * getHeight());
 }

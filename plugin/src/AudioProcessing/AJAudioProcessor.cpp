@@ -22,7 +22,7 @@ AJAudioProcessor::AJAudioProcessor() {
 
     synth.setVoiceStealingEnabled (false); // TODO: Parameter
     for (auto i = 0; i < 15; ++i)
-        synth.addVoice (new Voice());
+        synth.addVoice (new Voice(std::make_shared<VoiceData>()));
 }
 
 AJAudioProcessor::~AJAudioProcessor() {
@@ -75,14 +75,13 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     sharedData.frameBuffer.remove(0, frameBufferNewFirstFrame - sharedData.frameBufferFirstFrame);
     sharedData.frameBufferFirstFrame = frameBufferNewFirstFrame;
 
-    // Calculate needed frames
+    // Calculate timestamps
     for (long sample = 0; sample < static_cast<long>(samplesPerBlock); sample++) {
         sharedData.frameBufferTimestamps[sample] = currentSimulationFrame - static_cast<Decimal>(frameBufferNewFirstFrame);
         currentSimulationFrame += simulationFrameIncrement[sample];
     }
 
-    const size_t neededSimulationFrames = static_cast<size_t>(ceil(currentSimulationFrame)) - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
-
+    size_t neededSimulationFrames = static_cast<size_t>(ceil(currentSimulationFrame)) + 1 - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
 
     // TODO
     //  - If offline rendering: Busy wait until simulation is ready

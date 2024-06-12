@@ -3,6 +3,7 @@
 #include <mutex>
 #include <atomic>
 #include "QSynthi2/Parameter/ParameterCollection.h"
+#include "QSynthi2/Synthesizer/VoiceData.h"
 
 class Data {
 public:
@@ -22,6 +23,7 @@ public:
     // thread-safe
     //
     ParameterCollection* parameters;
+    List<std::shared_ptr<VoiceData>> voiceData{};
 
     // context: audio thread
     Eigen::ArrayX<Decimal> frameBufferTimestamps;
