@@ -1,8 +1,13 @@
 #include "QSynthi2/Synthesizer/Voice.h"
+#include "QSynthi2/Data.h"
 
 
+extern Data sharedData;
 
-Voice::Voice() = default;
+
+Voice::Voice(const std::shared_ptr<VoiceData>& voiceData) : voiceData(voiceData), sonifier(voiceData) {
+    sharedData.voiceData.push_back(voiceData);
+}
 
 void Voice::noteStarted() {
     jassert (currentlyPlayingNote.isValid());
@@ -65,8 +70,8 @@ void Voice::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
 
     velocity.reset(sampleRate, 0.005);
     frequency.reset(sampleRate, 0.030);
-    y.reset(sampleRate, 0.020);
-    z.reset(sampleRate, 0.020);
+    y.reset(sampleRate, 0.100);
+    z.reset(sampleRate, 0.100);
 
     modulationData.prepareToPlay(samplesPerBlock);
 
@@ -97,14 +102,15 @@ void Voice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSam
 
 Eigen::ArrayX<Decimal> Voice::generateNextBlock() {
     // TODO: replace with envelope
-    activeThisBlock = false;
+
+    voiceData->gain = 4 * gain; // TODO: use envelope
 
     return gain * sonifier.generateNextBlock(modulationData);
 }
 
 
 
-bool Voice::isActiveThisBlock() {
+bool Voice::isActiveThisBlock() const {
     return activeThisBlock;
 }
 

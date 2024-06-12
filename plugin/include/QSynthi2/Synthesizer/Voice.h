@@ -4,11 +4,12 @@
 #include "QSynthi2/Juce.h"
 #include "QSynthi2/Parameter/Modulation.h"
 #include "Sonifier.h"
+#include "QSynthi2/Synthesizer/VoiceData.h"
 
 class Voice : public juce::MPESynthesiserVoice {
 public:
 
-    Voice();
+    Voice(const std::shared_ptr<VoiceData>& voiceData);
 
     void noteStarted() override;
 
@@ -36,7 +37,7 @@ public:
         return &modulationData;
     }
 
-    bool isActiveThisBlock();
+    bool isActiveThisBlock() const;
 
 
 protected:
@@ -44,6 +45,7 @@ protected:
     bool activeThisBlock = false;
 
     ModulationData modulationData;
+    std::shared_ptr<VoiceData> voiceData;
 
     juce::SmoothedValue<Decimal> velocity;
     juce::SmoothedValue<Decimal> frequency;

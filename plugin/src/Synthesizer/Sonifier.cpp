@@ -1,16 +1,18 @@
 #include "QSynthi2/Synthesizer/Sonifier.h"
 
 
-Sonifier::Sonifier() = default;
+Sonifier::Sonifier(std::shared_ptr<VoiceData> voiceData) : scanner(voiceData) {
+
+}
 
 
 
 Eigen::ArrayX<Decimal> Sonifier::generateNextBlock(const ModulationData &modulationData) {
     jassert(modulationData.isSourceValid(ModulationData::Sources::PITCH)); // Pitch isn't already evaluated
-    auto frequency = modulationData[ModulationData::Sources::PITCH.id];
+    const auto& frequency = modulationData[ModulationData::Sources::PITCH.id];
     jassert(frequency.size() == samplesPerBlock); // Pitch wasn't set properly
 
-    auto phases = Eigen::ArrayX<Decimal>(samplesPerBlock);
+    auto phases = Eigen::ArrayXX<Decimal>(samplesPerBlock, 1);
 
     Eigen::ArrayX<Decimal> oscillationsPerSample = frequency / sampleRate;
 
@@ -18,10 +20,13 @@ Eigen::ArrayX<Decimal> Sonifier::generateNextBlock(const ModulationData &modulat
         phase0to1 += oscillationsPerSample(i);
         phase0to1 = fmod(phase0to1, 1);
 
-        phases[i] = phase0to1;
+        phases(i) = phase0to1;
     }
 
-    return scanner.getValuesAt(phases, modulationData);
+    auto scannerValues = scanner.getValuesAt(phases, modulationData);
+    jassert(scannerValues.cols() == 1); // Scanner returned too many Columns
+
+    return scannerValues;
 }
 
 

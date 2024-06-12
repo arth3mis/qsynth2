@@ -2,11 +2,12 @@
 
 #include "Scanner.h"
 #include "QSynthi2/Parameter/ParameterCollection.h"
+#include "VoiceData.h"
 
 class Sonifier {
 public:
 
-    Sonifier();
+    Sonifier(std::shared_ptr<VoiceData> voiceData);
 
     // TODO: Swappable implementation with timber sonifier
     Eigen::ArrayX<Decimal> generateNextBlock(const ModulationData& modulationData);

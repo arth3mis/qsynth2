@@ -8,37 +8,37 @@ class ParameterCollection : public Parameters {
 public:
 
     // Declare Parameters here
-    ModulatedParameterFloat* timbre = add<ModulatedParameterFloat>(
-        "Timbre",
-        juce::NormalisableRange<float>(0, 1),
-        0);
     ModulatedParameterFloat* simulationSpeedFactor = add<ModulatedParameterFloat>(
-        "Simulation speed",
-        juce::NormalisableRange<float>(0, 100, 0, 0.7f, false),
-        10);
+            "Simulation speed",
+            juce::NormalisableRange<float>(0, 100, 0, 0.7f, false),
+            10);
     ModulatedParameterFloat* simulationStepsPerSecond = add<ModulatedParameterFloat>(
-        "Simulation steps per second",
-        juce::NormalisableRange<float>(10, 400, 1, 0.5f, false),
-        100);
+            "Simulation steps per second",
+            juce::NormalisableRange<float>(10, 400, 1, 0.5f, false),
+            100);
     ModulatedParameterFloat* simulationBufferSeconds = add<ModulatedParameterFloat>(
-        "Simulation buffer seconds",
-        juce::NormalisableRange<float>(0, 2, 0, 0.5f, false),
-        0.2f);
+            "Simulation buffer seconds",
+            juce::NormalisableRange<float>(0, 2, 0, 0.5f, false),
+            0.2f);
 
 
 
     ModulatedParameterFloat* lineOfInterestX = add<ModulatedParameterFloat>(
-        "Line of interest x",
-        juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
-        0.f);
+            "Line of interest x",
+            juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
+            0.f);
     ModulatedParameterFloat* lineOfInterestY = add<ModulatedParameterFloat>(
-        "Line of interest y",
-        juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
-        0.f);
+            "Line of interest y",
+            juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
+            0.f);
+    ModulatedParameterFloat* lineOfInterestLength = add<ModulatedParameterFloat>(
+            "Line of interest length",
+            juce::NormalisableRange<float>(0, 3, 0, 0.5f, false),
+            1.f);
     ModulatedParameterFloat* lineOfInterestRotation = add<ModulatedParameterFloat>(
-        "Line of interest rotation",
-        juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
-        0.f);
+            "Line of interest rotation",
+            juce::NormalisableRange<float>(-juce::MathConstants<float>::pi, juce::MathConstants<float>::pi, 0, 1.f, false),
+            0.f);
 
 
 

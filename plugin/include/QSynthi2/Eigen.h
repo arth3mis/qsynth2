@@ -10,19 +10,19 @@
 #endif
 
 #include "Eigen/Dense"
+#include <unsupported/Eigen/CXX11/Tensor>
 
 namespace Eigen {
 
-    static juce::String toString(Eigen::ArrayX<double> array) {
+
+    [[nodiscard]] static juce::String toString(const Eigen::ArrayXX<double>& array) {
         std::ostringstream oss;
         oss << array;
         return juce::String(oss.str());
     }
 
-    static juce::String toString(Eigen::ArrayXX<double> array) {
-        std::ostringstream oss;
-        oss << array;
-        return juce::String(oss.str());
+    [[nodiscard]] static juce::String shapeAsString(const Eigen::ArrayXX<double>& array, const juce::String &name = "") {
+        return "Eigen::Array " + name + "(" + juce::String(array.cols()) + ", " + juce::String(array.rows()) + ")";
     }
 
 }
