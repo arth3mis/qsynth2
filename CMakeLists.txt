@@ -61,6 +61,19 @@ CPMAddPackage(
 )
 include_directories(${LIB_DIR}/eigen)
 
+# Adds OpenCV
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+# (not working)
+#CPMAddPackage(
+#        NAME OpenCV
+#        GIT_TAG 4.10.0
+#        VERSION 4.10.0
+#        GITHUB_REPOSITORY opencv/opencv
+#        SOURCE_DIR ${LIB_DIR}/opencv
+#)
+#include_directories(${LIB_DIR}/opencv)
+
 # This command allows running tests from the "build" folder (the one where CMake generates the project to).
 enable_testing()
 

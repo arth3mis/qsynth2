@@ -36,6 +36,7 @@ target_sources(${PROJECT_NAME}
         src/Simulation/Simulation.cpp
         src/Simulation/SimulationThread.cpp
         src/Simulation/QuantumSimulation.cpp
+        src/Simulation/VideoSimulation.cpp
         src/Parameter/Modulation.cpp
         src/Parameter/ModulatedParameterFloat.cpp
         src/Parameter/ModulationData.cpp
@@ -56,6 +57,7 @@ target_include_directories(${PROJECT_NAME}
 # If you use one of the additional modules, like the DSP module, you need to specify it here.
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
+        ${OpenCV_LIBS}
         juce::juce_audio_utils
         PUBLIC
         juce::juce_recommended_config_flags
