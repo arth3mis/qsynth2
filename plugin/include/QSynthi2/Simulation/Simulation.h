@@ -9,7 +9,7 @@ public:
 
     virtual ~Simulation() = default;
 
-    virtual const ComplexMatrix& getNextFrame(Decimal timestep, const ModulationData& modulationData) = 0;
+    virtual SimulationFramePointer getNextFrame(Decimal timestep, const ModulationData& modulationData) = 0;
     virtual void reset() = 0;
 };
 

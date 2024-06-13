@@ -33,9 +33,9 @@ void SimulationThread::simulationLoop() {
                 reset = false;
                 simulation->reset();
             } else if (juce::approximatelyEqual(timestep, static_cast<Decimal>(0))) {
-                appendFrame(std::make_shared<SimulationFrame>(*frameBuffer.back()));
+                appendFrame(std::shared_ptr<SimulationFrame>(frameBuffer.back()->clone()));
             }
-            appendFrame(std::make_shared<SimulationFrame>(simulation->getNextFrame(timestep, {})));
+            appendFrame(simulation->getNextFrame(timestep, {}));
         } else {
             // todo try both busy waiting and sleep with new buffer method -> busy waiting seems to work
             // ++sleepCounter;
@@ -58,7 +58,9 @@ void SimulationThread::updateParameters(const ParameterCollection* parameterColl
     timestep = simulationSpeedFactor / simulationStepsPerSecond;
 }
 
-void SimulationThread::appendFrame(const std::shared_ptr<SimulationFrame>& f) {
+void SimulationThread::appendFrame(const SimulationFramePointer& f) {
+    if (f == nullptr)
+        return;
     std::lock_guard lock(frameMutex);
     frameBuffer.append(f);
     ++newestFrame;

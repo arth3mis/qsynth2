@@ -26,9 +26,9 @@ void SimulationDisplay::timerCallback() {
     repaint();
 }
 
-void SimulationDisplay::drawSimulation(juce::Graphics &g) {
+void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
     const auto frame = sharedData.getSimulationDisplayFrame();
-    if (frame.size() == 0) {
+    if (frame->rows() == 0) {
         return;
     }
 
@@ -43,7 +43,7 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
 
     for (int x = 0; x < w; x++) {
         for (int y = 0; y < h; y++) {
-            Decimal v = std::abs(frame(y, x));
+            Decimal v = frame->toDecimal(y, x);
             int rgb = std::min(255, static_cast<int>(std::round(std::pow(std::abs(v), 0.66) * 255)));
             g.setColour(juce::Colour(rgb, rgb, rgb));
             // fill rectangle
@@ -54,15 +54,13 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) {
                 vy + yOverlap * 2));
         }
     }
-
 }
 
-void SimulationDisplay::drawScanlines(juce::Graphics &g) {
-
+void SimulationDisplay::drawScanlines(juce::Graphics &g) const {
     for (const auto& voiceData : sharedData.voiceData) {
         if (!voiceData->isActive()) continue;
 
-        auto line = juce::Line<float>(
+        const auto line = juce::Line<float>(
                 simulationXToScreenX(voiceData->scanlineStartX),
                 simulationYToScreenY(voiceData->scanlineStartY),
                 simulationXToScreenX(voiceData->scanlineEndX),
@@ -87,16 +85,12 @@ void SimulationDisplay::drawScanlines(juce::Graphics &g) {
         g.drawLine(line, 1);
 
     }
-
 }
 
-
-float SimulationDisplay::simulationXToScreenX(Decimal simulationX) {
+float SimulationDisplay::simulationXToScreenX(const Decimal simulationX) const {
     return static_cast<float>((simulationX + 1) / 2 * getWidth());
 }
 
-
-
-float SimulationDisplay::simulationYToScreenY(Decimal simulationY) {
+float SimulationDisplay::simulationYToScreenY(const Decimal simulationY) const {
     return static_cast<float>((simulationY + 1) / 2 * getHeight());
 }

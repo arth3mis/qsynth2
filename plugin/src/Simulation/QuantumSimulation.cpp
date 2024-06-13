@@ -103,14 +103,14 @@ QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2 offset, cons
     return *this;
 }
 
-const ComplexMatrix& QuantumSimulation::getNextFrame(const Decimal timestep, const ModulationData& modulationData) {
+SimulationFramePointer QuantumSimulation::getNextFrame(const Decimal timestep, const ModulationData& modulationData) {
     if (!started) {
         started = true;
         psi = initialPsi;
     }
 
     calculateNextPsi(timestep);
-    return psi;
+    return std::make_shared<QuantumSimulationFrame>(psi);
 }
 
 void QuantumSimulation::reset() {

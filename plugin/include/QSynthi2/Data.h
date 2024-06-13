@@ -10,15 +10,11 @@ public:
 
     // context: audio thread <-> GUI thread
     //
-    SimulationFrame getSimulationDisplayFrame();
-    SimulationFrame* getSimulationScanFrame(); // todo remove?
-    void setSimulationDisplayFrame(const SimulationFrame& f);
-    void setSimulationScanFrame(const SimulationFrame& f); // todo remove?
-
     std::atomic<size_t> simulationWidth;
     std::atomic<size_t> simulationHeight;
-
     std::atomic<bool> resetSimulation{false};
+
+    SimulationFramePointer getSimulationDisplayFrame();
 
     // thread-safe
     //
@@ -26,9 +22,10 @@ public:
     List<std::shared_ptr<VoiceData>> voiceData{};
 
     // context: audio thread
-    Eigen::ArrayX<Decimal> frameBufferTimestamps;
-    size_t frameBufferFirstFrame = 0;
+    //
     FrameList frameBuffer;
+    size_t frameBufferFirstFrame = 0;
+    Eigen::ArrayX<Decimal> frameBufferTimestamps;
 
     void appendFrameBuffer(const FrameList& frames);
 
@@ -36,8 +33,7 @@ private:
 
     // context: audio thread <-> GUI thread
     //
-    SimulationFrame simulationDisplayFrame;
-    SimulationFrame simulationScanFrame;
+    SimulationFramePointer simulationDisplayFrame;
     std::mutex frameAccessMutex;
 };
 
