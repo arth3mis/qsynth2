@@ -17,11 +17,11 @@ public:
 
 private:
 
-    void drawSimulation(juce::Graphics& g);
-    void drawScanlines(juce::Graphics& g);
+    void drawSimulation(juce::Graphics& g) const;
+    void drawScanlines(juce::Graphics& g) const;
 
-    float simulationXToScreenX(Decimal simulationX);
-    float simulationYToScreenY(Decimal simulationY);
+    float simulationXToScreenX(Decimal simulationX) const;
+    float simulationYToScreenY(Decimal simulationY) const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimulationDisplay)
 };

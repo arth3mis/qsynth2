@@ -5,6 +5,36 @@
 #include "QSynthi2/Simulation/Simulation.h"
 #include "QSynthi2/Simulation/Potential.h"
 
+class QuantumSimulationFrame final : public SimulationFrame {
+public:
+    explicit QuantumSimulationFrame(const ComplexMatrix& m) {
+        frame = m;
+    }
+    [[nodiscard]] SimulationFrame* clone() override {
+        return new QuantumSimulationFrame(frame);
+    }
+    [[nodiscard]] RealMatrix toDecimal() const override {
+        return frame.abs();
+    }
+    [[nodiscard]] RealMatrix toPhase() const override {
+        return frame.arg();
+    }
+    [[nodiscard]] Decimal toDecimal(const long row, const long col) const override {
+        return std::abs(frame(row, col));
+    }
+    [[nodiscard]] Decimal toPhase(const long row, const long col) const override {
+        return std::arg(frame(row, col));
+    }
+    [[nodiscard]] size_t cols() const override {
+        return frame.cols();
+    }
+    [[nodiscard]] size_t rows() const override {
+        return frame.rows();
+    }
+private:
+    ComplexMatrix frame;
+};
+
 class QuantumSimulation final : public Simulation {
 public:
 
@@ -19,7 +49,7 @@ public:
     void reset() override;
 
     // getters
-    const ComplexMatrix& getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
+    SimulationFramePointer getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
 
     [[nodiscard]] const List<RealMatrix>& getPotentials() const { return potentials; }
     [[nodiscard]] const ComplexMatrix& getPsi() const { return started ? psi : initialPsi; }

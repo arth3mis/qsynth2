@@ -96,14 +96,14 @@ Eigen::ArrayXX<Decimal> Scanner::getInterpolated(const FrameList &frameBuffer,
         jassert(xFloor >= 0 && xFloor < frameBuffer.at(timestampsFloor)->rows());
         jassert(xCeil  >= 0 && xCeil  < frameBuffer.at(timestampsFloor)->rows());
 
-        interpolatedValues(i) = (1-timestampsT) * ((1-yT) * ((1-xT) * frameBuffer.at(timestampsFloor)->operator()(yFloor, xFloor)
-                                                          +     xT  * frameBuffer.at(timestampsFloor)->operator()(yFloor, xCeil ))
-                                                +     yT  * ((1-xT) * frameBuffer.at(timestampsFloor)->operator()(yCeil,  xFloor)
-                                                          +     xT  * frameBuffer.at(timestampsFloor)->operator()(yCeil,  xCeil )))
-                              +    timestampsT  * ((1-yT) * ((1-xT) * frameBuffer.at(timestampsCeil )->operator()(yFloor, xFloor)
-                                                          +     xT  * frameBuffer.at(timestampsCeil )->operator()(yFloor, xCeil ))
-                                                +     yT  * ((1-xT) * frameBuffer.at(timestampsCeil )->operator()(yCeil,  xFloor)
-                                                          +     xT  * frameBuffer.at(timestampsCeil )->operator()(yCeil,  xCeil )));
+        interpolatedValues(i) = (1-timestampsT) * ((1-yT) * ((1-xT) * frameBuffer.at(timestampsFloor)->toDecimal(yFloor, xFloor)
+                                                          +     xT  * frameBuffer.at(timestampsFloor)->toDecimal(yFloor, xCeil ))
+                                                +     yT  * ((1-xT) * frameBuffer.at(timestampsFloor)->toDecimal(yCeil,  xFloor)
+                                                          +     xT  * frameBuffer.at(timestampsFloor)->toDecimal(yCeil,  xCeil )))
+                              +    timestampsT  * ((1-yT) * ((1-xT) * frameBuffer.at(timestampsCeil )->toDecimal(yFloor, xFloor)
+                                                          +     xT  * frameBuffer.at(timestampsCeil )->toDecimal(yFloor, xCeil ))
+                                                +     yT  * ((1-xT) * frameBuffer.at(timestampsCeil )->toDecimal(yCeil,  xFloor)
+                                                          +     xT  * frameBuffer.at(timestampsCeil )->toDecimal(yCeil,  xCeil )));
     }
 
     return toDecimal(interpolatedValues);
