@@ -5,11 +5,12 @@
 #include "QSynthi2/Parameter/Modulation.h"
 #include "Sonifier.h"
 #include "QSynthi2/Synthesizer/VoiceData.h"
+#include "QSynthi2/Synthesizer/ADSR.h"
 
 class Voice : public juce::MPESynthesiserVoice {
 public:
 
-    Voice(const std::shared_ptr<VoiceData>& voiceData);
+    explicit Voice(const std::shared_ptr<VoiceData>& voiceData);
 
     void noteStarted() override;
 
@@ -37,7 +38,7 @@ public:
         return &modulationData;
     }
 
-    bool isActiveThisBlock() const;
+    [[nodiscard]] bool isActiveThisBlock() const;
 
 
 protected:
@@ -52,9 +53,8 @@ protected:
     juce::SmoothedValue<Decimal> y;
     juce::SmoothedValue<Decimal> z;
 
-    Sonifier sonifier;
+    ADSR envelope1;
 
-    // TODO: Temporary
-    Decimal gain = 0.0;
+    Sonifier sonifier;
 
 };

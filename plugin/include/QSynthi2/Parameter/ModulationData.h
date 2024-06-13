@@ -25,8 +25,9 @@ public:
         inline static const Source PITCH{"Pitch", 1};
         inline static const Source Y{"Keyboard Y", 2};
         inline static const Source Z{"Keyboard Z", 3};
+        inline static const Source ENVELOPE1{"Envelope 1 (amp)", 4};
 
-        inline static List<Source> ALL = List<Source>({VELOCITY, PITCH, Y, Z});
+        inline static List<Source> ALL = List<Source>({VELOCITY, PITCH, Y, Z, ENVELOPE1});
     };
 
 
@@ -62,6 +63,12 @@ public:
 
     [[nodiscard]] bool isSourceValid (const Source& source) const {
         return source.id >= 0 && source.id < this->size() && this->at(source.id).size() > 0;
+    }
+
+
+
+    Eigen::ArrayX<Decimal> &atSource(const Source &source) {
+        return this->at(source.id);
     }
 
 };

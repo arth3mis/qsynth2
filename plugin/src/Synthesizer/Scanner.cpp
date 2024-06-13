@@ -81,11 +81,11 @@ Eigen::ArrayXX<Decimal> Scanner::getInterpolated(const FrameList &frameBuffer,
         auto timestampsCeil  = static_cast<size_t>(ceil (frameBufferTimestamps(i)));
         Decimal timestampsT = fmod(frameBufferTimestamps(i), 1);
 
-        auto yFloor = static_cast<Eigen::Index>(floor(y(i)));
+        auto yFloor = static_cast<Eigen::Index>(static_cast<unsigned long>(floor(y(i))) % sharedData.simulationHeight);
         auto yCeil  = static_cast<Eigen::Index>(static_cast<unsigned long>(ceil (y(i))) % sharedData.simulationHeight);
         Decimal yT = fmod(y(i), 1);
 
-        auto xFloor = static_cast<Eigen::Index>(floor(x(i)));
+        auto xFloor = static_cast<Eigen::Index>(static_cast<unsigned long>(floor(x(i))) % sharedData.simulationWidth);
         auto xCeil  = static_cast<Eigen::Index>(static_cast<unsigned long>(ceil (x(i))) % sharedData.simulationWidth);
         Decimal xT = fmod(x(i), 1);
 

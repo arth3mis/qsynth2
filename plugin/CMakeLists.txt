@@ -40,6 +40,7 @@ target_sources(${PROJECT_NAME}
         src/Parameter/ModulatedParameterFloat.cpp
         src/Parameter/ModulationData.cpp
         src/Parameter/Parameters.cpp
+        src/Synthesizer/ADSR.cpp
         src/Synthesizer/Scanner.cpp
         src/Synthesizer/Voice.cpp
         src/Synthesizer/Sonifier.cpp
