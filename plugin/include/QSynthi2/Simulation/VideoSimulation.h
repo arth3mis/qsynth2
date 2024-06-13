@@ -2,6 +2,42 @@
 #define VIDEOSIMULATION_H
 
 #include "QSynthi2/Simulation/Simulation.h"
+#include "QSynthi2/Video.h"
+
+typedef Eigen::ArrayXX<cv::Vec3b> VideoMatrix;
+
+class VideoSimulationFrame final : public SimulationFrame {
+public:
+    explicit VideoSimulationFrame(const VideoMatrix& m) {
+        frame = m;
+    }
+    [[nodiscard]] SimulationFrame* clone() override {
+        return new VideoSimulationFrame(frame);
+    }
+    [[nodiscard]] RealMatrix toDecimal() const override {
+        // TODO implement if needed
+        return {};
+    }
+    [[nodiscard]] RealMatrix toPhase() const override {
+        // TODO implement if needed
+        return {};
+    }
+    [[nodiscard]] Decimal toDecimal(const long row, const long col) const override {
+        return frame(row, col)[0] / 255.0;
+        // for luminance see: https://stackoverflow.com/a/596243
+    }
+    [[nodiscard]] Decimal toPhase(const long row, const long col) const override {
+        return frame(row, col)[1] / 255.0;
+    }
+    [[nodiscard]] size_t cols() const override {
+        return frame.cols();
+    }
+    [[nodiscard]] size_t rows() const override {
+        return frame.rows();
+    }
+private:
+    VideoMatrix frame;
+};
 
 class VideoSimulation : public Simulation {
 public:
@@ -12,13 +48,20 @@ public:
     void reset() override;
 
     // getters
-    const ComplexMatrix& getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
+    SimulationFramePointer getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
+
+    bool captureOpened() const;
 
 private:
-    juce::String file;
 
-    ComplexMatrix psi;
-    List<RealMatrix> frames;
+    int simulationWidth;
+    int simulationHeight;
+    juce::String file;
+    cv::VideoCapture capture;
+    List<VideoSimulationFrame> frames;
+    Decimal currentFrameIndex;
+
+    bool convertNextVideoFrame();
 };
 
 

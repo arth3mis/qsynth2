@@ -1,5 +1,6 @@
 #include "QSynthi2/AudioProcessing/AJAudioProcessor.h"
 #include "QSynthi2/Simulation/QuantumSimulation.h"
+#include "QSynthi2/Simulation/VideoSimulation.h"
 #include "QSynthi2/Synthesizer/Voice.h"
 #include "QSynthi2/Data.h"
 
@@ -14,6 +15,10 @@ AJAudioProcessor::AJAudioProcessor() {
         .gaussianDistribution({-0.4, 0}, {0.25, 0.25}, {4, 0})));
     sharedData.simulationWidth = SIM_SIZE;
     sharedData.simulationHeight = SIM_SIZE;
+
+    // todo juce file dialog to select video path
+    simulation = std::dynamic_pointer_cast<Simulation>(std::make_shared<VideoSimulation>(VideoSimulation(SIM_SIZE,SIM_SIZE,
+        "/home/art/coding/clion/qsynthi2/test_video_1.mp4")));
 
     simulationThread = new SimulationThread(simulation);
     simulationThread->started = true;
