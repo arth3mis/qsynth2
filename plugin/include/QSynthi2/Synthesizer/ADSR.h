@@ -38,7 +38,7 @@ protected:
     Decimal currentValue = 0;
     Decimal stateStart = 0;
 
-    const Decimal LOWEST_VOLUME_DB = -42;
+    const Decimal LOWEST_VOLUME_DB = -50;
     const Decimal LOWEST_VOLUME_GAIN = std::pow(10.0, LOWEST_VOLUME_DB / 20.0);
 
     List<ModulatedParameterFloat*> stateParameters {};

@@ -116,7 +116,7 @@ Eigen::ArrayX<Decimal> Voice::generateNextBlock() {
 
     //juce::Logger::writeToLog(juce::String(modulationData.atSource(ModulationData::Sources::ENVELOPE1)(Eigen::last)) + " -> " + juce::String(envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1))(Eigen::last)));
 
-    return envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1)) * 0.25 * sonifier.generateNextBlock(modulationData);
+    return envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1)) * envelope1.toGainFactor(sharedData.parameters->volume->getModulated(modulationData)) * sonifier.generateNextBlock(modulationData);
 }
 
 
