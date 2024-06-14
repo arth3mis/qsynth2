@@ -23,8 +23,8 @@ void Voice::noteStarted() {
 
     notePitchbendChanged();
     frequency.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.getFrequencyInHertz())); // TODO: Remove when implementing Portamento
-    noteTimbreChanged();
-    notePressureChanged();
+    y.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat()));
+    z.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat()));
 
     envelope1.noteOn();
 
