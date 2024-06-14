@@ -19,7 +19,7 @@ void Voice::noteStarted() {
              || currentlyPlayingNote.keyState == juce::MPENote::keyDownAndSustained);
 
 
-    velocity.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.noteOnVelocity.asUnsignedFloat()));
+    velocity.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.noteOnVelocity.asUnsignedFloat()));
 
     notePitchbendChanged();
     frequency.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.getFrequencyInHertz())); // TODO: Remove when implementing Portamento
@@ -39,6 +39,7 @@ void Voice::noteStopped(bool allowTailOff) {
     envelope1.noteOff();
 
     if (!allowTailOff) {
+        envelope1.reset();
         return;
     }
 

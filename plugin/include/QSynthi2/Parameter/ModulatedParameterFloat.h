@@ -26,6 +26,8 @@ public:
 
     Eigen::ArrayX<Decimal> getModulated(const List<ModulationData*> &modulationDataList);
 
+    Decimal getSingleModulated(const ModulationData &modulationData);
+
     Decimal getSingleModulated(const List<ModulationData*> &modulationDataList);
 
     void prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
@@ -42,7 +44,7 @@ protected:
 
     Eigen::ArrayX<Decimal> bufferNormalizedSliderValue;
 
-    Decimal sliderSmoothingSeconds;
+    Decimal sliderSmoothingSeconds{0.1};
     juce::SmoothedValue<Decimal> smoothedNormalizedSliderValue;
 
 

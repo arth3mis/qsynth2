@@ -52,9 +52,7 @@ void SimulationThread::updateParameters(const ParameterCollection* parameterColl
     Decimal simulationSpeedFactor = parameterCollection->simulationSpeedFactor->getSingleModulated(modulationDataList);
     Decimal simulationBufferSeconds = parameterCollection->simulationBufferSeconds->getSingleModulated(modulationDataList);
 
-    // TODO read from parameter
     bufferTargetSize = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));
-
     timestep = simulationSpeedFactor / simulationStepsPerSecond;
 }
 

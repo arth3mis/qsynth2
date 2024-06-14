@@ -42,8 +42,8 @@ public:
 
     ModulatedParameterFloat* volume = add<ModulatedParameterFloat>(
             "Volume",
-            juce::NormalisableRange<float>(0, 1, 0, 1, false),
-            0.8f);
+            juce::NormalisableRange<float>(0, 1, 0, 1.3f, false),
+            0.9f);
 
 
     ModulatedParameterFloat* envelope1Attack = add<ModulatedParameterFloat>(

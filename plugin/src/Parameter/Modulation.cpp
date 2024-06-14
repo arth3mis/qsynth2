@@ -38,7 +38,7 @@ Eigen::ArrayX<Decimal> Modulation::getModulatedNormalized(const ModulationData& 
 Decimal Modulation::getSingleModulatedNormalized(const ModulationData &modulationData) {
 
     jassert(modulationData.size() > modulationSourceId); // Invalid modulationSource. Isn't set in modulationData!
-    return modulationData[modulationSourceId][0] * amount->getSingleModulatedNormalized(modulationData);
+    return modulationData[modulationSourceId](Eigen::last) * amount->getSingleModulated(modulationData);
 }
 
 

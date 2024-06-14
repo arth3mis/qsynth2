@@ -59,7 +59,7 @@ Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulatedNormalized(const Mod
 
 
 Decimal ModulatedParameterFloat::getSingleModulatedNormalized(const ModulationData &modulationData) {
-    Decimal buffer = bufferNormalizedSliderValue[bufferNormalizedSliderValue.size() - 1];
+    Decimal buffer = bufferNormalizedSliderValue(Eigen::last);
 
     for (const auto& modulation : modulations) {
         buffer += modulation->getSingleModulatedNormalized(modulationData);
@@ -84,8 +84,7 @@ Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulated(const List<Modulati
             auto modulationValues = modulation->getModulatedNormalized(*modulationData);
 
             jassert(buffer.size() == modulationValues.size());
-            // TODO: weight with Envelope #1
-            buffer += modulationValues;
+            buffer += modulationValues * modulationData->atSource(ModulationData::Sources::ENVELOPE1);
         }
     }
 
@@ -94,12 +93,20 @@ Eigen::ArrayX<Decimal> ModulatedParameterFloat::getModulated(const List<Modulati
 
 
 
+Decimal ModulatedParameterFloat::getSingleModulated(const ModulationData &modulationData) {
+    return static_cast<Decimal>(juce::AudioParameterFloat::convertFrom0to1(static_cast<float>(getSingleModulatedNormalized(modulationData))));
+}
+
+
+
+
+
 Decimal ModulatedParameterFloat::getSingleModulated(const List<ModulationData *> &modulationDataList) {
-    Decimal buffer = bufferNormalizedSliderValue[bufferNormalizedSliderValue.size() - 1];
+    Decimal buffer = bufferNormalizedSliderValue(Eigen::last);
 
     for (const auto& modulationData : modulationDataList) {
         for (const auto &modulation: modulations) {
-            buffer += modulation->getSingleModulatedNormalized(*modulationData);
+            buffer += modulation->getSingleModulatedNormalized(*modulationData) * modulationData->atSource(ModulationData::Sources::ENVELOPE1)(Eigen::last);
         }
     }
 
