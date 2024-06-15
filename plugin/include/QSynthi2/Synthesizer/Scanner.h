@@ -16,6 +16,16 @@ public:
                                                    const Eigen::ArrayXX<Decimal> &y,
                                                    const Eigen::ArrayXX<Decimal> &x);
 
+    inline static Decimal getInterpolated(const FrameList &frameBuffer, Decimal frameBufferTimestamp, Decimal      y, Decimal x);
+    inline static Decimal getInterpolated(const FrameList &frameBuffer, size_t  frameBufferTimestamp, Decimal      y, Decimal x);
+    inline static Decimal getInterpolated(const FrameList &frameBuffer, size_t  frameBufferTimestamp, Eigen::Index y, Decimal x);
+
+    template <int pointNumber>
+    inline static Eigen::Index bicubicIndex(Decimal interpolationIndex, size_t size);
+
+    template <int pointNumber>
+    inline static Decimal bicubicCoefficient(Decimal v0, Decimal v1, Decimal v2, Decimal v3);
+
     void prepareToPlay(Decimal newSampleRate);
 
     void restart();

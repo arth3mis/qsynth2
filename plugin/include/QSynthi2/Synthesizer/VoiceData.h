@@ -10,6 +10,8 @@ public:
 
     std::atomic<Decimal> gain{0};
 
+    std::atomic<Decimal> frequency{0};
+
     std::atomic<Decimal> scanlineStartX{0};
     std::atomic<Decimal> scanlineStartY{0};
     std::atomic<Decimal> scanlineEndX{0};

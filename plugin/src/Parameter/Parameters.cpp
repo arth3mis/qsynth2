@@ -31,7 +31,7 @@ List<std::shared_ptr<Modulation>> &Parameters::addModulationSlots(size_t number)
 
     // Get a List of all existing modulatable parameters for possible modulation targets
     List<juce::String> modulationTargetIds = {"None"};
-    for (auto& [id, parameter]: modulatedParameters) modulationTargetIds.push_back(id);
+    for (auto&  parameter: sortedModulatedParameters) modulationTargetIds.push_back(parameter->getParameterID());
 
     // Add all Parameter amounts as targets as well
     for (size_t i = 0; i < number; i++) modulationTargetIds.push_back(modulationAmountName + " " + juce::String(i + 1));

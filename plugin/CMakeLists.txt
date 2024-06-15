@@ -41,6 +41,7 @@ target_sources(${PROJECT_NAME}
         src/Parameter/ModulatedParameterFloat.cpp
         src/Parameter/ModulationData.cpp
         src/Parameter/Parameters.cpp
+        src/Synthesizer/ADSR.cpp
         src/Synthesizer/Scanner.cpp
         src/Synthesizer/Voice.cpp
         src/Synthesizer/Sonifier.cpp
@@ -63,6 +64,7 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags
+        juce::juce_dsp # @Arthur soll das public oder nicht?
 )
 
 # These definitions are recommended by JUCE.

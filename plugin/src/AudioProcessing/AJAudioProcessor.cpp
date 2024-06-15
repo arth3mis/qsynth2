@@ -127,7 +127,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         frameCounter = 0;
     }
     if (sampleCounter / static_cast<int>(sampleRate/2) > fpsPrints) {
-        juce::Logger::writeToLog("current simulation FPS = " + juce::String(fps));
+        //juce::Logger::writeToLog("current simulation FPS = " + juce::String(fps));
         ++fpsPrints;
     }
 }

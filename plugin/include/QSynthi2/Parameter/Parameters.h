@@ -15,6 +15,7 @@ protected:
     juce::UndoManager undoManager;
 
     std::unordered_map<juce::String, ModulatedParameterFloat*> modulatedParameters;
+    List<ModulatedParameterFloat*> sortedModulatedParameters;
 
     List<std::shared_ptr<Modulation>> modulations;
 
@@ -45,6 +46,7 @@ public:
         if (auto* modulatedParameterFloat = dynamic_cast<ModulatedParameterFloat*>(&reference)) {
             // Parameter is ModulatedParameterFloat
             modulatedParameters[modulatedParameterFloat->getParameterID()] = modulatedParameterFloat;
+            sortedModulatedParameters.push_back(modulatedParameterFloat);
         }
 
         return &reference; // Return pointer to parameter

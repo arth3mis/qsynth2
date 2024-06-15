@@ -66,22 +66,26 @@ void SimulationDisplay::drawScanlines(juce::Graphics &g) const {
                 simulationXToScreenX(voiceData->scanlineEndX),
                 simulationYToScreenY(voiceData->scanlineEndY));
 
-        g.setColour(juce::Colour(0.13f, 0.6f, 1.f, 0.1f * static_cast<float>(voiceData->gain)));
+
+        auto gain = static_cast<float>(voiceData->gain);
+        auto hue = fmod(static_cast<float>(std::log2(voiceData->frequency / 55.0) / 3), 1.f);
+
+        g.setColour(juce::Colour(hue, 0.6f, 1.f, 0.1f * gain));
         g.drawLine(line, 10);
 
-        g.setColour(juce::Colour(0.13f, 0.7f, 1.f, 0.1f * static_cast<float>(voiceData->gain)));
+        g.setColour(juce::Colour(hue, 0.7f, 1.f, 0.1f * gain));
         g.drawLine(line, 8);
 
-        g.setColour(juce::Colour(0.13f, 0.8f, 1.f, 0.2f * static_cast<float>(voiceData->gain)));
+        g.setColour(juce::Colour(hue, 0.8f, 1.f, 0.2f * gain));
         g.drawLine(line, 6);
 
-        g.setColour(juce::Colour(0.13f, 0.8f, 1.f, 0.3f * static_cast<float>(voiceData->gain)));
+        g.setColour(juce::Colour(hue, 0.8f, 1.f, 0.3f * gain));
         g.drawLine(line, 4);
 
-        g.setColour(juce::Colour(0.13f, 0.9f, 1.f, 0.3f * static_cast<float>(voiceData->gain)));
+        g.setColour(juce::Colour(hue, 0.9f, 1.f, 0.3f * gain));
         g.drawLine(line, 2);
 
-        g.setColour(juce::Colour(0.13f, 0.05f, 1.f, 1.f));
+        g.setColour(juce::Colour(hue, 0.05f, 1.f, 1.f * std::pow(gain, 0.5f)));
         g.drawLine(line, 1);
 
     }

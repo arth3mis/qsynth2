@@ -22,7 +22,6 @@ public:
             0.2f);
 
 
-
     ModulatedParameterFloat* lineOfInterestX = add<ModulatedParameterFloat>(
             "Line of interest x",
             juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
@@ -41,6 +40,28 @@ public:
             0.f);
 
 
+    ModulatedParameterFloat* volume = add<ModulatedParameterFloat>(
+            "Volume",
+            juce::NormalisableRange<float>(0, 1, 0, 1.3f, false),
+            0.9f);
+
+
+    ModulatedParameterFloat* envelope1Attack = add<ModulatedParameterFloat>(
+            "Envelope 1 attack seconds",
+            juce::NormalisableRange<float>(0.001f, 8, 0, .55f, false),
+            0.050f);
+    ModulatedParameterFloat* envelope1Decay = add<ModulatedParameterFloat>(
+            "Envelope 1 decay seconds",
+            juce::NormalisableRange<float>(0.001f, 8, 0, .5f, false),
+            0.150f);
+    ModulatedParameterFloat* envelope1Sustain = add<ModulatedParameterFloat>(
+            "Envelope 1 sustain level",
+            juce::NormalisableRange<float>(0, 1, 0, 1, false),
+            1);
+    ModulatedParameterFloat* envelope1Release = add<ModulatedParameterFloat>(
+            "Envelope 1 release seconds",
+            juce::NormalisableRange<float>(0.001f, 8, 0, .5f, false),
+            0.150f);
 
     // Add modulation slots
     ParameterCollection() {
