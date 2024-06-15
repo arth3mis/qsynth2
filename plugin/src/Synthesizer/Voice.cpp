@@ -19,12 +19,24 @@ void Voice::noteStarted() {
              || currentlyPlayingNote.keyState == juce::MPENote::keyDownAndSustained);
 
 
-    velocity.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.noteOnVelocity.asUnsignedFloat()));
-
     notePitchbendChanged();
-    frequency.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.getFrequencyInHertz())); // TODO: Remove when implementing Portamento
-    y.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat()));
-    z.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat()));
+
+    if (envelope1.getCurrentState() == ADSR::State::OFF) {
+        // New note triggerd: Full reset
+        dcOffsetFilter.reset();
+
+        frequency.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.getFrequencyInHertz()));
+        y.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat()));
+        z.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat()));
+        velocity.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.noteOnVelocity.asUnsignedFloat()));
+    } else {
+        // Voice-Stealing: Soft reset
+        frequency.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.getFrequencyInHertz()));
+        y.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat()));
+        z.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat()));
+        velocity.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.noteOnVelocity.asUnsignedFloat()));
+    }
+
 
     envelope1.noteOn();
 
@@ -69,7 +81,7 @@ void Voice::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
     noteStopped(false);
     juce::MPESynthesiserVoice::setCurrentSampleRate(static_cast<double>(sampleRate));
 
-    velocity.reset(sampleRate, 0.005);
+    velocity.reset(sampleRate, 0.030);
     frequency.reset(sampleRate, 0.030);
     y.reset(sampleRate, 0.100);
     z.reset(sampleRate, 0.100);
@@ -81,6 +93,15 @@ void Voice::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
 
     sonifier.prepareToPlay(sampleRate, samplesPerBlock);
 
+    juce::dsp::ProcessSpec spec{};
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = static_cast<unsigned int>(samplesPerBlock);
+    spec.numChannels = 1;
+
+    dcOffsetFilter.prepare(spec);
+    dcOffsetFilter.reset();
+
+    *dcOffsetFilter.coefficients = *juce::dsp::IIR::Coefficients<Decimal>::makeHighPass(sampleRate, 10.0);
 }
 
 
@@ -117,7 +138,13 @@ Eigen::ArrayX<Decimal> Voice::generateNextBlock() {
 
     //juce::Logger::writeToLog(juce::String(modulationData.atSource(ModulationData::Sources::ENVELOPE1)(Eigen::last)) + " -> " + juce::String(envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1))(Eigen::last)));
 
-    return envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1)) * envelope1.toGainFactor(sharedData.parameters->volume->getModulated(modulationData)) * sonifier.generateNextBlock(modulationData);
+    Eigen::ArrayX<Decimal> buffer = sonifier.generateNextBlock(modulationData);
+
+    for (Decimal &sample : buffer) {
+        sample = dcOffsetFilter.processSample(sample);
+    }
+
+    return envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1)) * envelope1.toGainFactor(sharedData.parameters->volume->getModulated(modulationData)) * buffer;
 }
 
 

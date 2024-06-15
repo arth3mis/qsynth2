@@ -57,4 +57,6 @@ protected:
 
     Sonifier sonifier;
 
+    juce::dsp::IIR::Filter<Decimal> dcOffsetFilter;
+
 };
