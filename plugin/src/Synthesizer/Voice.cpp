@@ -138,13 +138,13 @@ Eigen::ArrayX<Decimal> Voice::generateNextBlock() {
 
     //juce::Logger::writeToLog(juce::String(modulationData.atSource(ModulationData::Sources::ENVELOPE1)(Eigen::last)) + " -> " + juce::String(envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1))(Eigen::last)));
 
-    Eigen::ArrayX<Decimal> buffer = sonifier.generateNextBlock(modulationData);
+    Eigen::ArrayX<Decimal> buffer = envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1)) * envelope1.toGainFactor(sharedData.parameters->volume->getModulated(modulationData)) * sonifier.generateNextBlock(modulationData);
 
     for (Decimal &sample : buffer) {
         sample = dcOffsetFilter.processSample(sample);
     }
 
-    return envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1)) * envelope1.toGainFactor(sharedData.parameters->volume->getModulated(modulationData)) * buffer;
+    return buffer;
 }
 
 

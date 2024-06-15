@@ -48,7 +48,7 @@ public:
 
     ModulatedParameterFloat* envelope1Attack = add<ModulatedParameterFloat>(
             "Envelope 1 attack seconds",
-            juce::NormalisableRange<float>(0.001f, 8, 0, .5f, false),
+            juce::NormalisableRange<float>(0.001f, 8, 0, .55f, false),
             0.050f);
     ModulatedParameterFloat* envelope1Decay = add<ModulatedParameterFloat>(
             "Envelope 1 decay seconds",
