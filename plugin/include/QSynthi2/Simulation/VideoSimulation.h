@@ -22,10 +22,8 @@ public:
         // TODO implement if needed
         return {};
     }
-    [[nodiscard]] Decimal toDecimal(const long row, const long col) const override {
-        return frame(row, col)[0] / 255.0;
-        // for luminance see: https://stackoverflow.com/a/596243
-    }
+    [[nodiscard]] Decimal toDecimal(const long row, const long col) const override;
+
     [[nodiscard]] Decimal toPhase(const long row, const long col) const override {
         return frame(row, col)[1] / 255.0;
     }

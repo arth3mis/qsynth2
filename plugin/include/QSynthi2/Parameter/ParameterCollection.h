@@ -21,6 +21,9 @@ public:
             juce::NormalisableRange<float>(0, 2, 0, 0.5f, false),
             0.2f);
 
+    juce::AudioParameterChoice* videoToDecimalMethod = add<juce::AudioParameterChoice>(juce::ParameterID(
+            "Simulation mapping value", VERSION), "Simulation mapping value",
+            juce::StringArray{"Luminance", "Red", "Green", "Blue"}, 0);
 
     ModulatedParameterFloat* lineOfInterestX = add<ModulatedParameterFloat>(
             "Line of interest x",

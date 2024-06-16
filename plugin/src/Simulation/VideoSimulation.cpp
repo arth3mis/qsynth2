@@ -1,5 +1,24 @@
 #include "QSynthi2/Simulation/VideoSimulation.h"
 
+#include <QSynthi2/Data.h>
+
+extern Data sharedData;
+
+Decimal VideoSimulationFrame::toDecimal(const long row, const long col) const {
+    const Decimal R = frame(row, col)[0] / 255.0;
+    const Decimal G = frame(row, col)[1] / 255.0;
+    const Decimal B = frame(row, col)[2] / 255.0;
+    switch (sharedData.parameters->videoToDecimalMethod->getIndex()) {
+        case 1: return R;
+        case 2: return G;
+        case 3: return B;
+        // luminance https://stackoverflow.com/a/596243
+        case 0:
+        default: return std::sqrt(0.299*R*R + 0.587*G*G + 0.114*B*B);
+    }
+}
+
+
 VideoSimulation::VideoSimulation(const int targetWidth, const int targetHeight, const juce::String& filename) {
     file = filename;
     simulationWidth = targetWidth;
