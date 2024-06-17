@@ -22,6 +22,7 @@ public:
     size_t frameReadyCount();
 
     void resetSimulation();
+    void resetSimulation(const std::shared_ptr<Simulation>& s);
 
     std::atomic<bool> started;
     std::atomic<bool> terminate;
@@ -33,7 +34,7 @@ public:
 
 private:
     std::thread t;
-    std::shared_ptr<Simulation> simulation;
+    std::shared_ptr<Simulation> simulation, newSimulation;
 
     // parameters
     std::mutex parameterMutex;

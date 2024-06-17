@@ -32,8 +32,8 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
         return;
     }
 
-    const size_t w = sharedData.simulationWidth;
-    const size_t h = sharedData.simulationHeight;
+    const size_t w = frame->cols();
+    const size_t h = frame->rows();
 
     const float vx = static_cast<float>(getWidth()) / static_cast<float>(w);
     const float vy = static_cast<float>(getHeight()) / static_cast<float>(h);

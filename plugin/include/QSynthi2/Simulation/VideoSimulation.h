@@ -22,7 +22,7 @@ public:
         // TODO implement if needed
         return {};
     }
-    [[nodiscard]] Decimal toDecimal(const long row, const long col) const override;
+    [[nodiscard]] Decimal toDecimal(long row, long col) const override;
 
     [[nodiscard]] Decimal toPhase(const long row, const long col) const override {
         return frame(row, col)[1] / 255.0;

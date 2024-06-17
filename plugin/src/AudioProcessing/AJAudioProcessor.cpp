@@ -6,19 +6,15 @@
 
 extern Data sharedData;
 
+#define SIMULATION_SIZE 128
 
 AJAudioProcessor::AJAudioProcessor() {
-    constexpr int SIM_SIZE = 128;
-    auto simulation = std::dynamic_pointer_cast<Simulation>(std::make_shared<QuantumSimulation>(QuantumSimulation(SIM_SIZE,SIM_SIZE)
+    auto simulation = std::dynamic_pointer_cast<Simulation>(std::make_shared<QuantumSimulation>(QuantumSimulation(SIMULATION_SIZE,SIMULATION_SIZE)
         .barrierPotential({-0.0, NAN}, 2, {{-0.2, -0.1}, {0.1, 0.2}}, 1e30)
         .parabolaPotential({0, 0}, {2, 1.5})
         .gaussianDistribution({-0.4, 0}, {0.25, 0.25}, {4, 0})));
-    sharedData.simulationWidth = SIM_SIZE;
-    sharedData.simulationHeight = SIM_SIZE;
-
-    // todo juce file dialog to select video path
-    simulation = std::dynamic_pointer_cast<Simulation>(std::make_shared<VideoSimulation>(VideoSimulation(SIM_SIZE,SIM_SIZE,
-        "/home/art/coding/clion/qsynthi2/test_video_1.mp4")));
+    sharedData.simulationWidth = SIMULATION_SIZE;
+    sharedData.simulationHeight = SIMULATION_SIZE;
 
     simulationThread = new SimulationThread(simulation);
     simulationThread->started = true;
@@ -59,7 +55,17 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
 
     // buttons
     if (sharedData.resetSimulation) {
-        simulationThread->resetSimulation();
+        if (sharedData.newSimulation.isNotEmpty()) {
+            // create new simulation
+            const auto simulation = std::dynamic_pointer_cast<Simulation>(std::make_shared<VideoSimulation>(
+                    VideoSimulation(SIMULATION_SIZE, SIMULATION_SIZE, sharedData.newSimulation)));
+            sharedData.simulationWidth = SIMULATION_SIZE;
+            sharedData.simulationHeight = SIMULATION_SIZE;
+            simulationThread->resetSimulation(simulation);
+            sharedData.newSimulation = "";
+        } else {
+            simulationThread->resetSimulation();
+        }
         sharedData.resetSimulation = false;
     }
 

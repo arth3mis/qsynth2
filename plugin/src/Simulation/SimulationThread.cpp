@@ -4,6 +4,7 @@
 
 SimulationThread::SimulationThread(const std::shared_ptr<Simulation> &s) {
     simulation = s;
+    newSimulation = nullptr;
     newestFrame = -1;
     started = false;
     terminate = false;
@@ -26,6 +27,11 @@ void SimulationThread::simulationLoop() {
             std::lock_guard lock(parameterMutex);
             timestep = this->timestep;
             newParameters = false;
+        }
+        // update simulation
+        if (newSimulation) {
+            simulation = newSimulation;
+            newSimulation = nullptr;
         }
 
         if (started && frameBuffer.size() < bufferTargetSize) {
@@ -82,4 +88,8 @@ size_t SimulationThread::frameReadyCount() {
 
 void SimulationThread::resetSimulation() {
     reset = true;
+}
+
+void SimulationThread::resetSimulation(const std::shared_ptr<Simulation> &s) {
+    newSimulation = s;
 }

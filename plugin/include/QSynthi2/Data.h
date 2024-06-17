@@ -13,6 +13,7 @@ public:
     std::atomic<size_t> simulationWidth;
     std::atomic<size_t> simulationHeight;
     std::atomic<bool> resetSimulation{false};
+    juce::String newSimulation = "";
 
     SimulationFramePointer getSimulationDisplayFrame();
 
