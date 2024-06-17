@@ -9,16 +9,29 @@ public:
 
     explicit Scanner(std::shared_ptr<VoiceData> voiceData);
 
-    Eigen::ArrayXX<Decimal> getValuesAt(const Eigen::ArrayXX<Decimal> &position0to1, const ModulationData &modulationData);
+    Eigen::ArrayXX<Decimal> getValuesAt(const Eigen::ArrayXX<Decimal> &position0to1, std::function<Eigen::ArrayXX<Decimal>(const FrameList &frameBuffer,
+                                                                                                                           const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
+                                                                                                                           const Eigen::ArrayXX<Decimal> &y,
+                                                                                                                           const Eigen::ArrayXX<Decimal> &x)>, const ModulationData &modulationData);
 
-    static Eigen::ArrayXX<Decimal> getInterpolated(const FrameList &frameBuffer,
+    static Eigen::ArrayXX<Decimal> noInterpolation(const FrameList &frameBuffer,
                                                    const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
                                                    const Eigen::ArrayXX<Decimal> &y,
                                                    const Eigen::ArrayXX<Decimal> &x);
 
-    inline static Decimal getInterpolated(const FrameList &frameBuffer, Decimal frameBufferTimestamp, Decimal      y, Decimal x);
-    inline static Decimal getInterpolated(const FrameList &frameBuffer, size_t  frameBufferTimestamp, Decimal      y, Decimal x);
-    inline static Decimal getInterpolated(const FrameList &frameBuffer, size_t  frameBufferTimestamp, Eigen::Index y, Decimal x);
+    static Eigen::ArrayXX<Decimal> linearInterpolation(const FrameList &frameBuffer,
+                                                   const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
+                                                   const Eigen::ArrayXX<Decimal> &y,
+                                                   const Eigen::ArrayXX<Decimal> &x);
+
+    static Eigen::ArrayXX<Decimal> bicubicInterpolation(const FrameList &frameBuffer,
+                                                        const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
+                                                        const Eigen::ArrayXX<Decimal> &y,
+                                                        const Eigen::ArrayXX<Decimal> &x);
+
+    inline static Decimal getBicubicInterpolated(const FrameList &frameBuffer, Decimal frameBufferTimestamp, Decimal      y, Decimal x);
+    inline static Decimal getBicubicInterpolated(const FrameList &frameBuffer, size_t  frameBufferTimestamp, Decimal      y, Decimal x);
+    inline static Decimal getBicubicInterpolated(const FrameList &frameBuffer, size_t  frameBufferTimestamp, Eigen::Index y, Decimal x);
 
     template <int pointNumber>
     inline static Eigen::Index bicubicIndex(Decimal interpolationIndex, size_t size);

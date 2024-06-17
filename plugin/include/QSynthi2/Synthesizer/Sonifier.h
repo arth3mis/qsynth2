@@ -9,8 +9,11 @@ public:
 
     Sonifier(std::shared_ptr<VoiceData> voiceData);
 
-    // TODO: Swappable implementation with timber sonifier
-    Eigen::ArrayX<Decimal> generateNextBlock(const ModulationData& modulationData);
+    Eigen::ArrayX<Decimal> generateNextBlock(const std::function<Eigen::ArrayX<Decimal>(const Eigen::ArrayX<Decimal>&, Scanner &scanner, const ModulationData&)>& sonificationMethod, const ModulationData& modulationData);
+
+    static Eigen::ArrayX<Decimal> audification(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scanner, const ModulationData &modulationData);
+
+    static Eigen::ArrayX<Decimal> timbreMapping(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scanner, const ModulationData &modulationData);
 
     void prepareToPlay(Decimal newSampleRate, int samplesPerBlock);
 
