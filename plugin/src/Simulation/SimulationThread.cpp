@@ -38,11 +38,14 @@ void SimulationThread::simulationLoop() {
             newParameters = false;
         }
 
-        if (started && frameBuffer.size() < bufferTargetSize) {
+        if (frameBuffer.size() < bufferTargetSize) {
             if (reset) {
                 reset = false;
                 simulation->reset();
-            } else if (juce::approximatelyEqual(timestep, static_cast<Decimal>(0))) {
+                std::lock_guard lock(frameMutex);
+                frameBuffer.clear();
+            }
+            if (juce::approximatelyEqual(timestep, static_cast<Decimal>(0))) {
                 appendFrame(std::shared_ptr<SimulationFrame>(frameBuffer.back()->clone()));
             }
             appendFrame(simulation->getNextFrame(timestep, {}));
@@ -89,6 +92,11 @@ FrameList SimulationThread::getFrames(const size_t n) {
     auto subList = FrameList(first, last);
     frameBuffer.erase(first, last);
     return subList;
+}
+
+SimulationFramePointer SimulationThread::getStartFrame() {
+    std::lock_guard lock(frameMutex);
+    return simulation->getStartFrame();
 }
 
 size_t SimulationThread::frameReadyCount() {

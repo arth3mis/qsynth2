@@ -17,7 +17,6 @@ AJAudioProcessor::AJAudioProcessor() {
     sharedData.simulationHeight = SIMULATION_SIZE;
 
     simulationThread = new SimulationThread(simulation);
-    simulationThread->started = true;
 
     // sharedData.setSimulationDisplayFrame(std::dynamic_pointer_cast<QuantumSimulation>(sim)->getPsi());
 
@@ -79,65 +78,51 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     Eigen::ArrayX<Decimal> simulationFrameIncrement = simulationStepsPerSecond / sampleRate;
     simulationThread->updateParameters(sharedData.parameters, modulationDataList);
 
+    // todo maybe exclude release state voices
     if (activeVoices.empty()) {
-        // TODO: reset simulation here
-        // simulationThread->resetSimulation();
-    }
+        simulationThread->resetSimulation();
+        sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
+    } else {
+        const auto frameBufferNewFirstFrame = static_cast<size_t>(floor(currentSimulationFrame));
 
-    const auto frameBufferNewFirstFrame = static_cast<size_t>(floor(currentSimulationFrame));
+        // Remove past frames
+        sharedData.frameBuffer.remove(0, std::min(frameBufferNewFirstFrame - sharedData.frameBufferFirstFrame, sharedData.frameBuffer.size()));
+        sharedData.frameBufferFirstFrame = frameBufferNewFirstFrame;
 
-    // Remove past frames
-    sharedData.frameBuffer.remove(0, std::min(frameBufferNewFirstFrame - sharedData.frameBufferFirstFrame, sharedData.frameBuffer.size()));
-    sharedData.frameBufferFirstFrame = frameBufferNewFirstFrame;
-
-    // Calculate timestamps
-    for (long sample = 0; sample < static_cast<long>(samplesPerBlock); sample++) {
-        sharedData.frameBufferTimestamps[sample] = currentSimulationFrame - static_cast<Decimal>(frameBufferNewFirstFrame);
-        currentSimulationFrame += simulationFrameIncrement[sample];
-    }
-
-    size_t neededSimulationFrames = static_cast<size_t>(ceil(currentSimulationFrame)) + 1 - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
-
-    // TODO
-    //  - If offline rendering: Busy wait until simulation is ready
-    //  - Else: slow down simulation speed for audio processing to just use available frames
-    if (simulationThread->frameReadyCount() <= neededSimulationFrames) {
-        juce::Logger::writeToLog("Busy wait for simulation thread.");
-        while (simulationThread->frameReadyCount() <= neededSimulationFrames) {
-            // busy wait
+        // Calculate timestamps
+        for (long sample = 0; sample < static_cast<long>(samplesPerBlock); sample++) {
+            sharedData.frameBufferTimestamps[sample] = currentSimulationFrame - static_cast<Decimal>(frameBufferNewFirstFrame);
+            currentSimulationFrame += simulationFrameIncrement[sample];
         }
-    }
-    // juce::Logger::writeToLog("Simulation thread is " + juce::String(simulationThread->frameReadyCount() - neededSimulationFrames) + " frames ahead.");
 
-    // append the shared frame buffer
-    // this also sets the latest simulation frame as the display frame (if a new one arrived)
-    const auto newFrames = simulationThread->getFrames(neededSimulationFrames);
-    sharedData.appendFrameBuffer(newFrames);
+        size_t neededSimulationFrames = static_cast<size_t>(ceil(currentSimulationFrame)) + 1 - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
 
-    // juce::Logger::writeToLog("got frames: " + juce::String(newFrames.size()) + " of " + juce::String(neededSimulationFrames));
-
-
-    // Process Audio
-    auto samples = synth.generateNextBlock();
-
-    for (int channel = 0; channel < buffer.getNumChannels(); channel++) {
-        for (int i = 0; i < buffer.getNumSamples(); i++) {
-            buffer.addSample(channel, i, static_cast<float>(samples[i]));
+        // TODO
+        //  - If offline rendering: Busy wait until simulation is ready
+        //  - Else: slow down simulation speed for audio processing to just use available frames
+        if (simulationThread->frameReadyCount() <= neededSimulationFrames) {
+            juce::Logger::writeToLog("Busy wait for simulation thread.");
+            while (simulationThread->frameReadyCount() <= neededSimulationFrames) {
+                // busy wait
+            }
         }
-    }
+        // juce::Logger::writeToLog("Simulation thread is " + juce::String(simulationThread->frameReadyCount() - neededSimulationFrames) + " frames ahead.");
 
-    // FPS counter
-    ++fpsChecks;
-    sampleCounter += buffer.getNumSamples();
-    frameCounter += newFrames.size();
-    if (fpsChecks > 50) {
-        fps = std::round(frameCounter / (totalStopwatch.get() / 1000000000.0));
-        totalStopwatch.reset();
-        fpsChecks = 0;
-        frameCounter = 0;
-    }
-    if (sampleCounter / static_cast<int>(sampleRate/2) > fpsPrints) {
-        //juce::Logger::writeToLog("current simulation FPS = " + juce::String(fps));
-        ++fpsPrints;
+        // append the shared frame buffer
+        // this also sets the latest simulation frame as the display frame (if a new one arrived)
+        const auto newFrames = simulationThread->getFrames(neededSimulationFrames);
+        sharedData.appendFrameBuffer(newFrames);
+
+        // juce::Logger::writeToLog("got frames: " + juce::String(newFrames.size()) + " of " + juce::String(neededSimulationFrames));
+
+
+        // Process Audio
+        auto samples = synth.generateNextBlock();
+
+        for (int channel = 0; channel < buffer.getNumChannels(); channel++) {
+            for (int i = 0; i < buffer.getNumSamples(); i++) {
+                buffer.addSample(channel, i, static_cast<float>(samples[i]));
+            }
+        }
     }
 }

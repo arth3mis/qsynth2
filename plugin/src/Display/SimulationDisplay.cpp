@@ -4,6 +4,8 @@
 
 extern Data sharedData;
 
+#define VALUE_SCALING 150
+
 
 SimulationDisplay::SimulationDisplay() {
     startTimerHz(30);
@@ -45,7 +47,7 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
 
     for (int x = 0; x < w; x++) {
         for (int y = 0; y < h; y++) {
-            Decimal v = frame->toDecimal(y, x);
+            Decimal v = frame->toDecimal(y, x) * VALUE_SCALING;
             int rgb = std::min(255, static_cast<int>(std::round(std::pow(std::abs(v), 0.66) * 255)));
             g.setColour(juce::Colour(rgb, rgb, rgb));
             // fill rectangle
