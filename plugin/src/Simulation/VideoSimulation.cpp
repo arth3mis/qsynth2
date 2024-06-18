@@ -40,6 +40,9 @@ void VideoSimulation::reset() {
     currentFrameIndex = 0;
 }
 
+void VideoSimulation::updateParameters(const ParameterCollection *p, const List<ModulationData *> &m) {
+}
+
 SimulationFramePointer VideoSimulation::getNextFrame(const Decimal timestep, const ModulationData &modulationData) {
     if (!capture.isOpened())
         return nullptr;
@@ -61,6 +64,8 @@ SimulationFramePointer VideoSimulation::getNextFrame(const Decimal timestep, con
     // should only occur if no frames are present in buffer
     if (index >= frames.size())
         return nullptr;
+
+    sharedData.barrierX = -1.01;
 
     return std::make_shared<VideoSimulationFrame>(frames[index]);
 }

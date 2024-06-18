@@ -58,7 +58,7 @@ void SimulationThread::updateParameters(const ParameterCollection* parameterColl
     std::lock_guard lock(parameterMutex);
     newParameters = true;
 
-    const Decimal simulationStepsPerSecond = parameterCollection->simulationStepsPerSecond->getSingleModulated(modulationDataList);
+    Decimal simulationStepsPerSecond = parameterCollection->simulationStepsPerSecond->getSingleModulated(modulationDataList);
     if (sharedData.videoFps > 0) {
         simulationStepsPerSecond = sharedData.videoFps;
     }

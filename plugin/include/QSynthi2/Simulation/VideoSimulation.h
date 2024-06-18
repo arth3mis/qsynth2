@@ -44,6 +44,7 @@ public:
     ~VideoSimulation() override;
 
     void reset() override;
+    void updateParameters(const ParameterCollection *p, const List<ModulationData*> &m) override;
 
     // getters
     SimulationFramePointer getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
