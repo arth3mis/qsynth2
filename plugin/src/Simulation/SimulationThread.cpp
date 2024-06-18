@@ -54,6 +54,9 @@ void SimulationThread::updateParameters(const ParameterCollection* parameterColl
 
     bufferTargetSize = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));
     timestep = simulationSpeedFactor / simulationStepsPerSecond;
+
+    // simulation parameters
+    simulation->updateParameters(parameterCollection, modulationDataList);
 }
 
 void SimulationThread::appendFrame(const SimulationFramePointer& f) {
