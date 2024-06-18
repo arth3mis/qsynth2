@@ -58,15 +58,18 @@ void SimulationThread::updateParameters(const ParameterCollection* parameterColl
     std::lock_guard lock(parameterMutex);
     newParameters = true;
 
-    Decimal simulationStepsPerSecond = parameterCollection->simulationStepsPerSecond->getSingleModulated(modulationDataList);
+    const Decimal simulationStepsPerSecond = parameterCollection->simulationStepsPerSecond->getSingleModulated(modulationDataList);
     if (sharedData.videoFps > 0) {
         simulationStepsPerSecond = sharedData.videoFps;
     }
-    Decimal simulationSpeedFactor = parameterCollection->simulationSpeedFactor->getSingleModulated(modulationDataList);
-    Decimal simulationBufferSeconds = parameterCollection->simulationBufferSeconds->getSingleModulated(modulationDataList);
+    const Decimal simulationSpeedFactor = parameterCollection->simulationSpeedFactor->getSingleModulated(modulationDataList);
+    const Decimal simulationBufferSeconds = parameterCollection->simulationBufferSeconds->getSingleModulated(modulationDataList);
 
     bufferTargetSize = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));
     timestep = simulationSpeedFactor / simulationStepsPerSecond;
+
+    // simulation parameters
+    simulation->updateParameters(parameterCollection, modulationDataList);
 }
 
 void SimulationThread::appendFrame(const SimulationFramePointer& f) {

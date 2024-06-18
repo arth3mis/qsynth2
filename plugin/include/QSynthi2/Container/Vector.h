@@ -5,8 +5,8 @@ template <typename T>
 class Vec2 {
 public:
 
-    const T x;
-    const T y;
+    T x;
+    T y;
 
     Vec2() : x(0), y(0) { }
     Vec2(const T _x, const T _y) : x(_x), y(_y) { }
@@ -21,7 +21,7 @@ public:
     Vec2 operator*(const T f) const { return mul(f); }
     Vec2 operator/(const T f) const { return div(f); }
 
-    // Vec2 operator=(const Vec2& b) { return {b.x, b.y}; }
+    Vec2& operator=(const Vec2& b) { x=b.x; y=b.y; return *this; }
 };
 
 #endif //VECTOR_H

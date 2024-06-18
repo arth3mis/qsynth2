@@ -13,9 +13,7 @@ Eigen::ArrayX<Decimal> Sonifier::generateNextBlock(const std::function<Eigen::Ar
                                                                                         const ModulationData &)>& sonificationMethod,
                                                    const ModulationData &modulationData) {
 
-    jassert(modulationData.isSourceValid(ModulationData::Sources::PITCH)); // Pitch isn't already evaluated
-    const auto& frequency = modulationData[ModulationData::Sources::PITCH.id];
-    jassert(frequency.size() == samplesPerBlock); // Pitch wasn't set properly
+    const auto& frequency = sharedData.parameters->baseFrequency->getModulated(modulationData);
 
     auto phases = Eigen::ArrayXX<Decimal>(samplesPerBlock, 1);
 

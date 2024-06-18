@@ -44,9 +44,11 @@ public:
     QuantumSimulation& addPotential(Potential p);
     QuantumSimulation& parabolaPotential(V2 offset, V2 factor);
     QuantumSimulation& barrierPotential(V2 pos, int width, const List<V2>& slits, Decimal value);
-    QuantumSimulation& gaussianDistribution(V2 offset, V2 size, V2 impulse);
+    void resetGaussianDistribution(bool onlyApplyToInitialPsi = false);
+    QuantumSimulation& gaussianDistribution(V2 offset, V2 size, V2 impulse, bool onlyApplyToInitialPsi = false);
 
     void reset() override;
+    void updateParameters(const ParameterCollection *p, const List<ModulationData*> &m) override;
 
     // getters
     SimulationFramePointer getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
@@ -61,7 +63,20 @@ private:
     const size_t W, H;
     const float w, h;
 
+    // parameters
+    Decimal gaussianOffsetX, gaussianOffsetY;
+    Decimal gaussianStretchX, gaussianStretchY;
+    Decimal gaussianImpulseX, gaussianImpulseY;
+    Decimal parabolaOffsetX, parabolaOffsetY;
+    Decimal parabolaFactorX, parabolaFactorY;
+    Decimal barrierOffsetX;
+    Decimal barrierWidth;
+    Decimal barrierSlit1Start, barrierSlit1End;
+    Decimal barrierSlit2Start, barrierSlit2End;
+
     List<RealMatrix> potentials;
+    RealMatrix parabolaPotentialTemp;
+    RealMatrix barrierPotentialTemp;
     ComplexMatrix potentialPrecalc;
     ComplexMatrix thetaPrecalc;
     ComplexMatrix initialPsi;

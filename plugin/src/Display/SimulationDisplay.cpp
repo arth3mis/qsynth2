@@ -32,11 +32,13 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
         return;
     }
 
-    const size_t w = frame->cols();
-    const size_t h = frame->rows();
+    const size_t w = sharedData.simulationWidth;
+    const size_t h = sharedData.simulationHeight;
+    const auto fw = static_cast<float>(w);
+    const auto fh = static_cast<float>(h);
 
-    const float vx = static_cast<float>(getWidth()) / static_cast<float>(w);
-    const float vy = static_cast<float>(getHeight()) / static_cast<float>(h);
+    const float vx = static_cast<float>(getWidth()) / fw;
+    const float vy = static_cast<float>(getHeight()) / fh;
 
     const float xOverlap = vx/10;
     const float yOverlap = vy/10;
@@ -54,13 +56,36 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
                 vy + yOverlap * 2));
         }
     }
+
+    // draw barrier TODO y barriers
+    if (sharedData.barrierX >= -1) {
+        const float barrierX = static_cast<float>(sharedData.barrierX) * fw/2 + fw/2;
+        const List<V2>& slits = sharedData.barrierSlits;
+        g.setColour(juce::Colour(150, 190, 255));
+        for (int i = 0; i < h; ++i) {
+            bool insideSlit = false;
+            for (const auto& slit : slits) {
+                if (i >= slit.x * fh/2 + fh/2 && i < slit.y * fh/2 + fh/2) {
+                    insideSlit = true;
+                    break;
+                }
+            }
+            if (!insideSlit) {
+                g.fillRect(juce::Rectangle(
+                    (barrierX - static_cast<float>(sharedData.barrierWidth/2)) * vx - xOverlap,
+                    static_cast<float>(i) * vy - yOverlap,
+                    static_cast<float>(sharedData.barrierWidth) * vx + xOverlap * 2,
+                    vy + yOverlap * 2));
+            }
+        }
+    }
 }
 
 void SimulationDisplay::drawScanlines(juce::Graphics &g) const {
     for (const auto& voiceData : sharedData.voiceData) {
         if (!voiceData->isActive()) continue;
 
-        const auto line = juce::Line<float>(
+        const auto line = juce::Line(
                 simulationXToScreenX(voiceData->scanlineStartX),
                 simulationYToScreenY(voiceData->scanlineStartY),
                 simulationXToScreenX(voiceData->scanlineEndX),

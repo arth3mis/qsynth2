@@ -87,7 +87,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     const auto frameBufferNewFirstFrame = static_cast<size_t>(floor(currentSimulationFrame));
 
     // Remove past frames
-    sharedData.frameBuffer.remove(0, frameBufferNewFirstFrame - sharedData.frameBufferFirstFrame);
+    sharedData.frameBuffer.remove(0, std::min(frameBufferNewFirstFrame - sharedData.frameBufferFirstFrame, sharedData.frameBuffer.size()));
     sharedData.frameBufferFirstFrame = frameBufferNewFirstFrame;
 
     // Calculate timestamps

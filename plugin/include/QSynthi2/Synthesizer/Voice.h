@@ -12,6 +12,8 @@ public:
 
     explicit Voice(const std::shared_ptr<VoiceData>& voiceData);
 
+    static Decimal frequencyToModulationValue(double frequency);
+
     void noteStarted() override;
 
     void noteStopped (bool allowTailOff) override;
@@ -49,7 +51,7 @@ protected:
     std::shared_ptr<VoiceData> voiceData;
 
     juce::SmoothedValue<Decimal> velocity;
-    juce::SmoothedValue<Decimal> frequency;
+    juce::SmoothedValue<Decimal> x;
     juce::SmoothedValue<Decimal> y;
     juce::SmoothedValue<Decimal> z;
 
