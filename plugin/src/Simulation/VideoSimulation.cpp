@@ -26,7 +26,13 @@ VideoSimulation::VideoSimulation(const int targetWidth, const int targetHeight, 
     currentFrameIndex = 0;
 
     // init video capture
-    capture.open(file.toStdString());
+    if (file == "0") {
+        capture.open(0);
+        isCam = true;
+    } else {
+        capture.open(file.toStdString());
+        isCam = false;
+    }
     if (!capture.isOpened()) {
         juce::Logger::writeToLog("Video file could not be opened: " + file);
     }
@@ -34,7 +40,9 @@ VideoSimulation::VideoSimulation(const int targetWidth, const int targetHeight, 
     sharedData.videoFps = capture.get(cv::CAP_PROP_FPS);
 }
 
-VideoSimulation::~VideoSimulation() = default;
+VideoSimulation::~VideoSimulation() {
+    capture.release();
+}
 
 void VideoSimulation::reset() {
     currentFrameIndex = 0;
@@ -53,8 +61,23 @@ SimulationFramePointer VideoSimulation::getNextFrame(const Decimal timestep, con
     if (!capture.isOpened())
         return nullptr;
 
+    sharedData.barrierX = -1.01;
+
     currentFrameIndex += timestep;
     auto index = static_cast<size_t>(currentFrameIndex);
+
+    if (isCam) {
+        if (currentFrameIndex >= 1) {
+            if (!convertNextVideoFrame())
+                return nullptr;
+            if (frames.size() > 1) {
+                frames[0] = frames.back();
+                frames.erase(frames.begin()+1, frames.end());
+            }
+            currentFrameIndex = std::fmod(currentFrameIndex, 1);
+        }
+        return std::make_shared<VideoSimulationFrame>(frames[0]);
+    }
 
     // check existing frames and convert new ones as needed
     if (const size_t frameCount = frames.size(); index >= frameCount) {
@@ -70,8 +93,6 @@ SimulationFramePointer VideoSimulation::getNextFrame(const Decimal timestep, con
     // should only occur if no frames are present in buffer
     if (index >= frames.size())
         return nullptr;
-
-    sharedData.barrierX = -1.01;
 
     return std::make_shared<VideoSimulationFrame>(frames[index]);
 }

@@ -25,6 +25,7 @@ private:
 
     juce::TextButton resetButton{"Reset Simulation"};
     juce::TextButton videoLoadButton{"Load video"};
+    juce::TextButton camLoadButton{"Load webcam"};
     juce::FileChooser fileChooser;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)

@@ -53,6 +53,7 @@ private:
     int simulationHeight;
     juce::String file;
     cv::VideoCapture capture;
+    bool isCam;
     List<VideoSimulationFrame> frames;
     Decimal currentFrameIndex;
 

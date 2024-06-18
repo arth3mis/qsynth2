@@ -30,10 +30,14 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
             if (sharedData.newSimulation.isNotEmpty())
                 sharedData.resetSimulation = true;
         });
-        // sharedData.newSimulation = "/data/media/Archive/Random/Sascha Grammel_ Hetz mich nicht - Mp4 - 720p.mp4";
+    };
+    camLoadButton.onClick = [&] {
+        sharedData.newSimulation = "0";
+        sharedData.resetSimulation = true;
     };
     addAndMakeVisible(resetButton);
     addAndMakeVisible(videoLoadButton);
+    addAndMakeVisible(camLoadButton);
 
     gpe->setResizable(true, false);
     addAndMakeVisible(gpe);
@@ -62,7 +66,8 @@ void AudioPluginAudioProcessorEditor::resized()
     simulationDisplay.setTopLeftPosition(0, 0);
 
     resetButton.setBounds(20, simDisplaySize+10, 130, 25);
-    videoLoadButton.setBounds(20+130+20, simDisplaySize+10, 130, 25);
+    videoLoadButton.setBounds(20+130+20, simDisplaySize+10, 100, 25);
+    camLoadButton.setBounds(20+130+20+100+20, simDisplaySize+10, 100, 25);
 
     gpe->setTopLeftPosition(0, simDisplaySize+40);
     gpe->setSize(getWidth(), getHeight() - simDisplaySize);
