@@ -36,6 +36,7 @@ public:
     Decimal videoFps = 0;
 
     void appendFrameBuffer(const FrameList& frames);
+    void resetFrameBuffer();
 
 private:
 

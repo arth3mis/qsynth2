@@ -81,6 +81,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     // todo maybe exclude release state voices
     if (activeVoices.empty()) {
         simulationThread->resetSimulation();
+        sharedData.resetFrameBuffer();
         sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
     } else {
         const auto frameBufferNewFirstFrame = static_cast<size_t>(floor(currentSimulationFrame));
