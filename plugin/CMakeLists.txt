@@ -8,9 +8,9 @@ project(AudioPlugin VERSION 0.1.0)
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/QSynthi2")
 
 IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    set(PROD_NAME "QSynthi2-Debug")
+    set(PROD_NAME "QSynthi2CV-Debug")
 ELSE()
-    set(PROD_NAME "QSynthi2")
+    set(PROD_NAME "QSynthi2CV")
 ENDIF()
 
 # Adds a plugin target (that's basically what the Projucer does).
