@@ -9,6 +9,8 @@ class ModulationData : public List<Eigen::ArrayX<Decimal>> {
 
 public:
 
+    static constexpr Decimal PITCH_MODULATION_NEUTRAL_FREQUENCY = static_cast<Decimal>(110);
+
     class Source {
     public:
 
@@ -22,12 +24,12 @@ public:
     class Sources {
     public:
         inline static const Source VELOCITY{"Velocity", 0};
-        inline static const Source PITCH{"Pitch", 1};
+        inline static const Source X{"Keyboard X", 1};
         inline static const Source Y{"Keyboard Y", 2};
         inline static const Source Z{"Keyboard Z", 3};
         inline static const Source ENVELOPE1{"Envelope 1 (amp)", 4};
 
-        inline static List<Source> ALL = List<Source>({VELOCITY, PITCH, Y, Z, ENVELOPE1});
+        inline static List<Source> ALL = List<Source>({VELOCITY, X, Y, Z, ENVELOPE1});
     };
 
 

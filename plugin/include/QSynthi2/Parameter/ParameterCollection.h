@@ -3,6 +3,7 @@
 
 #include "Parameters.h"
 #include "QSynthi2/Parameter/ModulatedParameterFloat.h"
+#include "QSynthi2/Parameter/ExponentialRange.h"
 
 class ParameterCollection : public Parameters {
 public:
@@ -143,6 +144,11 @@ public:
             "Barrier slit 2: end",
             juce::NormalisableRange<float>(-1.01, 1, 0, 1.f, false),
             0.2f);
+
+    ModulatedParameterFloat* baseFrequency = add<ModulatedParameterFloat>(
+            "Frequency",
+            ExponentialRange(10, 2560),
+            110);
 
     // Add modulation slots
     ParameterCollection() {
