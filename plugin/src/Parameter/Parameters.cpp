@@ -43,7 +43,7 @@ List<std::shared_ptr<Modulation>> &Parameters::addModulationSlots(size_t number)
     for (size_t i = 0; i < number; i++) {
 
         // Modulation Target
-        auto* modulationTargetParameter = add<juce::AudioParameterChoice>(juce::ParameterID(modulationTargetName + " " + juce::String(i + 1), Parameters::VERSION), modulationTargetName + " " + juce::String(i + 1), modulationTargetIds.toStringArray(), 0);
+        auto* modulationTargetParameter = add<juce::AudioParameterChoice>(juce::ParameterID(modulationTargetName + " " + juce::String(i + 1), Parameters::VERSION), modulationTargetName + " " + juce::String(i + 1), modulationTargetIds.toStringArray(), i == 0 ? modulationTargetIds.indexOf("Frequency") : 0);
         modulationTargetParameter->addListener(new LambdaListener([this, i, modulationTargetName, modulationSourceName, modulationAmountName, modulationTargetIds] (float newValue) {
 
             auto& modulation = this->modulations[i];
@@ -65,13 +65,17 @@ List<std::shared_ptr<Modulation>> &Parameters::addModulationSlots(size_t number)
             }
 
         }));
+        if (i == 0) {
+            this->modulatedParameters["Frequency"]->withModulation(this->modulations[0]);
+            this->modulations[0]->setModulatedParameterId("Frequency");
+        }
 
         // Modulation Source
         auto* modulationSourceParameter = add<juce::AudioParameterChoice>(
                 juce::ParameterID(modulationSourceName + " " + juce::String(i + 1), Parameters::VERSION),
                 modulationSourceName + " " + juce::String(i + 1),
                 ModulationData::Sources::ALL.map<juce::String>([](const ModulationData::Source& s) { return s.name; }).toStringArray(),
-                0);
+                i == 0 ? ModulationData::Sources::X.id : 0);
 
         modulationSourceParameter->addListener(new LambdaListener([this, i] (float newValue) {
 
@@ -80,9 +84,12 @@ List<std::shared_ptr<Modulation>> &Parameters::addModulationSlots(size_t number)
             modulation->setModulationSourceId(static_cast<size_t>(round(newValue * static_cast<float>(ModulationData::Sources::ALL.size() - 1))));
 
         }));
+        if (i == 0) {
+            this->modulations[i]->setModulationSourceId(ModulationData::Sources::X.id);
+        }
 
         // Modulation Amount
-        auto* modulationAmountParameter = add<ModulatedParameterFloat>(modulationAmountName + " " + juce::String(i + 1), juce::NormalisableRange<float>(-1, 1, 0, 0.66f, true), 0);
+        auto* modulationAmountParameter = add<ModulatedParameterFloat>(modulationAmountName + " " + juce::String(i + 1), juce::NormalisableRange<float>(-1, 1, 0, 0.66f, true), i == 0 ? 0.125 : 0);
         modulations[i]->setAmountParameter(modulationAmountParameter);
 
     }

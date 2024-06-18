@@ -12,6 +12,14 @@ sonifier(voiceData) {
 
 }
 
+
+
+Decimal Voice::frequencyToModulationValue(double frequency) {
+    return log2(frequency / ModulationData::PITCH_MODULATION_NEUTRAL_FREQUENCY);
+}
+
+
+
 void Voice::noteStarted() {
     jassert (currentlyPlayingNote.isValid());
     jassert (currentlyPlayingNote.keyState == juce::MPENote::keyDown
@@ -25,13 +33,13 @@ void Voice::noteStarted() {
         // New note triggerd: Full reset
         dcOffsetFilter.reset();
 
-        frequency.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.getFrequencyInHertz()));
+        x.setCurrentAndTargetValue(frequencyToModulationValue(currentlyPlayingNote.getFrequencyInHertz()));
         y.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat()));
         z.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat()));
         velocity.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.noteOnVelocity.asUnsignedFloat()));
     } else {
         // Voice-Stealing: Soft reset
-        frequency.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.getFrequencyInHertz()));
+        x.setTargetValue(frequencyToModulationValue(currentlyPlayingNote.getFrequencyInHertz()));
         y.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat()));
         z.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat()));
         velocity.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.noteOnVelocity.asUnsignedFloat()));
@@ -58,9 +66,8 @@ void Voice::noteStopped(bool allowTailOff) {
 }
 
 
-
 void Voice::notePitchbendChanged() {
-    frequency.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.getFrequencyInHertz()));
+    x.setTargetValue(frequencyToModulationValue(currentlyPlayingNote.getFrequencyInHertz()));
 }
 
 
@@ -82,7 +89,7 @@ void Voice::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
     juce::MPESynthesiserVoice::setCurrentSampleRate(static_cast<double>(sampleRate));
 
     velocity.reset(sampleRate, 0.030);
-    frequency.reset(sampleRate, 0.030);
+    x.reset(sampleRate, 0.030);
     y.reset(sampleRate, 0.100);
     z.reset(sampleRate, 0.100);
 
@@ -112,7 +119,7 @@ void Voice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSam
     activeThisBlock = true;
 
     modulationData.write(ModulationData::Sources::VELOCITY, velocity, startSample, numSamples);
-    modulationData.write(ModulationData::Sources::PITCH, frequency, startSample, numSamples);
+    modulationData.write(ModulationData::Sources::X, x, startSample, numSamples);
     modulationData.write(ModulationData::Sources::Y, y, startSample, numSamples);
     modulationData.write(ModulationData::Sources::Z, z, startSample, numSamples);
 
