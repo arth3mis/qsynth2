@@ -138,7 +138,15 @@ Eigen::ArrayX<Decimal> Voice::generateNextBlock() {
 
     //juce::Logger::writeToLog(juce::String(modulationData.atSource(ModulationData::Sources::ENVELOPE1)(Eigen::last)) + " -> " + juce::String(envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1))(Eigen::last)));
 
-    Eigen::ArrayX<Decimal> buffer = envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1)) * envelope1.toGainFactor(sharedData.parameters->volume->getModulated(modulationData)) * sonifier.generateNextBlock(modulationData);
+    Eigen::ArrayX<Decimal> buffer;
+
+    if (sharedData.parameters->sonificationMethod->getIndex() == 0) {
+        buffer = sonifier.generateNextBlock(Sonifier::audification, modulationData);
+    } else {
+        buffer = sonifier.generateNextBlock(Sonifier::timbreMapping, modulationData);
+    }
+
+    buffer *= envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1)) * envelope1.toGainFactor(sharedData.parameters->volume->getModulated(modulationData));
 
     for (Decimal &sample : buffer) {
         sample = dcOffsetFilter.processSample(sample);

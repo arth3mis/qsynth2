@@ -43,6 +43,22 @@ public:
             0.f);
 
 
+    juce::AudioParameterChoice* sonificationMethod = add<juce::AudioParameterChoice>(
+            juce::ParameterID("Sonification Method", Parameters::VERSION),
+            "Sonification Method",
+            juce::StringArray{"Audification", "Timbre mapping"},
+            0);
+    juce::AudioParameterChoice* timbreOvertoneLayout = add<juce::AudioParameterChoice>(
+            juce::ParameterID("Overtone layout", Parameters::VERSION),
+            "Overtone layout",
+            juce::StringArray{"linear", "logarithmic"},
+            1);
+    ModulatedParameterFloat* timbreNumberOvertones = add<ModulatedParameterFloat>(
+            "Number of overtones",
+            juce::NormalisableRange<float>(0, 128, 1, 0.7f, false),
+            32.f);
+
+
     ModulatedParameterFloat* volume = add<ModulatedParameterFloat>(
             "Volume",
             juce::NormalisableRange<float>(0, 1, 0, 1.3f, false),
