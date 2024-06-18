@@ -14,16 +14,11 @@ public:
     [[nodiscard]] SimulationFrame* clone() override {
         return new VideoSimulationFrame(frame);
     }
-    [[nodiscard]] RealMatrix toDecimal() const override {
-        // TODO implement if needed
-        return {};
-    }
-    [[nodiscard]] RealMatrix toPhase() const override {
-        // TODO implement if needed
-        return {};
-    }
     [[nodiscard]] Decimal toDecimal(long row, long col) const override;
 
+    [[nodiscard]] Decimal toDecimalDisplay(const long row, const long col) const override {
+        return toDecimal(row, col);
+    }
     [[nodiscard]] Decimal toPhase(const long row, const long col) const override {
         return frame(row, col)[1] / 255.0;
     }
@@ -47,6 +42,7 @@ public:
     void updateParameters(const ParameterCollection *p, const List<ModulationData*> &m) override;
 
     // getters
+    SimulationFramePointer getStartFrame() override;
     SimulationFramePointer getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
 
     bool captureOpened() const;

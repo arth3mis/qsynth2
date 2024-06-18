@@ -27,7 +27,7 @@ VideoSimulation::VideoSimulation(const int targetWidth, const int targetHeight, 
 
     // init video capture
     capture.open(file.toStdString());
-    if(!capture.isOpened()) {
+    if (!capture.isOpened()) {
         juce::Logger::writeToLog("Video file could not be opened: " + file);
     }
 
@@ -41,6 +41,12 @@ void VideoSimulation::reset() {
 }
 
 void VideoSimulation::updateParameters(const ParameterCollection *p, const List<ModulationData *> &m) {
+}
+
+SimulationFramePointer VideoSimulation::getStartFrame() {
+    if (frames.empty())
+        return nullptr;
+    return std::make_shared<VideoSimulationFrame>(frames[0]);
 }
 
 SimulationFramePointer VideoSimulation::getNextFrame(const Decimal timestep, const ModulationData &modulationData) {
