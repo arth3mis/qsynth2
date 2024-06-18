@@ -28,6 +28,7 @@ public:
     virtual ~SimulationFrame() = default;
     [[nodiscard]] virtual SimulationFrame* clone() = 0;
     [[nodiscard]] virtual Decimal toDecimal(long row, long col) const = 0;
+    [[nodiscard]] virtual Decimal toDecimalDisplay(long row, long col) const = 0;
     [[nodiscard]] virtual Decimal toPhase(long row, long col) const = 0;
     [[nodiscard]] virtual size_t cols() const = 0;
     [[nodiscard]] virtual size_t rows() const = 0;

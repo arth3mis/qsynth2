@@ -83,7 +83,7 @@ public:
     ModulatedParameterFloat *gaussianOffsetX = add<ModulatedParameterFloat>(
             "Gaussian: x offset",
             juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
-            -0.4f);
+            -0.45f);
     ModulatedParameterFloat *gaussianOffsetY = add<ModulatedParameterFloat>(
             "Gaussian: y offset",
             juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
@@ -91,11 +91,11 @@ public:
     ModulatedParameterFloat *gaussianStretchX = add<ModulatedParameterFloat>(
             "Gaussian: x stretch",
             juce::NormalisableRange<float>(0, 1, 0, 1.f, false),
-            0.25f);
+            0.5f);
     ModulatedParameterFloat *gaussianStretchY = add<ModulatedParameterFloat>(
             "Gaussian: y stretch",
             juce::NormalisableRange<float>(0, 1, 0, 1.f, false),
-            0.25f);
+            0.5f);
     ModulatedParameterFloat *gaussianImpulseX = add<ModulatedParameterFloat>(
             "Gaussian: x impulse",
             juce::NormalisableRange<float>(-10, 10, 0, 1.f, false),

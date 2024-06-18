@@ -39,7 +39,7 @@ private:
 
     // context: audio thread <-> GUI thread
     //
-    SimulationFramePointer simulationDisplayFrame;
+    SimulationFramePointer simulationDisplayFrame{nullptr};
     std::mutex frameAccessMutex;
 };
 
