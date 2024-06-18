@@ -58,23 +58,25 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
     }
 
     // draw barrier TODO y barriers
-    const float barrierX = static_cast<float>(sharedData.barrierX) * fw/2 + fw/2;
-    const List<V2>& slits = sharedData.barrierSlits;
-    g.setColour(juce::Colour(150, 150, 255));
-    for (int i = 0; i < h; ++i) {
-        bool insideSlit = false;
-        for (const auto& slit : slits) {
-            if (i >= slit.x * fh/2 + fh/2 && i < slit.y * fh/2 + fh/2) {
-                insideSlit = true;
-                break;
+    if (sharedData.barrierX >= -1) {
+        const float barrierX = static_cast<float>(sharedData.barrierX) * fw/2 + fw/2;
+        const List<V2>& slits = sharedData.barrierSlits;
+        g.setColour(juce::Colour(150, 190, 255));
+        for (int i = 0; i < h; ++i) {
+            bool insideSlit = false;
+            for (const auto& slit : slits) {
+                if (i >= slit.x * fh/2 + fh/2 && i < slit.y * fh/2 + fh/2) {
+                    insideSlit = true;
+                    break;
+                }
             }
-        }
-        if (!insideSlit) {
-            g.fillRect(juce::Rectangle(
-                (barrierX - static_cast<float>(sharedData.barrierWidth/2)) * vx - xOverlap,
-                static_cast<float>(i) * vy - yOverlap,
-                static_cast<float>(sharedData.barrierWidth) * vx + xOverlap * 2,
-                vy + yOverlap * 2));
+            if (!insideSlit) {
+                g.fillRect(juce::Rectangle(
+                    (barrierX - static_cast<float>(sharedData.barrierWidth/2)) * vx - xOverlap,
+                    static_cast<float>(i) * vy - yOverlap,
+                    static_cast<float>(sharedData.barrierWidth) * vx + xOverlap * 2,
+                    vy + yOverlap * 2));
+            }
         }
     }
 }

@@ -42,7 +42,7 @@ QuantumSimulation& QuantumSimulation::addPotential(const Potential p) {
 }
 
 QuantumSimulation& QuantumSimulation::parabolaPotential(const V2 offset, const V2 factor) {
-    const size_t h = potentials.append(RealMatrix::Zero(H, W));
+    // const size_t h = potentials.append(RealMatrix::Zero(H, W));
     parabolaPotentialTemp = RealMatrix::Zero(H, W);
     for (int i = 0; i < W * H; ++i) {
         const Decimal x = xOf(i) - offset.x;
@@ -64,7 +64,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2 pos, const int w
         else
             slitIndices.push_back(Vec2(toY(s.x), toY(s.y)));
     }
-    const size_t h = potentials.append(RealMatrix::Zero(H, W));
+    // const size_t h = potentials.append(RealMatrix::Zero(H, W));
     barrierPotentialTemp = RealMatrix::Zero(H, W);
     // horizontal barrier
     if (std::isnan(pos.x)) {
@@ -75,7 +75,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2 pos, const int w
             }
             if (isSlit) continue;
             for (int j = 0; j < width; ++j) {
-                barrierPotentialTemp((py - width/2 + j), i) = value;
+                barrierPotentialTemp(std::max(static_cast<long>(0), static_cast<long>(py) - width/2 + j), i) = value;
             }
         }
     }
@@ -88,7 +88,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2 pos, const int w
             }
             if (isSlit) continue;
             for (int j = 0; j < width; ++j) {
-                barrierPotentialTemp(i, (px - width/2 + j)) = value;
+                barrierPotentialTemp(i, std::max(static_cast<long>(0), static_cast<long>(px) - width/2 + j)) = value;
             }
         }
     }
@@ -131,15 +131,15 @@ void QuantumSimulation::reset() {
 }
 
 void QuantumSimulation::updateParameters(const ParameterCollection *p, const List<ModulationData*> &m) {
-    const Decimal l_gaussianOffsetX = p->gaussianOffsetX->getSingleModulated(m), l_gaussianOffsetY = p->gaussianOffsetY->getSingleModulated(m);
-    const Decimal l_gaussianStretchX = p->gaussianStretchX->getSingleModulated(m), l_gaussianStretchY = p->gaussianStretchY->getSingleModulated(m);
-    const Decimal l_gaussianImpulseX = p->gaussianImpulseX->getSingleModulated(m), l_gaussianImpulseY = p->gaussianImpulseY->getSingleModulated(m);
-    const Decimal l_parabolaOffsetX = p->parabolaOffsetX->getSingleModulated(m), l_parabolaOffsetY = p->parabolaOffsetY->getSingleModulated(m);
-    const Decimal l_parabolaFactorX = p->parabolaFactorX->getSingleModulated(m), l_parabolaFactorY = p->parabolaFactorY->getSingleModulated(m);
+    const Decimal l_gaussianOffsetX = p->gaussianOffsetX->getSingleModulated(m),        l_gaussianOffsetY = p->gaussianOffsetY->getSingleModulated(m);
+    const Decimal l_gaussianStretchX = p->gaussianStretchX->getSingleModulated(m),      l_gaussianStretchY = p->gaussianStretchY->getSingleModulated(m);
+    const Decimal l_gaussianImpulseX = p->gaussianImpulseX->getSingleModulated(m),      l_gaussianImpulseY = p->gaussianImpulseY->getSingleModulated(m);
+    const Decimal l_parabolaOffsetX = p->parabolaOffsetX->getSingleModulated(m),        l_parabolaOffsetY = p->parabolaOffsetY->getSingleModulated(m);
+    const Decimal l_parabolaFactorX = p->parabolaFactorX->getSingleModulated(m),        l_parabolaFactorY = p->parabolaFactorY->getSingleModulated(m);
     const Decimal l_barrierOffsetX = p->barrierOffsetX->getSingleModulated(m);
     const Decimal l_barrierWidth = p->barrierWidth->getSingleModulated(m);
-    const Decimal l_barrierSlit1Start = p->barrierSlit1Start->getSingleModulated(m), l_barrierSlit1End = p->barrierSlit1End->getSingleModulated(m);
-    const Decimal l_barrierSlit2Start = p->barrierSlit2Start->getSingleModulated(m), l_barrierSlit2End = p->barrierSlit2End->getSingleModulated(m);
+    const Decimal l_barrierSlit1Start = p->barrierSlit1Start->getSingleModulated(m),    l_barrierSlit1End = p->barrierSlit1End->getSingleModulated(m);
+    const Decimal l_barrierSlit2Start = p->barrierSlit2Start->getSingleModulated(m),    l_barrierSlit2End = p->barrierSlit2End->getSingleModulated(m);
 
     if (!juce::approximatelyEqual(gaussianOffsetX, l_gaussianOffsetX) ||
         !juce::approximatelyEqual(gaussianOffsetY, l_gaussianOffsetY) ||
@@ -173,22 +173,15 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
         sharedData.barrierSlits = slits;
     }
 
-    gaussianOffsetX = l_gaussianOffsetX;
-    gaussianOffsetY = l_gaussianOffsetY;
-    gaussianStretchX = l_gaussianStretchX;
-    gaussianStretchY = l_gaussianStretchY;
-    gaussianImpulseX = l_gaussianImpulseX;
-    gaussianImpulseY = l_gaussianImpulseY;
-    parabolaOffsetX = l_parabolaOffsetX;
-    parabolaOffsetY = l_parabolaOffsetY;
-    parabolaFactorX = l_parabolaFactorX;
-    parabolaFactorY = l_parabolaFactorY;
+    gaussianOffsetX = l_gaussianOffsetX;        gaussianOffsetY = l_gaussianOffsetY;
+    gaussianStretchX = l_gaussianStretchX;      gaussianStretchY = l_gaussianStretchY;
+    gaussianImpulseX = l_gaussianImpulseX;      gaussianImpulseY = l_gaussianImpulseY;
+    parabolaOffsetX = l_parabolaOffsetX;        parabolaOffsetY = l_parabolaOffsetY;
+    parabolaFactorX = l_parabolaFactorX;        parabolaFactorY = l_parabolaFactorY;
     barrierOffsetX = l_barrierOffsetX;
     barrierWidth = l_barrierWidth;
-    barrierSlit1Start = l_barrierSlit1Start;
-    barrierSlit1End = l_barrierSlit1End;
-    barrierSlit2Start = l_barrierSlit2Start;
-    barrierSlit2End = l_barrierSlit2End;
+    barrierSlit1Start = l_barrierSlit1Start;    barrierSlit1End = l_barrierSlit1End;
+    barrierSlit2Start = l_barrierSlit2Start;    barrierSlit2End = l_barrierSlit2End;
 }
 
 void QuantumSimulation::calculateNextPsi(const Decimal timestep) {
