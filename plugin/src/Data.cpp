@@ -5,6 +5,11 @@ SimulationFramePointer Data::getSimulationDisplayFrame() {
     return simulationDisplayFrame;
 }
 
+void Data::setSimulationDisplayFrame(const SimulationFramePointer& f) {
+    std::lock_guard lock(frameAccessMutex);
+    simulationDisplayFrame = f;
+}
+
 void Data::appendFrameBuffer(const FrameList &frames) {
     if (!frames.empty()) {
         // append data

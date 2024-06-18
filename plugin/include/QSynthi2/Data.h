@@ -20,6 +20,7 @@ public:
     List<V2> barrierSlits{};
 
     SimulationFramePointer getSimulationDisplayFrame();
+    void setSimulationDisplayFrame(const SimulationFramePointer& f);
 
     // thread-safe
     //

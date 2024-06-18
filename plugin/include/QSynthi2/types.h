@@ -27,8 +27,6 @@ class SimulationFrame {
 public:
     virtual ~SimulationFrame() = default;
     [[nodiscard]] virtual SimulationFrame* clone() = 0;
-    [[nodiscard]] virtual RealMatrix toDecimal() const = 0;
-    [[nodiscard]] virtual RealMatrix toPhase() const = 0;
     [[nodiscard]] virtual Decimal toDecimal(long row, long col) const = 0;
     [[nodiscard]] virtual Decimal toPhase(long row, long col) const = 0;
     [[nodiscard]] virtual size_t cols() const = 0;

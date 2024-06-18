@@ -10,8 +10,8 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
     : Simulation()
     , W(width)
     , H(height)
-    , w(static_cast<Decimal>(width))
-    , h(static_cast<Decimal>(height)) {
+    , Wf(static_cast<Decimal>(width))
+    , Hf(static_cast<Decimal>(height)) {
     barrierPotentialTemp = RealMatrix::Zero(H, W);
     parabolaPotentialTemp = RealMatrix::Zero(H, W);
 
@@ -25,8 +25,8 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
     constexpr Decimal pi2 = juce::MathConstants<Decimal>::twoPi;
     for (int i = 0; i < W; ++i) {
         for (int j = 0; j < H; ++j) {
-            const Decimal k = pi2 * std::min(static_cast<Decimal>(i), w-static_cast<Decimal>(i)) / w;
-            const Decimal l = pi2 * std::min(static_cast<Decimal>(j), h-static_cast<Decimal>(j)) / h;
+            const Decimal k = pi2 * std::min(static_cast<Decimal>(i), Wf-static_cast<Decimal>(i)) / Wf;
+            const Decimal l = pi2 * std::min(static_cast<Decimal>(j), Hf-static_cast<Decimal>(j)) / Hf;
             const Decimal theta = (k*k + l*l);
             thetaPrecalc(j, i) = theta * Complex(0, 1);
         }
@@ -41,7 +41,7 @@ QuantumSimulation& QuantumSimulation::addPotential(const Potential p) {
     return *this;
 }
 
-QuantumSimulation& QuantumSimulation::parabolaPotential(const V2 offset, const V2 factor) {
+QuantumSimulation& QuantumSimulation::parabolaPotential(const V2& offset, const V2& factor) {
     // const size_t h = potentials.append(RealMatrix::Zero(H, W));
     parabolaPotentialTemp = RealMatrix::Zero(H, W);
     for (int i = 0; i < W * H; ++i) {
@@ -53,11 +53,11 @@ QuantumSimulation& QuantumSimulation::parabolaPotential(const V2 offset, const V
     return *this;
 }
 
-QuantumSimulation& QuantumSimulation::barrierPotential(const V2 pos, const int width, const List<V2>& slits, const Decimal value) {
+QuantumSimulation& QuantumSimulation::barrierPotential(const V2& pos, const int width, const List<V2>& slits, const Decimal value) {
     // TODO outsource to Potential class
-    const size_t px = toX(pos.x);
-    const size_t py = toY(pos.y);
-    List<Vec2<size_t>> slitIndices;
+    const Eigen::Index px = toX(pos.x);
+    const Eigen::Index py = toY(pos.y);
+    List<Vec2<Eigen::Index>> slitIndices;
     for (const auto& s : slits) {
         if (std::isnan(pos.x))
             slitIndices.push_back(Vec2(toX(s.x), toX(s.y)));
@@ -92,6 +92,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2 pos, const int w
             }
         }
     }
+    barrierPotentialMask = 1 - barrierPotentialTemp.cwiseMin(1);
     potentialPrecalc = (parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
     return *this;
 }
@@ -101,7 +102,7 @@ void QuantumSimulation::resetGaussianDistribution(const bool onlyApplyToInitialP
     *pPsi = ComplexMatrix::Zero(H, W);
 }
 
-QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2 offset, const V2 size, const V2 impulse, const bool onlyApplyToInitialPsi) {
+QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2& offset, const V2& size, const V2& impulse, const bool onlyApplyToInitialPsi) {
     const auto pPsi = onlyApplyToInitialPsi ? &initialPsi : getPsiToChange();
     const V2 sz = size / 2.f;
     for (int i = 0; i < W * H; ++i) {
@@ -113,6 +114,8 @@ QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2 offset, cons
             std::exp(-Complex(0, 1) * pi2 * impulse.y * y) *
             std::exp(-( x*x / (sz.x * sz.x) + y*y / (sz.y * sz.y) ));
     }
+    // normalize
+    *pPsi = *pPsi / std::sqrt(pPsi->abs().square().sum());
     return *this;
 }
 
@@ -184,21 +187,30 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
     barrierSlit2Start = l_barrierSlit2Start;    barrierSlit2End = l_barrierSlit2End;
 }
 
+SimulationFramePointer QuantumSimulation::getStartFrame() {
+    return std::make_shared<QuantumSimulationFrame>(initialPsi);
+}
+
 void QuantumSimulation::calculateNextPsi(const Decimal timestep) {
     static const pocketfft::stride_t stride{ static_cast<long>(H * sizeof(Complex)), sizeof(Complex) };
-    static const pocketfft::shape_t shape{ W, H };
+    static const pocketfft::shape_t shape{ static_cast<size_t>(W), static_cast<size_t>(H) };
 
     // potential part
     psi *= Eigen::exp(potentialPrecalc * timestep);
 
     // FFT (to impulse domain)
     pocketfft::c2c(shape, stride, stride, { 0, 1 },
-    true, psi.data(), psiFFT.data(), static_cast<Decimal>(1.0 / std::sqrt(w*h)));
+    true, psi.data(), psiFFT.data(), static_cast<Decimal>(1.0 / std::sqrt(Wf*Hf)));
 
     // kinetic part
     psiFFT *= Eigen::exp(thetaPrecalc * timestep);
 
     // inverse FFT (to spatial domain)
     pocketfft::c2c(shape, stride, stride, { 0, 1 },
-    false, psiFFT.data(), psi.data(), static_cast<Decimal>(1.0 / std::sqrt(w*h)));
+    false, psiFFT.data(), psi.data(), static_cast<Decimal>(1.0 / std::sqrt(Wf*Hf)));
+
+    // set 0 behind barrier
+    psi *= barrierPotentialMask;
+    // normalize
+    psi = psi / std::sqrt(psi.abs().square().sum());
 }
