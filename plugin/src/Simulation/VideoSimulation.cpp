@@ -30,6 +30,8 @@ VideoSimulation::VideoSimulation(const int targetWidth, const int targetHeight, 
     if(!capture.isOpened()) {
         juce::Logger::writeToLog("Video file could not be opened: " + file);
     }
+
+    sharedData.videoFps = capture.get(cv::CAP_PROP_FPS);
 }
 
 VideoSimulation::~VideoSimulation() = default;

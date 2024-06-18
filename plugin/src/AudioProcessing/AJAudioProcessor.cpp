@@ -72,7 +72,11 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     // Update simulation parameters
     auto activeVoices = synth.getActiveVoices();
     List<ModulationData*> modulationDataList = activeVoices.map<ModulationData*>([](Voice* v){ return v->getModulationData(); });
-    Eigen::ArrayX<Decimal> simulationFrameIncrement = sharedData.parameters->simulationStepsPerSecond->getModulated(modulationDataList) / sampleRate;
+    Eigen::ArrayX<Decimal> simulationStepsPerSecond = sharedData.parameters->simulationStepsPerSecond->getModulated(modulationDataList);
+    if (sharedData.videoFps > 0) {
+        simulationStepsPerSecond = Eigen::ArrayX<Decimal>::Ones(simulationStepsPerSecond.size()) * sharedData.videoFps;
+    }
+    Eigen::ArrayX<Decimal> simulationFrameIncrement = simulationStepsPerSecond / sampleRate;
     simulationThread->updateParameters(sharedData.parameters, modulationDataList);
 
     if (activeVoices.empty()) {

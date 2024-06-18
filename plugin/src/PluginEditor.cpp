@@ -25,7 +25,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     resetButton.onClick = [&]{ sharedData.resetSimulation = true; };
     videoLoadButton.onClick = [&] {
-        fileChooser.launchAsync(juce::FileBrowserComponent::openMode, [this](const juce::FileChooser& chooser) {
+        fileChooser.launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, [this](const juce::FileChooser& chooser) {
             sharedData.newSimulation = chooser.getResult().getFullPathName();
             if (sharedData.newSimulation.isNotEmpty())
                 sharedData.resetSimulation = true;

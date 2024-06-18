@@ -27,6 +27,7 @@ public:
     FrameList frameBuffer;
     size_t frameBufferFirstFrame = 0;
     Eigen::ArrayX<Decimal> frameBufferTimestamps;
+    Decimal videoFps = 0;
 
     void appendFrameBuffer(const FrameList& frames);
 

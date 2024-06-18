@@ -1,6 +1,9 @@
 #include "QSynthi2/Simulation/SimulationThread.h"
 #include <QSynthi2/Parameter/ParameterCollection.h>
 #include <chrono>
+#include <QSynthi2/Data.h>
+
+extern Data sharedData;
 
 SimulationThread::SimulationThread(const std::shared_ptr<Simulation> &s) {
     simulation = s;
@@ -22,16 +25,17 @@ void SimulationThread::simulationLoop() {
     newParameters = true;
 
     while (!terminate) {
+        // update simulation
+        if (newSimulation) {
+            simulation = newSimulation;
+            newSimulation = nullptr;
+            newParameters = true;
+        }
         // update parameters
         if (newParameters) {
             std::lock_guard lock(parameterMutex);
             timestep = this->timestep;
             newParameters = false;
-        }
-        // update simulation
-        if (newSimulation) {
-            simulation = newSimulation;
-            newSimulation = nullptr;
         }
 
         if (started && frameBuffer.size() < bufferTargetSize) {
@@ -55,6 +59,9 @@ void SimulationThread::updateParameters(const ParameterCollection* parameterColl
     newParameters = true;
 
     Decimal simulationStepsPerSecond = parameterCollection->simulationStepsPerSecond->getSingleModulated(modulationDataList);
+    if (sharedData.videoFps > 0) {
+        simulationStepsPerSecond = sharedData.videoFps;
+    }
     Decimal simulationSpeedFactor = parameterCollection->simulationSpeedFactor->getSingleModulated(modulationDataList);
     Decimal simulationBufferSeconds = parameterCollection->simulationBufferSeconds->getSingleModulated(modulationDataList);
 
