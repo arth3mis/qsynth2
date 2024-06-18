@@ -14,6 +14,11 @@ public:
     std::atomic<size_t> simulationHeight;
     std::atomic<bool> resetSimulation{false};
 
+    // context: simulation thread <-> GUI thread
+    std::atomic<Decimal> barrierX{0};
+    std::atomic<Decimal> barrierWidth{0};
+    List<V2> barrierSlits{};
+
     SimulationFramePointer getSimulationDisplayFrame();
 
     // thread-safe

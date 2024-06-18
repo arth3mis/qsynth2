@@ -2,6 +2,9 @@
 #include "QSynthi2/Juce.h"
 #include "QSynthi2/FFT.h"
 #include <cmath>
+#include <QSynthi2/Data.h>
+
+extern Data sharedData;
 
 QuantumSimulation::QuantumSimulation(const int width, const int height)
     : Simulation()
@@ -77,7 +80,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2 pos, const int w
         }
     }
     // vertical barrier
-    else {
+    else if (std::isnan(pos.y)) {
         for (int i = 0; i < H; ++i) {
             bool isSlit = false;
             for (const auto& s : slitIndices) {
@@ -164,7 +167,10 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
             slits.append({l_barrierSlit1Start, l_barrierSlit1End});
         if (l_barrierSlit2Start >= -1 && -l_barrierSlit2End >= -1)
             slits.append({l_barrierSlit2Start, l_barrierSlit2End});
-        barrierPotential({l_barrierOffsetX, NAN}, static_cast<int>(std::round(l_barrierWidth)), slits, 1e30);
+        barrierPotential({l_barrierOffsetX < -1 ? NAN : l_barrierOffsetX, NAN}, static_cast<int>(std::round(l_barrierWidth)), slits, 1e30);
+        sharedData.barrierX = l_barrierOffsetX;
+        sharedData.barrierWidth = l_barrierWidth;
+        sharedData.barrierSlits = slits;
     }
 
     gaussianOffsetX = l_gaussianOffsetX;

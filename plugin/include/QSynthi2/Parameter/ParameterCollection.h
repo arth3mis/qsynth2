@@ -121,7 +121,7 @@ public:
             1.5f);
     ModulatedParameterFloat *barrierOffsetX = add<ModulatedParameterFloat>(
             "Barrier: x offset",
-            juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
+            juce::NormalisableRange<float>(-1.01, 1, 0, 1.f, false),
             0.f);
     ModulatedParameterFloat *barrierWidth = add<ModulatedParameterFloat>(
             "Barrier: width",
