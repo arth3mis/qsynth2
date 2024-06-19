@@ -37,21 +37,19 @@ Eigen::ArrayX<Decimal> Sonifier::generateNextBlock(const std::function<Eigen::Ar
 Eigen::ArrayX<Decimal>
 Sonifier::audification(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scanner, const ModulationData &modulationData) {
 
-    return scanner.getValuesAt(phases0to1, Scanner::bicubicInterpolation, modulationData);
+    // https://www.desmos.com/calculator/2e1qa2mn8l
+    const Decimal overlapAmount = 0.3;
+    jassert(overlapAmount > 0 && overlapAmount <= 1);
+
+    Eigen::ArrayX<Decimal> phases0to1Shifted =  phases0to1 / (1 + overlapAmount) + (1 - 1 / (1 + overlapAmount));
+    auto interpolatedValues = scanner.getValuesAt(phases0to1Shifted, Scanner::bicubicInterpolation, modulationData);
 
 
-    const Decimal overlapAmount = 0.1;
+    Eigen::ArrayX<Decimal> phases0to1Overlap = phases0to1 / (1 + overlapAmount) + 2 * (1 - 1 / (1 + overlapAmount));
+    phases0to1Overlap -= phases0to1Overlap.floor();
+    auto overlapValues = scanner.getValuesAt(phases0to1Overlap, Scanner::bicubicInterpolation, modulationData);
 
-    Eigen::ArrayX<Decimal> phases0to1Shifted = phases0to1 - 0.5 * overlapAmount + 1;
-    phases0to1Shifted -= phases0to1Shifted.floor(); // Modulo 1
-
-    auto interpolatedValues = scanner.getValuesAt(phases0to1, Scanner::bicubicInterpolation, modulationData);
-
-    Eigen::ArrayX<Decimal> overlapPhases0to1 = (phases0to1 + overlapAmount);
-    overlapPhases0to1 -= overlapPhases0to1.floor(); // Modulo 1
-    auto overlapValues = scanner.getValuesAt(overlapPhases0to1, Scanner::bicubicInterpolation, modulationData);
-
-    Eigen::ArrayX<Decimal> overlapMask = 0.5 - 0.5 * (1 / (1 - overlapAmount) * juce::MathConstants<Decimal>::pi * (phases0to1 - 0.9).cwiseMax(0)).cos();
+    Eigen::ArrayX<Decimal> overlapMask = 0.5 - 0.5 * (juce::MathConstants<Decimal>::pi * (1 + overlapAmount) / overlapAmount * (phases0to1 / (1 + overlapAmount) - (1 - overlapAmount) / (1 + overlapAmount)).cwiseMax(0)).cos();
 
     return (1-overlapMask) * interpolatedValues + overlapMask * overlapValues;
 }
