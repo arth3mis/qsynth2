@@ -120,3 +120,14 @@ Decimal ModulatedParameterFloat::getSingleModulated(const List<ModulationData *>
 void ModulatedParameterFloat::valueChanged(float newValue) {
     smoothedNormalizedSliderValue.setTargetValue(static_cast<Decimal>(convertTo0to1(newValue)));
 }
+
+
+void ModulatedParameterFloat::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
+    smoothedNormalizedSliderValue.reset(sampleRate, sliderSmoothingSeconds);
+    bufferNormalizedSliderValue = Eigen::ArrayX<Decimal>(samplesPerBlock);
+}
+
+ModulatedParameterFloat *ModulatedParameterFloat::withModulation(const std::shared_ptr<Modulation> &modulation) {
+    modulations.append(modulation);
+    return this;
+}
