@@ -94,7 +94,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
             while (simulationThread->frameReadyCount() <= neededSimulationFrames) {
                 busyWaitCounter++;
                 if (busyWaitCounter >= 100000) {
-                    return;
+                    break;
                 }
             }
         }
@@ -103,7 +103,10 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         // append the shared frame buffer
         // this also sets the latest simulation frame as the display frame (if a new one arrived)
         auto newFrames = simulationThread->getFrames(neededSimulationFrames);
-        if (newFrames.empty()) newFrames.push_back(std::make_shared<QuantumSimulationFrame>(ComplexMatrix(static_cast<Eigen::Index>(sharedData.simulationWidth), static_cast<Eigen::Index>(sharedData.simulationHeight)).setZero()));
+        if (newFrames.empty()) {
+            if (sharedData.frameBuffer.empty()) newFrames.push_back(simulationThread->getStartFrame());
+            else newFrames.push_back(sharedData.frameBuffer.back());
+        }
         while (newFrames.size() < neededSimulationFrames) newFrames.push_back(newFrames.back());
         sharedData.appendFrameBuffer(newFrames);
 
