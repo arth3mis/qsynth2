@@ -11,11 +11,11 @@ public:
     // Declare Parameters here
     ModulatedParameterFloat* simulationSpeedFactor = add<ModulatedParameterFloat>(
             "Simulation speed",
-            juce::NormalisableRange<float>(0, 100, 0, 0.7f, false),
+            juce::NormalisableRange<float>(0, 400, 0, 0.7f, false),
             10);
     ModulatedParameterFloat* simulationStepsPerSecond = add<ModulatedParameterFloat>(
             "Simulation steps per second",
-            juce::NormalisableRange<float>(10, 400, 1, 0.5f, false),
+            juce::NormalisableRange<float>(10, 1000, 1, 0.5f, false),
             100);
     ModulatedParameterFloat* simulationBufferSeconds = add<ModulatedParameterFloat>(
             "Simulation buffer seconds",
@@ -49,6 +49,10 @@ public:
             "Sonification Method",
             juce::StringArray{"Audification", "Timbre mapping"},
             0);
+    ModulatedParameterFloat* audificationSmoothing = add<ModulatedParameterFloat>(
+            "Audification scanline-smoothing",
+            juce::NormalisableRange<float>(0, 1, 0, 0.5f, false),
+            0.2f);
     juce::AudioParameterChoice* timbreOvertoneLayout = add<juce::AudioParameterChoice>(
             juce::ParameterID("Overtone layout", Parameters::VERSION),
             "Overtone layout",
@@ -83,6 +87,7 @@ public:
             juce::NormalisableRange<float>(0.001f, 8, 0, .5f, false),
             0.150f);
 
+
     ModulatedParameterFloat *gaussianOffsetX = add<ModulatedParameterFloat>(
             "Gaussian: x offset",
             juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
@@ -94,11 +99,11 @@ public:
     ModulatedParameterFloat *gaussianStretchX = add<ModulatedParameterFloat>(
             "Gaussian: x stretch",
             juce::NormalisableRange<float>(0, 1, 0, 1.f, false),
-            0.5f);
+            0.25f);
     ModulatedParameterFloat *gaussianStretchY = add<ModulatedParameterFloat>(
             "Gaussian: y stretch",
             juce::NormalisableRange<float>(0, 1, 0, 1.f, false),
-            0.5f);
+            0.25f);
     ModulatedParameterFloat *gaussianImpulseX = add<ModulatedParameterFloat>(
             "Gaussian: x impulse",
             juce::NormalisableRange<float>(-10, 10, 0, 1.f, false),
@@ -106,6 +111,14 @@ public:
     ModulatedParameterFloat *gaussianImpulseY = add<ModulatedParameterFloat>(
             "Gaussian: y impulse",
             juce::NormalisableRange<float>(-10, 10, 0, 1.f, false),
+            0.f);
+    ModulatedParameterFloat *linearAngle = add<ModulatedParameterFloat>(
+            "Linear potential: rotation",
+            juce::NormalisableRange<float>(-360, 360, 0, 1.f, false),
+            0.f);
+    ModulatedParameterFloat *linearFactor = add<ModulatedParameterFloat>(
+            "Linear potential: strength",
+            juce::NormalisableRange<float>(-20, 20, 0, 1.f, false),
             0.f);
     ModulatedParameterFloat *parabolaOffsetX = add<ModulatedParameterFloat>(
             "Parabola potential: x offset",
@@ -155,6 +168,6 @@ public:
 
     // Add modulation slots
     ParameterCollection() {
-        addModulationSlots(8);
+        addModulationSlots(12);
     }
 };
