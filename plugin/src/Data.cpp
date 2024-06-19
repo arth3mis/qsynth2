@@ -19,3 +19,7 @@ void Data::appendFrameBuffer(const FrameList &frames) {
         simulationDisplayFrame = frames.back();
     }
 }
+
+void Data::resetFrameBuffer() {
+    frameBuffer.clear();
+}
