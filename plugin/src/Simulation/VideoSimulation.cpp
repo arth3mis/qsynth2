@@ -111,12 +111,14 @@ bool VideoSimulation::convertNextVideoFrame() {
     if (!capture.read(frame))
         return false;
 
+    cv::Mat resizedFrame;
+    cv::resize(frame, resizedFrame, cv::Size(simulationWidth, simulationHeight), 0, 0,
+        cv::INTER_LINEAR);
+
     VideoMatrix m(simulationHeight, simulationWidth);
-    const double dx = static_cast<double>(frame.cols) / simulationWidth;
-    const double dy = static_cast<double>(frame.rows) / simulationHeight;
     for (int y = 0; y < simulationHeight; y++) {
         for (int x = 0; x < simulationWidth; x++) {
-            m(y, x) = frame.at<cv::Vec3b>(static_cast<int>(y * dy), static_cast<int>(x * dx));
+            m(y, x) = resizedFrame.at<cv::Vec3b>(y, x);
         }
     }
 
