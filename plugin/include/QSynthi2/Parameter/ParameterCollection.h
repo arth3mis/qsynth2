@@ -80,6 +80,7 @@ public:
             juce::NormalisableRange<float>(0.001f, 8, 0, .5f, false),
             0.150f);
 
+
     ModulatedParameterFloat *gaussianOffsetX = add<ModulatedParameterFloat>(
             "Gaussian: x offset",
             juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
@@ -103,6 +104,14 @@ public:
     ModulatedParameterFloat *gaussianImpulseY = add<ModulatedParameterFloat>(
             "Gaussian: y impulse",
             juce::NormalisableRange<float>(-10, 10, 0, 1.f, false),
+            0.f);
+    ModulatedParameterFloat *linearAngle = add<ModulatedParameterFloat>(
+            "Linear potential: rotation",
+            juce::NormalisableRange<float>(-360, 360, 0, 1.f, false),
+            0.f);
+    ModulatedParameterFloat *linearFactor = add<ModulatedParameterFloat>(
+            "Linear potential: strength",
+            juce::NormalisableRange<float>(-20, 20, 0, 1.f, false),
             0.f);
     ModulatedParameterFloat *parabolaOffsetX = add<ModulatedParameterFloat>(
             "Parabola potential: x offset",
