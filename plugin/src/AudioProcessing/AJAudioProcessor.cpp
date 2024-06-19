@@ -103,7 +103,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         // append the shared frame buffer
         // this also sets the latest simulation frame as the display frame (if a new one arrived)
         auto newFrames = simulationThread->getFrames(neededSimulationFrames);
-        if (newFrames.empty()) {
+        if (newFrames.empty() && newFrames.size() < neededSimulationFrames) {
             if (sharedData.frameBuffer.empty()) newFrames.push_back(simulationThread->getStartFrame());
             else newFrames.push_back(sharedData.frameBuffer.back());
         }
