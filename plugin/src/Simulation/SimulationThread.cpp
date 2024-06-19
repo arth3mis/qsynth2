@@ -1,6 +1,5 @@
 #include "QSynthi2/Simulation/SimulationThread.h"
 #include <QSynthi2/Parameter/ParameterCollection.h>
-#include <chrono>
 
 SimulationThread::SimulationThread(const std::shared_ptr<Simulation> &s) {
     simulation = s;
@@ -39,11 +38,8 @@ void SimulationThread::simulationLoop() {
                 appendFrame(std::shared_ptr<SimulationFrame>(frameBuffer.back()->clone()));
             }
             appendFrame(simulation->getNextFrame(timestep, {}));
-        } else {
-            // todo try both busy waiting and sleep with new buffer method -> busy waiting seems to work
-            // ++sleepCounter;
-            // std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
+        // else: busy wait
     }
 }
 
