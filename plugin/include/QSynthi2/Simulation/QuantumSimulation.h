@@ -39,6 +39,7 @@ public:
     ~QuantumSimulation() override;
 
     QuantumSimulation& addPotential(Potential p);
+    QuantumSimulation& linearPotential(Decimal angle, Decimal factor);
     QuantumSimulation& parabolaPotential(const V2& offset, const V2& factor);
     QuantumSimulation& barrierPotential(const V2&, int width, const List<V2>& slits, Decimal value);
     void resetGaussianDistribution(bool onlyApplyToInitialPsi = false);
@@ -66,6 +67,7 @@ private:
     Decimal gaussianOffsetX = 0, gaussianOffsetY = 0;
     Decimal gaussianStretchX = 0, gaussianStretchY = 0;
     Decimal gaussianImpulseX = 0, gaussianImpulseY = 0;
+    Decimal linearAngle = 0, linearFactor = 0;
     Decimal parabolaOffsetX = 0, parabolaOffsetY = 0;
     Decimal parabolaFactorX = 0, parabolaFactorY = 0;
     Decimal barrierOffsetX = 0;
@@ -75,6 +77,7 @@ private:
 
     List<RealMatrix> potentials;
     // sorry, this program is not barrier-free!
+    RealMatrix linearPotentialTemp;
     RealMatrix parabolaPotentialTemp;
     RealMatrix barrierPotentialTemp;
     RealMatrix barrierPotentialMask;

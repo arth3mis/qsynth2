@@ -12,8 +12,9 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
     , H(height)
     , Wf(static_cast<Decimal>(width))
     , Hf(static_cast<Decimal>(height)) {
-    barrierPotentialTemp = RealMatrix::Zero(H, W);
+    linearPotentialTemp = RealMatrix::Zero(H, W);
     parabolaPotentialTemp = RealMatrix::Zero(H, W);
+    barrierPotentialTemp = RealMatrix::Zero(H, W);
 
     initialPsi = ComplexMatrix::Zero(H, W);
     psi = ComplexMatrix::Zero(H, W);
@@ -41,6 +42,22 @@ QuantumSimulation& QuantumSimulation::addPotential(const Potential p) {
     return *this;
 }
 
+QuantumSimulation & QuantumSimulation::linearPotential(const Decimal angle, const Decimal factor) {
+    // const size_t h = potentials.append(RealMatrix::Zero(H, W));
+    linearPotentialTemp = RealMatrix::Zero(H, W);
+    const Decimal angleRad = angle * juce::MathConstants<Decimal>::pi/180.0;
+    const Decimal angleSin = std::sin(angleRad);
+    const Decimal angleCos = std::cos(angleRad);
+    for (int i = 0; i < W * H && !juce::approximatelyEqual(factor, 0.0); ++i) {
+        const Decimal x = xOf(i);
+        const Decimal y = yOf(i);
+
+        linearPotentialTemp(yIndexOf(i), xIndexOf(i)) += -factor * (angleCos * x + angleSin * y);
+    }
+    potentialPrecalc = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
+    return *this;
+}
+
 QuantumSimulation& QuantumSimulation::parabolaPotential(const V2& offset, const V2& factor) {
     // const size_t h = potentials.append(RealMatrix::Zero(H, W));
     parabolaPotentialTemp = RealMatrix::Zero(H, W);
@@ -49,7 +66,7 @@ QuantumSimulation& QuantumSimulation::parabolaPotential(const V2& offset, const 
         const Decimal y = yOf(i) - offset.y;
         parabolaPotentialTemp(yIndexOf(i), xIndexOf(i)) += factor.x * x*x + factor.y * y*y;
     }
-    potentialPrecalc = (parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
+    potentialPrecalc = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
     return *this;
 }
 
@@ -92,8 +109,11 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2& pos, const int 
             }
         }
     }
+
+    // create mask that is 0 in barrier regions and 1 else -> sets psi values inside the barrier to 0 to clean simulation
     barrierPotentialMask = 1 - barrierPotentialTemp.cwiseMin(1);
-    potentialPrecalc = (parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
+
+    potentialPrecalc = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
     return *this;
 }
 
@@ -141,6 +161,7 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
     const Decimal l_gaussianOffsetX = p->gaussianOffsetX->getSingleModulated(m),        l_gaussianOffsetY = p->gaussianOffsetY->getSingleModulated(m);
     const Decimal l_gaussianStretchX = p->gaussianStretchX->getSingleModulated(m),      l_gaussianStretchY = p->gaussianStretchY->getSingleModulated(m);
     const Decimal l_gaussianImpulseX = p->gaussianImpulseX->getSingleModulated(m),      l_gaussianImpulseY = p->gaussianImpulseY->getSingleModulated(m);
+    const Decimal l_linearAngle = p->linearAngle->getSingleModulated(m),                l_linearFactor = p->linearFactor->getSingleModulated(m);
     const Decimal l_parabolaOffsetX = p->parabolaOffsetX->getSingleModulated(m),        l_parabolaOffsetY = p->parabolaOffsetY->getSingleModulated(m);
     const Decimal l_parabolaFactorX = p->parabolaFactorX->getSingleModulated(m),        l_parabolaFactorY = p->parabolaFactorY->getSingleModulated(m);
     const Decimal l_barrierOffsetX = p->barrierOffsetX->getSingleModulated(m);
@@ -156,6 +177,10 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
         !juce::approximatelyEqual(gaussianImpulseY, l_gaussianImpulseY)) {
         resetGaussianDistribution(true);
         gaussianDistribution({l_gaussianOffsetX, l_gaussianOffsetY}, {l_gaussianStretchX, l_gaussianStretchY}, {l_gaussianImpulseX, l_gaussianImpulseY}, true);
+    }
+    if (!juce::approximatelyEqual(linearAngle, l_linearAngle) ||
+        !juce::approximatelyEqual(linearFactor, l_linearFactor)) {
+        linearPotential(l_linearAngle, l_linearFactor);
     }
     if (!juce::approximatelyEqual(parabolaOffsetX, l_parabolaOffsetX) ||
         !juce::approximatelyEqual(parabolaOffsetY, l_parabolaOffsetY) ||
@@ -183,6 +208,7 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
     gaussianOffsetX = l_gaussianOffsetX;        gaussianOffsetY = l_gaussianOffsetY;
     gaussianStretchX = l_gaussianStretchX;      gaussianStretchY = l_gaussianStretchY;
     gaussianImpulseX = l_gaussianImpulseX;      gaussianImpulseY = l_gaussianImpulseY;
+    linearAngle = l_linearAngle;                linearFactor = l_linearFactor;
     parabolaOffsetX = l_parabolaOffsetX;        parabolaOffsetY = l_parabolaOffsetY;
     parabolaFactorX = l_parabolaFactorX;        parabolaFactorY = l_parabolaFactorY;
     barrierOffsetX = l_barrierOffsetX;
