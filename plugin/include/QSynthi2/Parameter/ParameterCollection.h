@@ -46,6 +46,10 @@ public:
             "Sonification Method",
             juce::StringArray{"Audification", "Timbre mapping"},
             0);
+    ModulatedParameterFloat* audificationSmoothing = add<ModulatedParameterFloat>(
+            "Audification scanline-smoothing",
+            juce::NormalisableRange<float>(0, 1, 0, 0.5f, false),
+            0.2f);
     juce::AudioParameterChoice* timbreOvertoneLayout = add<juce::AudioParameterChoice>(
             juce::ParameterID("Overtone layout", Parameters::VERSION),
             "Overtone layout",
