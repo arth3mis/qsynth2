@@ -97,6 +97,10 @@ SimulationFramePointer VideoSimulation::getNextFrame(const Decimal timestep, con
     return std::make_shared<VideoSimulationFrame>(frames[index]);
 }
 
+bool VideoSimulation::isContinuous() {
+    return isCam;
+}
+
 bool VideoSimulation::captureOpened() const {
     return capture.isOpened();
 }

@@ -44,6 +44,7 @@ public:
     // getters
     SimulationFramePointer getStartFrame() override;
     SimulationFramePointer getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
+    bool isContinuous() override;
 
     bool captureOpened() const;
 
