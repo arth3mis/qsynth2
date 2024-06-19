@@ -79,9 +79,9 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
 
     // todo maybe exclude release state voices
     if (activeVoices.empty() && !simulationThread->isSimulationContinuous()) {
-        simulationThread->resetSimulation();
-        sharedData.resetFrameBuffer();
-        sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
+        // simulationThread->resetSimulation();
+        // sharedData.resetFrameBuffer();
+        // sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
         simulationThread->started = false;
     } else {
         simulationThread->started = true;
