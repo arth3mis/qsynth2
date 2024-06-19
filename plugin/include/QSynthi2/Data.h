@@ -14,6 +14,7 @@ public:
     std::atomic<size_t> simulationHeight;
     std::atomic<bool> resetSimulation{false};
     juce::String newSimulation = "";
+    std::atomic<Decimal> displayWidthToHeight{1};
 
     // context: simulation thread <-> GUI thread
     std::atomic<Decimal> barrierX{0};

@@ -110,6 +110,11 @@ bool SimulationThread::isSimulationContinuous() {
     return simulation->isContinuous();
 }
 
+bool SimulationThread::isSimulationStationary() {
+    std::lock_guard lock(simulationMutex);
+    return simulation->isStationary();
+}
+
 void SimulationThread::resetSimulation() {
     reset = true;
 }

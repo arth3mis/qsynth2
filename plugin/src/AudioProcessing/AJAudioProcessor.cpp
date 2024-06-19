@@ -50,9 +50,11 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         if (sharedData.newSimulation.isNotEmpty()) {
             // create new simulation
             const auto simulation = std::dynamic_pointer_cast<Simulation>(std::make_shared<VideoSimulation>(
-                    VideoSimulation(SIMULATION_SIZE, SIMULATION_SIZE, sharedData.newSimulation)));
-            sharedData.simulationWidth = SIMULATION_SIZE;
-            sharedData.simulationHeight = SIMULATION_SIZE;
+                    VideoSimulation(-1, -1, sharedData.newSimulation)));
+            sharedData.videoFps = std::dynamic_pointer_cast<VideoSimulation>(simulation)->videoFps();
+            sharedData.simulationWidth = simulation->getWidth();
+            sharedData.simulationHeight = simulation->getHeight();
+            sharedData.displayWidthToHeight = static_cast<Decimal>(sharedData.simulationWidth) / static_cast<Decimal>(sharedData.simulationHeight);
             sharedData.newSimulation = "";
             simulationThread->resetSimulation(simulation);
         } else {

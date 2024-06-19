@@ -22,6 +22,7 @@ public:
     SimulationFramePointer getStartFrame();
     size_t frameReadyCount();
     bool isSimulationContinuous();
+    bool isSimulationStationary();
 
     void resetSimulation();
     void resetSimulation(const std::shared_ptr<Simulation>& s);

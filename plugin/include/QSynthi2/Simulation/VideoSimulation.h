@@ -3,6 +3,7 @@
 
 #include "QSynthi2/Simulation/Simulation.h"
 #include "QSynthi2/Video.h"
+#include <mutex>
 
 typedef Eigen::ArrayXX<cv::Vec3b> VideoMatrix;
 
@@ -36,6 +37,7 @@ class VideoSimulation : public Simulation {
 public:
 
     VideoSimulation(int targetWidth, int targetHeight, const juce::String& filename);
+    VideoSimulation(const VideoSimulation& s);
     ~VideoSimulation() override;
 
     void reset() override;
@@ -45,8 +47,12 @@ public:
     SimulationFramePointer getStartFrame() override;
     SimulationFramePointer getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
     bool isContinuous() override;
+    bool isStationary() override;
+    int getWidth() override { return simulationWidth; }
+    int getHeight() override { return simulationHeight; }
 
-    bool captureOpened() const;
+    [[nodiscard]] bool captureOpened() const;
+    [[nodiscard]] int videoFps() const;
 
 private:
 
@@ -54,7 +60,9 @@ private:
     int simulationHeight;
     juce::String file;
     cv::VideoCapture capture;
+    std::mutex captureMutex;
     bool isCam;
+    bool isSingleFrame;
     List<VideoSimulationFrame> frames;
     Decimal currentFrameIndex;
 

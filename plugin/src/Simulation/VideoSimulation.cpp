@@ -21,23 +21,37 @@ Decimal VideoSimulationFrame::toDecimal(const long row, const long col) const {
 
 VideoSimulation::VideoSimulation(const int targetWidth, const int targetHeight, const juce::String& filename) {
     file = filename;
-    simulationWidth = targetWidth;
-    simulationHeight = targetHeight;
     currentFrameIndex = 0;
 
     // init video capture
+    isCam = false;
+    isSingleFrame = false;
     if (file == "0") {
-        capture.open(0);
         isCam = true;
+        capture.open(0);
+    } else if (!cv::imread(file.toStdString()).empty()) {
+        isSingleFrame = true;
+        capture.open(file.toStdString());
     } else {
         capture.open(file.toStdString());
-        isCam = false;
     }
+
     if (!capture.isOpened()) {
         juce::Logger::writeToLog("Video file could not be opened: " + file);
     }
 
-    sharedData.videoFps = capture.get(cv::CAP_PROP_FPS);
+    simulationWidth = targetWidth;
+    simulationHeight = targetHeight;
+    if (targetWidth == -1) {
+        simulationWidth = capture.get(cv::CAP_PROP_FRAME_WIDTH);
+    }
+    if (targetHeight == -1) {
+        simulationHeight = capture.get(cv::CAP_PROP_FRAME_HEIGHT);
+    }
+}
+
+VideoSimulation::VideoSimulation(const VideoSimulation &s)
+    : VideoSimulation(s.simulationWidth, s.simulationHeight, s.file) {
 }
 
 VideoSimulation::~VideoSimulation() {
@@ -53,7 +67,11 @@ void VideoSimulation::updateParameters(const ParameterCollection *p, const List<
 
 SimulationFramePointer VideoSimulation::getStartFrame() {
     if (frames.empty())
-        return nullptr;
+        if (!convertNextVideoFrame())
+            return nullptr;
+
+    sharedData.barrierX = -1.01;
+
     return std::make_shared<VideoSimulationFrame>(frames[0]);
 }
 
@@ -79,6 +97,14 @@ SimulationFramePointer VideoSimulation::getNextFrame(const Decimal timestep, con
         return std::make_shared<VideoSimulationFrame>(frames[0]);
     }
 
+    if (isSingleFrame) {
+        if (frames.empty())
+            if (!convertNextVideoFrame())
+                return nullptr;
+        currentFrameIndex = 0;
+        return std::make_shared<VideoSimulationFrame>(frames[0]);
+    }
+
     // check existing frames and convert new ones as needed
     if (const size_t frameCount = frames.size(); index >= frameCount) {
         for (int i = 0; i < index - frameCount + 1; ++i) {
@@ -101,11 +127,20 @@ bool VideoSimulation::isContinuous() {
     return isCam;
 }
 
+bool VideoSimulation::isStationary() {
+    return isSingleFrame;
+}
+
 bool VideoSimulation::captureOpened() const {
     return capture.isOpened();
 }
 
+int VideoSimulation::videoFps() const {
+    return static_cast<int>(capture.get(cv::CAP_PROP_FPS));
+}
+
 bool VideoSimulation::convertNextVideoFrame() {
+    std::lock_guard lock(captureMutex);
     cv::Mat frame;
 
     if (!capture.read(frame))

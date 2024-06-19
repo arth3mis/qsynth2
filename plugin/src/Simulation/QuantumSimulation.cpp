@@ -133,6 +133,10 @@ bool QuantumSimulation::isContinuous() {
     return false;
 }
 
+bool QuantumSimulation::isStationary() {
+    return false;
+}
+
 void QuantumSimulation::reset() {
     started = false;
 }

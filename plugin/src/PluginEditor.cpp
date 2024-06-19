@@ -16,11 +16,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // editor's size to whatever you need it to be.
     setResizable (true, true);
 
-    simDisplaySize = 400;
-
+    simDisplaySize = 600;
     setSize(simDisplaySize, 800);
-
-    simulationDisplay.setSize(simDisplaySize, simDisplaySize);
     addAndMakeVisible(simulationDisplay);
 
     resetButton.onClick = [&]{ sharedData.resetSimulation = true; };
@@ -64,10 +61,11 @@ void AudioPluginAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     simulationDisplay.setTopLeftPosition(0, 0);
+    simulationDisplay.setSize(static_cast<int>(simDisplaySize * sharedData.displayWidthToHeight), simDisplaySize);
 
     resetButton.setBounds(20, simDisplaySize+10, 130, 25);
-    videoLoadButton.setBounds(20+130+20, simDisplaySize+10, 100, 25);
-    camLoadButton.setBounds(20+130+20+100+20, simDisplaySize+10, 100, 25);
+    videoLoadButton.setBounds(20+130+20, simDisplaySize+10, 130, 25);
+    camLoadButton.setBounds(20+130+20+130+20, simDisplaySize+10, 100, 25);
 
     gpe->setTopLeftPosition(0, simDisplaySize+40);
     gpe->setSize(getWidth(), getHeight() - simDisplaySize);

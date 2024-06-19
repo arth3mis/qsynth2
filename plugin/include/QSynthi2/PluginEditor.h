@@ -24,7 +24,7 @@ private:
     int simDisplaySize;
 
     juce::TextButton resetButton{"Reset Simulation"};
-    juce::TextButton videoLoadButton{"Load video"};
+    juce::TextButton videoLoadButton{"Load video/image"};
     juce::TextButton camLoadButton{"Load webcam"};
     juce::FileChooser fileChooser;
 

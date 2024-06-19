@@ -32,10 +32,12 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
         return;
     }
 
-    const size_t w = sharedData.simulationWidth;
-    const size_t h = sharedData.simulationHeight;
+    const size_t w = std::min(static_cast<size_t>(sharedData.simulationWidth), static_cast<size_t>(500));
+    const size_t h = std::min(static_cast<size_t>(sharedData.simulationHeight), static_cast<size_t>(500));
     const auto fw = static_cast<float>(w);
     const auto fh = static_cast<float>(h);
+    const Decimal dx = static_cast<Decimal>(sharedData.simulationWidth) / fw;
+    const Decimal dy = static_cast<Decimal>(sharedData.simulationHeight) / fh;
 
     const float vx = static_cast<float>(getWidth()) / fw;
     const float vy = static_cast<float>(getHeight()) / fh;
@@ -45,7 +47,7 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
 
     for (int x = 0; x < w; x++) {
         for (int y = 0; y < h; y++) {
-            Decimal v = frame->toDecimalDisplay(y, x);
+            Decimal v = frame->toDecimalDisplay(static_cast<long>(y * dy), static_cast<long>(x * dx));
             int rgb = std::min(255, static_cast<int>(std::round(std::pow(std::abs(v), 0.45) * 255)));
             g.setColour(juce::Colour(rgb, rgb, rgb));
             // fill rectangle

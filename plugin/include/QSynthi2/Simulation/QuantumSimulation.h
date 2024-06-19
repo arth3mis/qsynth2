@@ -14,6 +14,8 @@ public:
         return new QuantumSimulationFrame(frame);
     }
     [[nodiscard]] Decimal toDecimal(const long row, const long col) const override {
+        if (row >= frame.rows() || col >= frame.cols())
+            return 0;
         return std::pow(std::abs(frame(row, col)), 2) * 25; // todo tweak scaling
     }
     [[nodiscard]] Decimal toDecimalDisplay(const long row, const long col) const override {
@@ -51,6 +53,9 @@ public:
     SimulationFramePointer getStartFrame() override;
     SimulationFramePointer getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
     bool isContinuous() override;
+    bool isStationary() override;
+    int getWidth() override { return static_cast<int>(W); }
+    int getHeight() override { return static_cast<int>(H); }
 
     [[nodiscard]] const List<RealMatrix>& getPotentials() const { return potentials; }
     [[nodiscard]] const ComplexMatrix& getPsi() const { return started ? psi : initialPsi; }
