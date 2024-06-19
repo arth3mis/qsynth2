@@ -17,16 +17,16 @@ public:
         return std::pow(std::abs(frame(row, col)), 2) * 25; // todo tweak scaling
     }
     [[nodiscard]] Decimal toDecimalDisplay(const long row, const long col) const override {
-        return toDecimal(row, col) * 4;
+        return toDecimal(row, col) * 8;
     }
     [[nodiscard]] Decimal toPhase(const long row, const long col) const override {
         return std::arg(frame(row, col));
     }
     [[nodiscard]] size_t cols() const override {
-        return frame.cols();
+        return static_cast<size_t>(frame.cols());
     }
     [[nodiscard]] size_t rows() const override {
-        return frame.rows();
+        return static_cast<size_t>(frame.rows());
     }
 private:
     ComplexMatrix frame;
