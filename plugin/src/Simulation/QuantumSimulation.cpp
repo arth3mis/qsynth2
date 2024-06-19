@@ -129,6 +129,10 @@ SimulationFramePointer QuantumSimulation::getNextFrame(const Decimal timestep, c
     return std::make_shared<QuantumSimulationFrame>(psi);
 }
 
+bool QuantumSimulation::isContinuous() {
+    return false;
+}
+
 void QuantumSimulation::reset() {
     started = false;
 }

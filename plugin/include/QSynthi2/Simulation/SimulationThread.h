@@ -21,6 +21,7 @@ public:
     FrameList getFrames(size_t n);
     SimulationFramePointer getStartFrame();
     size_t frameReadyCount();
+    bool isSimulationContinuous();
 
     void resetSimulation();
     void resetSimulation(const std::shared_ptr<Simulation>& s);
@@ -35,6 +36,7 @@ public:
 
 private:
     std::thread t;
+    std::mutex simulationMutex;
     std::shared_ptr<Simulation> simulation, newSimulation;
 
     // parameters

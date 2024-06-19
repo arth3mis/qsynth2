@@ -18,8 +18,6 @@ AJAudioProcessor::AJAudioProcessor() {
 
     simulationThread = new SimulationThread(simulation);
 
-    // sharedData.setSimulationDisplayFrame(std::dynamic_pointer_cast<QuantumSimulation>(sim)->getPsi());
-
     synth.setVoiceStealingEnabled (false); // TODO: Parameter
     for (auto i = 0; i < 15; ++i)
         synth.addVoice (new Voice(std::make_shared<VoiceData>()));
@@ -27,22 +25,16 @@ AJAudioProcessor::AJAudioProcessor() {
 
 AJAudioProcessor::~AJAudioProcessor() {
     simulationThread->terminate = true;
-    // if (simulationThread->newestFrame > 0)
-    //     juce::Logger::writeToLog("simulation thread sleep times: " + juce::String(simulationThread->sleepCounter)
-    //         + " / " + juce::String(simulationThread->newestFrame+1) + " frames = "
-    //         + juce::String(static_cast<double>(simulationThread->sleepCounter)/(simulationThread->newestFrame+1)));
     delete simulationThread;
 }
 
-void AJAudioProcessor::prepareToPlay(Decimal newSampleRate, int newSamplesPerBlock) {
+void AJAudioProcessor::prepareToPlay(const Decimal newSampleRate, const int newSamplesPerBlock) {
     sampleRate = newSampleRate;
     samplesPerBlock = static_cast<size_t>(newSamplesPerBlock);
     sharedData.parameters->prepareToPlay(newSampleRate, newSamplesPerBlock);
     synth.prepareToPlay(newSampleRate, newSamplesPerBlock);
 
     sharedData.frameBufferTimestamps = Eigen::ArrayX<Decimal>(samplesPerBlock);
-
-    totalStopwatch.start();
 
     juce::ignoreUnused (samplesPerBlock);
 
@@ -61,10 +53,14 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
                     VideoSimulation(SIMULATION_SIZE, SIMULATION_SIZE, sharedData.newSimulation)));
             sharedData.simulationWidth = SIMULATION_SIZE;
             sharedData.simulationHeight = SIMULATION_SIZE;
-            simulationThread->resetSimulation(simulation);
             sharedData.newSimulation = "";
+            simulationThread->resetSimulation(simulation);
         } else {
             simulationThread->resetSimulation();
+        }
+        if (!simulationThread->isSimulationContinuous()) {
+            sharedData.resetFrameBuffer();
+            sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
         }
         sharedData.resetSimulation = false;
     }
@@ -80,11 +76,14 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     simulationThread->updateParameters(sharedData.parameters, modulationDataList);
 
     // todo maybe exclude release state voices
-    if (activeVoices.empty()) {
+    if (activeVoices.empty() && !simulationThread->isSimulationContinuous()) {
         simulationThread->resetSimulation();
         sharedData.resetFrameBuffer();
         sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
+        simulationThread->started = false;
     } else {
+        simulationThread->started = true;
+
         const auto frameBufferNewFirstFrame = static_cast<size_t>(floor(currentSimulationFrame));
 
         // Remove past frames

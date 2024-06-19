@@ -50,6 +50,7 @@ public:
     // getters
     SimulationFramePointer getStartFrame() override;
     SimulationFramePointer getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
+    bool isContinuous() override;
 
     [[nodiscard]] const List<RealMatrix>& getPotentials() const { return potentials; }
     [[nodiscard]] const ComplexMatrix& getPsi() const { return started ? psi : initialPsi; }
