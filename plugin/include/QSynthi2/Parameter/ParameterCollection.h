@@ -125,7 +125,7 @@ public:
             1.5f);
     ModulatedParameterFloat *barrierOffsetX = add<ModulatedParameterFloat>(
             "Barrier: x offset",
-            juce::NormalisableRange<float>(-1.01, 1, 0, 1.f, false),
+            juce::NormalisableRange<float>(-1.01f, 1, 0, 1.f, false),
             0.f);
     ModulatedParameterFloat *barrierWidth = add<ModulatedParameterFloat>(
             "Barrier: width",
@@ -133,19 +133,19 @@ public:
             2.f);
     ModulatedParameterFloat *barrierSlit1Start = add<ModulatedParameterFloat>(
             "Barrier slit 1: start",
-            juce::NormalisableRange<float>(-1.01, 1, 0, 1.f, false),
+            juce::NormalisableRange<float>(-1.01f, 1, 0, 1.f, false),
             -0.2f);
     ModulatedParameterFloat *barrierSlit1End = add<ModulatedParameterFloat>(
             "Barrier slit 1: end",
-            juce::NormalisableRange<float>(-1.01, 1, 0, 1.f, false),
+            juce::NormalisableRange<float>(-1.01f, 1, 0, 1.f, false),
             -0.1f);
     ModulatedParameterFloat *barrierSlit2Start = add<ModulatedParameterFloat>(
             "Barrier slit 2: start",
-            juce::NormalisableRange<float>(-1.01, 1, 0, 1.f, false),
+            juce::NormalisableRange<float>(-1.01f, 1, 0, 1.f, false),
             0.1f);
     ModulatedParameterFloat *barrierSlit2End = add<ModulatedParameterFloat>(
             "Barrier slit 2: end",
-            juce::NormalisableRange<float>(-1.01, 1, 0, 1.f, false),
+            juce::NormalisableRange<float>(-1.01f, 1, 0, 1.f, false),
             0.2f);
 
     ModulatedParameterFloat* baseFrequency = add<ModulatedParameterFloat>(

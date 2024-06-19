@@ -37,6 +37,7 @@ AJAudioProcessor::~AJAudioProcessor() {
 void AJAudioProcessor::prepareToPlay(Decimal newSampleRate, int newSamplesPerBlock) {
     sampleRate = newSampleRate;
     samplesPerBlock = static_cast<size_t>(newSamplesPerBlock);
+    sharedData.parameters->prepareToPlay(newSampleRate, newSamplesPerBlock);
     synth.prepareToPlay(newSampleRate, newSamplesPerBlock);
 
     sharedData.frameBufferTimestamps = Eigen::ArrayX<Decimal>(samplesPerBlock);
@@ -87,8 +88,10 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         const auto frameBufferNewFirstFrame = static_cast<size_t>(floor(currentSimulationFrame));
 
         // Remove past frames
-        sharedData.frameBuffer.remove(0, std::min(frameBufferNewFirstFrame - sharedData.frameBufferFirstFrame, sharedData.frameBuffer.size()));
-        sharedData.frameBufferFirstFrame = frameBufferNewFirstFrame;
+        size_t framesToRemove = frameBufferNewFirstFrame - sharedData.frameBufferFirstFrame;
+        jassert(sharedData.frameBuffer.size() >= framesToRemove);
+        sharedData.frameBuffer.remove(0, framesToRemove);
+        sharedData.frameBufferFirstFrame += framesToRemove;
 
         // Calculate timestamps
         for (long sample = 0; sample < static_cast<long>(samplesPerBlock); sample++) {

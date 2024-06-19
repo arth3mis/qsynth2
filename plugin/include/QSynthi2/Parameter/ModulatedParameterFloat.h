@@ -30,15 +30,9 @@ public:
 
     Decimal getSingleModulated(const List<ModulationData*> &modulationDataList);
 
-    void prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
-        smoothedNormalizedSliderValue.reset(sampleRate, sliderSmoothingSeconds);
-        bufferNormalizedSliderValue = Eigen::ArrayX<Decimal>(samplesPerBlock);
-    }
+    void prepareToPlay(Decimal sampleRate, int samplesPerBlock);
 
-    ModulatedParameterFloat* withModulation(const std::shared_ptr<Modulation>& modulation) {
-        modulations.append(modulation);
-        return this;
-    }
+    ModulatedParameterFloat* withModulation(const std::shared_ptr<Modulation>& modulation);
 
 protected:
 

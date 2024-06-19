@@ -20,6 +20,12 @@ Decimal Voice::frequencyToModulationValue(double frequency) {
 
 
 
+Decimal Voice::relativeFrequencyToModulationValue(double frequency) {
+    return 24 * log2(frequency / initialFrequency);
+}
+
+
+
 void Voice::noteStarted() {
     jassert (currentlyPlayingNote.isValid());
     jassert (currentlyPlayingNote.keyState == juce::MPENote::keyDown
@@ -33,15 +39,22 @@ void Voice::noteStarted() {
         // New note triggerd: Full reset
         dcOffsetFilter.reset();
 
+        initialFrequency = juce::MidiMessage::getMidiNoteInHertz(currentlyPlayingNote.initialNote);
+        initialY = static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat());
+
         x.setCurrentAndTargetValue(frequencyToModulationValue(currentlyPlayingNote.getFrequencyInHertz()));
         y.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat()));
         z.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat()));
+        xRelative.setCurrentAndTargetValue(relativeFrequencyToModulationValue(currentlyPlayingNote.getFrequencyInHertz()));
+        yRelative.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat() - initialFrequency));
         velocity.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.noteOnVelocity.asUnsignedFloat()));
     } else {
         // Voice-Stealing: Soft reset
         x.setTargetValue(frequencyToModulationValue(currentlyPlayingNote.getFrequencyInHertz()));
         y.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat()));
         z.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat()));
+        xRelative.setTargetValue(relativeFrequencyToModulationValue(currentlyPlayingNote.getFrequencyInHertz()));
+        yRelative.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat() - initialFrequency));
         velocity.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.noteOnVelocity.asUnsignedFloat()));
     }
 
@@ -68,12 +81,15 @@ void Voice::noteStopped(bool allowTailOff) {
 
 void Voice::notePitchbendChanged() {
     x.setTargetValue(frequencyToModulationValue(currentlyPlayingNote.getFrequencyInHertz()));
+    xRelative.setTargetValue(relativeFrequencyToModulationValue(currentlyPlayingNote.getFrequencyInHertz()));
 }
 
 
 
 void Voice::noteTimbreChanged() {
     y.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat()));
+    yRelative.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat() - initialFrequency));
+
 }
 
 
@@ -92,6 +108,8 @@ void Voice::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
     x.reset(sampleRate, 0.030);
     y.reset(sampleRate, 0.100);
     z.reset(sampleRate, 0.100);
+    xRelative.reset(sampleRate, 0.030);
+    yRelative.reset(sampleRate, 0.100);
 
     modulationData.prepareToPlay(samplesPerBlock);
 
@@ -122,6 +140,8 @@ void Voice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSam
     modulationData.write(ModulationData::Sources::X, x, startSample, numSamples);
     modulationData.write(ModulationData::Sources::Y, y, startSample, numSamples);
     modulationData.write(ModulationData::Sources::Z, z, startSample, numSamples);
+    modulationData.write(ModulationData::Sources::X_RELATIVE, xRelative, startSample, numSamples);
+    modulationData.write(ModulationData::Sources::Y_RELATIVE, yRelative, startSample, numSamples);
 
     envelope1.processBlock(&modulationData.at(ModulationData::Sources::ENVELOPE1.id), modulationData, startSample, numSamples);
 
@@ -166,6 +186,10 @@ Eigen::ArrayX<Decimal> Voice::generateNextBlock() {
 
 bool Voice::isActiveThisBlock() const {
     return activeThisBlock;
+}
+
+ModulationData *Voice::getModulationData() {
+    return &modulationData;
 }
 
 

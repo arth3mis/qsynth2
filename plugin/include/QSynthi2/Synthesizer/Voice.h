@@ -13,6 +13,7 @@ public:
     explicit Voice(const std::shared_ptr<VoiceData>& voiceData);
 
     static Decimal frequencyToModulationValue(double frequency);
+    Decimal relativeFrequencyToModulationValue(double frequency);
 
     void noteStarted() override;
 
@@ -36,9 +37,7 @@ public:
     // Generates the audio
     Eigen::ArrayX<Decimal> generateNextBlock();
 
-    ModulationData* getModulationData() {
-        return &modulationData;
-    }
+    ModulationData* getModulationData();
 
     [[nodiscard]] bool isActiveThisBlock() const;
 
@@ -54,6 +53,11 @@ protected:
     juce::SmoothedValue<Decimal> x;
     juce::SmoothedValue<Decimal> y;
     juce::SmoothedValue<Decimal> z;
+    juce::SmoothedValue<Decimal> xRelative;
+    juce::SmoothedValue<Decimal> yRelative;
+
+    Decimal initialFrequency;
+    Decimal initialY;
 
     ADSR envelope1;
 
