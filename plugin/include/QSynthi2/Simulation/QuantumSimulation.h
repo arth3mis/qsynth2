@@ -19,9 +19,6 @@ public:
     [[nodiscard]] Decimal toDecimalDisplay(const long row, const long col) const override {
         return toDecimal(row, col) * 4;
     }
-    [[nodiscard]] Decimal toDecimalDisplay(const long row, const long col) const override {
-        return toDecimal(row, col) * 200; // todo tweak scaling
-    }
     [[nodiscard]] Decimal toPhase(const long row, const long col) const override {
         return std::arg(frame(row, col));
     }
