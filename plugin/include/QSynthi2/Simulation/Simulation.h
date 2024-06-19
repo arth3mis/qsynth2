@@ -13,6 +13,7 @@ public:
 
     virtual SimulationFramePointer getStartFrame() = 0;
     virtual SimulationFramePointer getNextFrame(Decimal timestep, const ModulationData& modulationData) = 0;
+    virtual bool isContinuous() = 0;
     virtual void reset() = 0;
     virtual void updateParameters(const ParameterCollection* parameterCollection, const List<ModulationData*> &modulationDataList) = 0;
 };
