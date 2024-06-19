@@ -11,11 +11,11 @@ public:
     // Declare Parameters here
     ModulatedParameterFloat* simulationSpeedFactor = add<ModulatedParameterFloat>(
             "Simulation speed",
-            juce::NormalisableRange<float>(0, 100, 0, 0.7f, false),
+            juce::NormalisableRange<float>(0, 400, 0, 0.7f, false),
             10);
     ModulatedParameterFloat* simulationStepsPerSecond = add<ModulatedParameterFloat>(
             "Simulation steps per second",
-            juce::NormalisableRange<float>(10, 400, 1, 0.5f, false),
+            juce::NormalisableRange<float>(10, 1000, 1, 0.5f, false),
             100);
     ModulatedParameterFloat* simulationBufferSeconds = add<ModulatedParameterFloat>(
             "Simulation buffer seconds",
@@ -91,11 +91,11 @@ public:
     ModulatedParameterFloat *gaussianStretchX = add<ModulatedParameterFloat>(
             "Gaussian: x stretch",
             juce::NormalisableRange<float>(0, 1, 0, 1.f, false),
-            0.5f);
+            0.25f);
     ModulatedParameterFloat *gaussianStretchY = add<ModulatedParameterFloat>(
             "Gaussian: y stretch",
             juce::NormalisableRange<float>(0, 1, 0, 1.f, false),
-            0.5f);
+            0.25f);
     ModulatedParameterFloat *gaussianImpulseX = add<ModulatedParameterFloat>(
             "Gaussian: x impulse",
             juce::NormalisableRange<float>(-10, 10, 0, 1.f, false),
@@ -152,6 +152,6 @@ public:
 
     // Add modulation slots
     ParameterCollection() {
-        addModulationSlots(8);
+        addModulationSlots(12);
     }
 };
