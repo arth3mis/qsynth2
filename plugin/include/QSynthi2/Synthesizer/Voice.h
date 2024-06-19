@@ -55,6 +55,7 @@ protected:
     juce::SmoothedValue<Decimal> z;
     juce::SmoothedValue<Decimal> xRelative;
     juce::SmoothedValue<Decimal> yRelative;
+    juce::SmoothedValue<Decimal> yCentered;
 
     Decimal initialFrequency;
     Decimal initialY;

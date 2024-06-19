@@ -90,15 +90,21 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         //  - Else: slow down simulation speed for audio processing to just use available frames
         if (simulationThread->frameReadyCount() <= neededSimulationFrames) {
             juce::Logger::writeToLog("Busy wait for simulation thread.");
+            int busyWaitCounter = 0;
             while (simulationThread->frameReadyCount() <= neededSimulationFrames) {
-                // busy wait
+                busyWaitCounter++;
+                if (busyWaitCounter >= 100000) {
+                    return;
+                }
             }
         }
         // juce::Logger::writeToLog("Simulation thread is " + juce::String(simulationThread->frameReadyCount() - neededSimulationFrames) + " frames ahead.");
 
         // append the shared frame buffer
         // this also sets the latest simulation frame as the display frame (if a new one arrived)
-        const auto newFrames = simulationThread->getFrames(neededSimulationFrames);
+        auto newFrames = simulationThread->getFrames(neededSimulationFrames);
+        if (newFrames.empty()) newFrames.push_back(std::make_shared<QuantumSimulationFrame>(ComplexMatrix(static_cast<Eigen::Index>(sharedData.simulationWidth), static_cast<Eigen::Index>(sharedData.simulationHeight)).setZero()));
+        while (newFrames.size() < neededSimulationFrames) newFrames.push_back(newFrames.back());
         sharedData.appendFrameBuffer(newFrames);
 
         // juce::Logger::writeToLog("got frames: " + juce::String(newFrames.size()) + " of " + juce::String(neededSimulationFrames));
