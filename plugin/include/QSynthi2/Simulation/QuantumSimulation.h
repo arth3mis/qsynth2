@@ -74,6 +74,7 @@ private:
     Decimal barrierWidth = 0;
     Decimal barrierSlit1Start = 0, barrierSlit1End = 0;
     Decimal barrierSlit2Start = 0, barrierSlit2End = 0;
+    bool updateGaussian = false, updateLinear = false, updateParabola = false, updateBarrier = false;
 
     List<RealMatrix> potentials;
     // sorry, this program is not barrier-free!
