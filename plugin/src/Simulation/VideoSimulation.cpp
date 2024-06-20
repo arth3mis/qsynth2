@@ -19,7 +19,7 @@ Decimal VideoSimulationFrame::toDecimal(const long row, const long col) const {
 }
 
 
-VideoSimulation::VideoSimulation(const int targetWidth, const int targetHeight, const juce::String& filename) {
+VideoSimulation::VideoSimulation(const int targetWidth, const int targetHeight, const bool autoSizeIfImage, const juce::String& filename) {
     file = filename;
     currentFrameIndex = 0;
 
@@ -42,16 +42,15 @@ VideoSimulation::VideoSimulation(const int targetWidth, const int targetHeight, 
 
     simulationWidth = targetWidth;
     simulationHeight = targetHeight;
-    if (targetWidth == -1) {
+    if (autoSizeIfImage && isSingleFrame) {
         simulationWidth = capture.get(cv::CAP_PROP_FRAME_WIDTH);
-    }
-    if (targetHeight == -1) {
         simulationHeight = capture.get(cv::CAP_PROP_FRAME_HEIGHT);
     }
+    autoSize = autoSizeIfImage;
 }
 
 VideoSimulation::VideoSimulation(const VideoSimulation &s)
-    : VideoSimulation(s.simulationWidth, s.simulationHeight, s.file) {
+    : VideoSimulation(s.simulationWidth, s.simulationHeight, s.autoSize, s.file) {
 }
 
 VideoSimulation::~VideoSimulation() {

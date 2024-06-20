@@ -36,7 +36,7 @@ private:
 class VideoSimulation : public Simulation {
 public:
 
-    VideoSimulation(int targetWidth, int targetHeight, const juce::String& filename);
+    VideoSimulation(int targetWidth, int targetHeight, bool autoSizeIfImage, const juce::String& filename);
     VideoSimulation(const VideoSimulation& s);
     ~VideoSimulation() override;
 
@@ -58,6 +58,7 @@ private:
 
     int simulationWidth;
     int simulationHeight;
+    bool autoSize;
     juce::String file;
     cv::VideoCapture capture;
     std::mutex captureMutex;

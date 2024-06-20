@@ -50,10 +50,11 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         if (sharedData.newSimulation.isNotEmpty()) {
             // create new simulation
             const auto simulation = std::dynamic_pointer_cast<Simulation>(std::make_shared<VideoSimulation>(
-                    VideoSimulation(-1, -1, sharedData.newSimulation)));
+                    VideoSimulation(SIMULATION_SIZE, SIMULATION_SIZE, true, sharedData.newSimulation)));
             sharedData.videoFps = std::dynamic_pointer_cast<VideoSimulation>(simulation)->videoFps();
             sharedData.simulationWidth = simulation->getWidth();
             sharedData.simulationHeight = simulation->getHeight();
+            juce::Logger::writeToLog(juce::String(sharedData.simulationWidth) + "x" + juce::String(sharedData.simulationHeight) + "@" + juce::String(sharedData.videoFps));
             sharedData.displayWidthToHeight = static_cast<Decimal>(sharedData.simulationWidth) / static_cast<Decimal>(sharedData.simulationHeight);
             sharedData.newSimulation = "";
             simulationThread->resetSimulation(simulation);
@@ -79,9 +80,12 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
 
     // todo maybe exclude release state voices
     if (activeVoices.empty() && !simulationThread->isSimulationContinuous()) {
-        // simulationThread->resetSimulation();
-        // sharedData.resetFrameBuffer();
-        // sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
+        const bool RESET_ON_STOP = false;
+        if (RESET_ON_STOP) {
+            simulationThread->resetSimulation();
+            sharedData.resetFrameBuffer();
+            sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
+        }
         simulationThread->started = false;
     } else {
         simulationThread->started = true;
@@ -106,7 +110,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         //  - If offline rendering: Busy wait until simulation is ready
         //  - Else: slow down simulation speed for audio processing to just use available frames
         if (simulationThread->frameReadyCount() <= neededSimulationFrames) {
-            juce::Logger::writeToLog("Busy wait for simulation thread.");
+            // juce::Logger::writeToLog("Busy wait for simulation thread.");
             int busyWaitCounter = 0;
             while (simulationThread->frameReadyCount() <= neededSimulationFrames) {
                 busyWaitCounter++;
