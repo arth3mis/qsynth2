@@ -145,6 +145,32 @@ SimulationFramePointer QuantumSimulation::getNextFrame(const Decimal timestep, c
         psi = initialPsi;
     }
 
+    if (updateGaussian) {
+        resetGaussianDistribution(true);
+        gaussianDistribution({gaussianOffsetX, gaussianOffsetY}, {gaussianStretchX, gaussianStretchY}, {gaussianImpulseX, gaussianImpulseY}, true);
+        updateGaussian = false;
+    }
+    if (updateLinear) {
+        linearPotential(linearAngle, linearFactor);
+        updateLinear = false;
+    }
+    if (updateParabola) {
+        parabolaPotential({parabolaOffsetX, parabolaOffsetY}, {parabolaFactorX, parabolaFactorY});
+        updateParabola = false;
+    }
+    if (updateBarrier) {
+        List<V2> slits;
+        if (barrierSlit1Start >= -1 && -barrierSlit1End >= -1)
+            slits.append({barrierSlit1Start, barrierSlit1End});
+        if (barrierSlit2Start >= -1 && -barrierSlit2End >= -1)
+            slits.append({barrierSlit2Start, barrierSlit2End});
+        barrierPotential({barrierOffsetX < -1 ? NAN : barrierOffsetX, NAN}, static_cast<int>(std::round(barrierWidth)), slits, 1e30);
+        sharedData.barrierX = barrierOffsetX;
+        sharedData.barrierWidth = barrierWidth;
+        sharedData.barrierSlits = slits;
+        updateBarrier = false;
+    }
+
     calculateNextPsi(timestep);
     return std::make_shared<QuantumSimulationFrame>(psi);
 }
@@ -179,18 +205,17 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
         !juce::approximatelyEqual(gaussianStretchY, l_gaussianStretchY) ||
         !juce::approximatelyEqual(gaussianImpulseX, l_gaussianImpulseX) ||
         !juce::approximatelyEqual(gaussianImpulseY, l_gaussianImpulseY)) {
-        resetGaussianDistribution(true);
-        gaussianDistribution({l_gaussianOffsetX, l_gaussianOffsetY}, {l_gaussianStretchX, l_gaussianStretchY}, {l_gaussianImpulseX, l_gaussianImpulseY}, true);
+        updateGaussian = true;
     }
     if (!juce::approximatelyEqual(linearAngle, l_linearAngle) ||
         !juce::approximatelyEqual(linearFactor, l_linearFactor)) {
-        linearPotential(l_linearAngle, l_linearFactor);
+        updateLinear = true;
     }
     if (!juce::approximatelyEqual(parabolaOffsetX, l_parabolaOffsetX) ||
         !juce::approximatelyEqual(parabolaOffsetY, l_parabolaOffsetY) ||
         !juce::approximatelyEqual(parabolaFactorX, l_parabolaFactorX) ||
         !juce::approximatelyEqual(parabolaFactorY, l_parabolaFactorY)) {
-        parabolaPotential({l_parabolaOffsetX, l_parabolaOffsetY}, {l_parabolaFactorX, l_parabolaFactorY});
+        updateParabola = true;
     }
     if (!juce::approximatelyEqual(barrierOffsetX, l_barrierOffsetX) ||
         !juce::approximatelyEqual(barrierWidth, l_barrierWidth) ||
@@ -198,15 +223,7 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
         !juce::approximatelyEqual(barrierSlit1End, l_barrierSlit1End) ||
         !juce::approximatelyEqual(barrierSlit2Start, l_barrierSlit2Start) ||
         !juce::approximatelyEqual(barrierSlit2End, l_barrierSlit2End)) {
-        List<V2> slits;
-        if (l_barrierSlit1Start >= -1 && -l_barrierSlit1End >= -1)
-            slits.append({l_barrierSlit1Start, l_barrierSlit1End});
-        if (l_barrierSlit2Start >= -1 && -l_barrierSlit2End >= -1)
-            slits.append({l_barrierSlit2Start, l_barrierSlit2End});
-        barrierPotential({l_barrierOffsetX < -1 ? NAN : l_barrierOffsetX, NAN}, static_cast<int>(std::round(l_barrierWidth)), slits, 1e30);
-        sharedData.barrierX = l_barrierOffsetX;
-        sharedData.barrierWidth = l_barrierWidth;
-        sharedData.barrierSlits = slits;
+        updateBarrier = true;
     }
 
     gaussianOffsetX = l_gaussianOffsetX;        gaussianOffsetY = l_gaussianOffsetY;

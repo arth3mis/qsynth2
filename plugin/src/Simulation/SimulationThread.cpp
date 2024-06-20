@@ -20,32 +20,24 @@ SimulationThread::~SimulationThread() {
 }
 
 void SimulationThread::simulationLoop() {
-    // parameters
-    Decimal timestep = 0;
-    newParameters = true;
-
     while (!terminate) {
         // update simulation
         if (newSimulation) {
             std::lock_guard lock(simulationMutex);
             simulation = newSimulation;
             newSimulation = nullptr;
-            newParameters = true;
         }
-        // update parameters
-        if (newParameters) {
-            std::lock_guard lock(parameterMutex);
-            timestep = this->timestep;
-            newParameters = false;
-        }
-
+        // fill buffer
         if (frameBuffer.size() < bufferTargetSize) {
+            // reset simulation
             if (reset) {
-                reset = false;
                 simulation->reset();
                 std::lock_guard lock(frameMutex);
                 frameBuffer.clear();
+                reset = false;
             }
+            // append frame buffer
+            const Decimal timestep = this->timestep;
             if (!started || juce::approximatelyEqual(timestep, static_cast<Decimal>(0))) {
                 if (frameBuffer.empty())
                     appendFrame(simulation->getStartFrame());
@@ -59,9 +51,6 @@ void SimulationThread::simulationLoop() {
 }
 
 void SimulationThread::updateParameters(const ParameterCollection* parameterCollection, const List<ModulationData*> &modulationDataList) {
-    std::lock_guard lock(parameterMutex);
-    newParameters = true;
-
     Decimal simulationStepsPerSecond = parameterCollection->simulationStepsPerSecond->getSingleModulated(modulationDataList);
     if (sharedData.videoFps > 0) {
         simulationStepsPerSecond = sharedData.videoFps;
@@ -96,7 +85,6 @@ FrameList SimulationThread::getFrames(const size_t n) {
 }
 
 SimulationFramePointer SimulationThread::getStartFrame() {
-    std::lock_guard lock(simulationMutex);
     return simulation->getStartFrame();
 }
 
@@ -106,7 +94,6 @@ size_t SimulationThread::frameReadyCount() {
 }
 
 bool SimulationThread::isSimulationContinuous() {
-    std::lock_guard lock(simulationMutex);
     return simulation->isContinuous();
 }
 

@@ -89,7 +89,7 @@ List<std::shared_ptr<Modulation>> &Parameters::addModulationSlots(size_t number)
         }
 
         // Modulation Amount
-        auto* modulationAmountParameter = add<ModulatedParameterFloat>(modulationAmountName + " " + juce::String(i + 1), juce::NormalisableRange<float>(-1, 1, 0, 0.66f, true), i == 0 ? 0.125 : 0);
+        auto* modulationAmountParameter = add<ModulatedParameterFloat>(modulationAmountName + " " + juce::String(i + 1), juce::NormalisableRange<float>(-1, 1, 0, 0.66f, true), i == 0 ? 0.1 : 0);
         modulations[i]->setAmountParameter(modulationAmountParameter);
 
     }
