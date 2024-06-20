@@ -160,7 +160,7 @@ public:
 
     ModulatedParameterFloat* baseFrequency = add<ModulatedParameterFloat>(
             "Frequency",
-            ExponentialRange(10, 2560),
+            ExponentialRange(2.5, 2560),
             110);
 
     // Add modulation slots
