@@ -39,7 +39,7 @@ void ADSR::processBlock(Eigen::ArrayX<Decimal> *buffer, const ModulationData &mo
                     buffer->operator()(i) = currentValue;
                     state = State::DECAY;
                     stateStart = currentValue;
-                    if (i < numSamples) processBlock(buffer, modulationData, i+1, numSamples-(i+1));
+                    if (i < startSample + numSamples) processBlock(buffer, modulationData, i+1, startSample + numSamples - (i+1));
                     break;
                 }
             }
@@ -52,14 +52,14 @@ void ADSR::processBlock(Eigen::ArrayX<Decimal> *buffer, const ModulationData &mo
             }
 
             for (int i = startSample; i < startSample + numSamples; i++) {
-                currentValue -= (stateStart-stateValues[State::SUSTAIN](i)) / (sampleRate * stateValues[State::DECAY](i));
+                currentValue += (stateValues[State::SUSTAIN](i)-stateStart) / (sampleRate * stateValues[State::DECAY](i));
                 buffer->operator()(i) = currentValue;
 
-                if (currentValue <= 1) {
+                if (currentValue <= stateValues[State::SUSTAIN](i)) {
                     currentValue = stateValues[State::SUSTAIN](i);
                     state = State::SUSTAIN;
                     stateStart = currentValue;
-                    if (i < numSamples) processBlock(buffer, modulationData, i+1, numSamples-(i+1));
+                    if (i < startSample + numSamples) processBlock(buffer, modulationData, i+1, startSample + numSamples - (i+1));
                     break;
                 }
             }
@@ -81,7 +81,7 @@ void ADSR::processBlock(Eigen::ArrayX<Decimal> *buffer, const ModulationData &mo
                 if (currentValue <= 0) {
                     reset();
                     buffer->operator()(i) = currentValue;
-                    if (i < numSamples) processBlock(buffer, modulationData, i+1, numSamples-(i+1));
+                    if (i < startSample + numSamples) processBlock(buffer, modulationData, i+1, startSample + numSamples - (i+1));
                     break;
                 }
             }
