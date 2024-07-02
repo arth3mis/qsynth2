@@ -47,9 +47,10 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
 
     for (int x = 0; x < w; x++) {
         for (int y = 0; y < h; y++) {
-            Decimal v = frame->toDecimalDisplay(static_cast<long>(y * dy), static_cast<long>(x * dx));
-            uint8_t rgb = static_cast<uint8_t>(std::min(255.0, std::round(v * 255)));
-            g.setColour(juce::Colour(rgb, rgb, rgb));
+            float v = frame->toDecimalDisplay(static_cast<long>(y * dy), static_cast<long>(x * dx));
+            uint8_t rgb = static_cast<uint8_t>(std::min(255.0f, std::round(v * 255)));
+            float phase = frame->toPhase(static_cast<long>(y * dy), static_cast<long>(x * dx)) / juce::MathConstants<float>::twoPi;
+            g.setColour(juce::Colour(phase, 1.f, v, 1.f));
             // fill rectangle
             g.fillRect(juce::Rectangle(
                 static_cast<float>(x) * vx - xOverlap,

@@ -52,6 +52,8 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
             const auto simulation = std::dynamic_pointer_cast<Simulation>(std::make_shared<VideoSimulation>(
                     VideoSimulation(SIMULATION_SIZE, SIMULATION_SIZE, true, sharedData.newSimulation)));
             sharedData.videoFps = std::dynamic_pointer_cast<VideoSimulation>(simulation)->videoFps();
+            if (simulation->isStationary())
+                sharedData.videoFps = 0;
             sharedData.simulationWidth = simulation->getWidth();
             sharedData.simulationHeight = simulation->getHeight();
             juce::Logger::writeToLog(juce::String(sharedData.simulationWidth) + "x" + juce::String(sharedData.simulationHeight) + "@" + juce::String(sharedData.videoFps));
@@ -80,12 +82,14 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
 
     // todo maybe exclude release state voices
     if (activeVoices.empty() && !simulationThread->isSimulationContinuous()) {
-        const bool RESET_ON_STOP = false;
+        const bool RESET_ON_STOP = true;
         if (RESET_ON_STOP) {
             simulationThread->resetSimulation();
             sharedData.resetFrameBuffer();
             sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
         }
+        if (simulationThread->isSimulationStationary())
+            sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
         simulationThread->started = false;
     } else {
         simulationThread->started = true;

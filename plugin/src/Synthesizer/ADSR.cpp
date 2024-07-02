@@ -55,7 +55,7 @@ void ADSR::processBlock(Eigen::ArrayX<Decimal> *buffer, const ModulationData &mo
                 currentValue -= (stateStart-stateValues[State::SUSTAIN](i)) / (sampleRate * stateValues[State::DECAY](i));
                 buffer->operator()(i) = currentValue;
 
-                if (currentValue <= 1) {
+                if (currentValue <= stateValues[State::SUSTAIN](i) || juce::approximatelyEqual(stateValues[State::SUSTAIN](i), 1.0)) {
                     currentValue = stateValues[State::SUSTAIN](i);
                     state = State::SUSTAIN;
                     stateStart = currentValue;

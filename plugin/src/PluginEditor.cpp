@@ -61,7 +61,12 @@ void AudioPluginAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     simulationDisplay.setTopLeftPosition(0, 0);
-    simulationDisplay.setSize(static_cast<int>(simDisplaySize * sharedData.displayWidthToHeight), simDisplaySize);
+    int sw = static_cast<int>(simDisplaySize * sharedData.displayWidthToHeight);
+    int sh = simDisplaySize;
+    if (sw > getWidth()) {
+        sw = getWidth();
+    }
+    simulationDisplay.setSize(sw, sh);
 
     resetButton.setBounds(20, simDisplaySize+10, 130, 25);
     videoLoadButton.setBounds(20+130+20, simDisplaySize+10, 130, 25);

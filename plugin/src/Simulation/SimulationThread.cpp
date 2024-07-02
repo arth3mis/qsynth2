@@ -23,7 +23,6 @@ void SimulationThread::simulationLoop() {
     while (!terminate) {
         // update simulation
         if (newSimulation) {
-            std::lock_guard lock(simulationMutex);
             simulation = newSimulation;
             newSimulation = nullptr;
         }
@@ -98,7 +97,6 @@ bool SimulationThread::isSimulationContinuous() {
 }
 
 bool SimulationThread::isSimulationStationary() {
-    std::lock_guard lock(simulationMutex);
     return simulation->isStationary();
 }
 
