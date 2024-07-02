@@ -35,17 +35,14 @@ public:
 
 private:
     std::thread t;
-    std::mutex simulationMutex;
     std::shared_ptr<Simulation> simulation, newSimulation;
 
     // parameters
-    std::mutex parameterMutex;
-    std::atomic<bool> newParameters;
-    Decimal timestep = 0.2;
+    std::atomic<Decimal> timestep = 0.2;
+    std::atomic<size_t> bufferTargetSize;
 
     // frames
     std::mutex frameMutex;
-    std::atomic<size_t> bufferTargetSize;
     FrameList frameBuffer;
 };
 
