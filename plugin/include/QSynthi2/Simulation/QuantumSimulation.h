@@ -28,6 +28,9 @@ public:
     [[nodiscard]] size_t rows() const override {
         return static_cast<size_t>(frame.rows());
     }
+    [[nodiscard]] ComplexMatrix getRaw() const {
+        return frame;
+    }
 private:
     ComplexMatrix frame;
 };
@@ -46,11 +49,12 @@ public:
     QuantumSimulation& gaussianDistribution(const V2& offset, const V2& size, const V2& impulse, bool onlyApplyToInitialPsi = false);
 
     void reset() override;
+    void setState(SimulationFramePointer frame) override;
     void updateParameters(const ParameterCollection *p, const List<ModulationData*> &m) override;
 
     // getters
     SimulationFramePointer getStartFrame() override;
-    SimulationFramePointer getNextFrame(Decimal timestep, const ModulationData& modulationData) override;
+    SimulationFramePointer getNextFrame(Decimal timestep) override;
     bool isContinuous() override;
 
     [[nodiscard]] const List<RealMatrix>& getPotentials() const { return potentials; }

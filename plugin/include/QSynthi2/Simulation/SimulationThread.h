@@ -40,10 +40,15 @@ private:
     // parameters
     std::atomic<Decimal> timestep = 0.2;
     std::atomic<size_t> bufferTargetSize;
+    std::atomic<size_t> historySize;
 
     // frames
     std::mutex frameMutex;
     FrameList frameBuffer;
+
+    // frame history
+    Decimal timestamp;
+    FrameList historyBuffer;
 };
 
 #endif //SIMTHREAD_H
