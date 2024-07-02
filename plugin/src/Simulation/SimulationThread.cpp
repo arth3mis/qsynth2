@@ -67,8 +67,11 @@ void SimulationThread::simulationLoop() {
                     historyBuffer.end());
                 // overwrite simulation with old frame
                 simulation->setState(historyBuffer[historyIndex]);
-                // simulate until exact requested time
-                if (!juce::approximatelyEqual(historyBuffer[historyIndex]->timestamp, timestamp)) {
+                if (juce::approximatelyEqual(historyBuffer[historyIndex]->timestamp, timestamp)) {
+                    // use already existent frame
+                    appendFrame(historyBuffer[historyIndex]);
+                } else {
+                    // simulate until exact requested time
                     appendFrame(simulation->getNextFrame(timestamp - historyBuffer[historyIndex]->timestamp));
                 }
             }
