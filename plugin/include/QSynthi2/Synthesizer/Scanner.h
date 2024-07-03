@@ -9,10 +9,20 @@ public:
 
     explicit Scanner(std::shared_ptr<VoiceData> voiceData);
 
-    Eigen::ArrayXX<Decimal> getValuesAt(const Eigen::ArrayXX<Decimal> &position0to1, std::function<Eigen::ArrayXX<Decimal>(const FrameList &frameBuffer,
+    Eigen::ArrayXX<Decimal> getValuesAt(const Eigen::ArrayXX<Decimal> &position0to1, const std::function<Eigen::ArrayXX<Decimal>(const FrameList &frameBuffer,
                                                                                                                            const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
                                                                                                                            const Eigen::ArrayXX<Decimal> &y,
-                                                                                                                           const Eigen::ArrayXX<Decimal> &x)>, const ModulationData &modulationData);
+                                                                                                                           const Eigen::ArrayXX<Decimal> &x)>&, const ModulationData &modulationData);
+
+    Eigen::ArrayXX<Decimal> getValuesLine(const Eigen::ArrayXX<Decimal> &position0to1, const std::function<Eigen::ArrayXX<Decimal>(const FrameList &frameBuffer,
+                                                                                                                             const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
+                                                                                                                             const Eigen::ArrayXX<Decimal> &y,
+                                                                                                                             const Eigen::ArrayXX<Decimal> &x)>&, const ModulationData &modulationData);
+
+    Eigen::ArrayXX<Decimal> getValuesCircle(const Eigen::ArrayXX<Decimal> &position0to1, const std::function<Eigen::ArrayXX<Decimal>(const FrameList &frameBuffer,
+                                                                                                                               const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
+                                                                                                                               const Eigen::ArrayXX<Decimal> &y,
+                                                                                                                               const Eigen::ArrayXX<Decimal> &x)>&, const ModulationData &modulationData);
 
     static Eigen::ArrayXX<Decimal> noInterpolation(const FrameList &frameBuffer,
                                                    const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,

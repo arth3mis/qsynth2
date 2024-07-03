@@ -3,6 +3,7 @@
 
 #include <QSynthi2/Juce.h>
 #include <QSynthi2/types.h>
+#include <QSynthi2/Synthesizer/VoiceData.h>
 
 class SimulationDisplay final : public juce::Component, juce::Timer {
 public:
@@ -20,8 +21,11 @@ private:
     void drawSimulation(juce::Graphics& g) const;
     void drawScanlines(juce::Graphics& g) const;
 
-    float simulationXToScreenX(Decimal simulationX) const;
-    float simulationYToScreenY(Decimal simulationY) const;
+    juce::Path lineOfInterest(const std::shared_ptr<VoiceData> &voiceData) const;
+    juce::Path circleOfInterest(const std::shared_ptr<VoiceData> &voiceData) const;
+
+    [[nodiscard]] float simulationXToScreenX(Decimal simulationX) const;
+    [[nodiscard]] float simulationYToScreenY(Decimal simulationY) const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimulationDisplay)
 };

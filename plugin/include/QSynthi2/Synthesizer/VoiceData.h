@@ -12,10 +12,14 @@ public:
 
     std::atomic<Decimal> frequency{0};
 
-    std::atomic<Decimal> scanlineStartX{0};
-    std::atomic<Decimal> scanlineStartY{0};
-    std::atomic<Decimal> scanlineEndX{0};
-    std::atomic<Decimal> scanlineEndY{0};
+    std::atomic<int> lineOfInterestShape{0};
+    std::atomic<Decimal> lineOfInterestX{0};
+    std::atomic<Decimal> lineOfInterestY{0};
+    std::atomic<Decimal> lineOfInterestLength{0};
+    std::atomic<Decimal> lineOfInterestRotation{0};
+    std::atomic<Decimal> circleOfInterestWidth{0};
+    std::atomic<Decimal> circleOfInterestHeight{0};
+    std::atomic<Decimal> circleOfInterestFraction{0};
 
     bool isActive() {
         return gain > 0;

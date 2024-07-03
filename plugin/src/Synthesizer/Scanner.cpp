@@ -23,49 +23,20 @@ static Eigen::ArrayX<Decimal> clipDivisor(const Eigen::ArrayX<Decimal> &x, const
 
 
 
-Eigen::ArrayXX<Decimal> Scanner::getValuesAt(const Eigen::ArrayXX<Decimal> &position0to1, std::function<Eigen::ArrayXX<Decimal>(const FrameList &frameBuffer,
-                                                                                                                                const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
-                                                                                                                                const Eigen::ArrayXX<Decimal> &y,
-                                                                                                                                const Eigen::ArrayXX<Decimal> &x)> interpolation, const ModulationData& modulationData) {
+Eigen::ArrayXX<Decimal> Scanner::getValuesAt(const Eigen::ArrayXX<Decimal> &position0to1, const std::function<Eigen::ArrayXX<Decimal>(const FrameList &frameBuffer,
+                                                                                                                                     const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
+                                                                                                                                     const Eigen::ArrayXX<Decimal> &y,
+                                                                                                                                     const Eigen::ArrayXX<Decimal> &x)>& interpolation, const ModulationData& modulationData) {
 
-    // TODO: Add support for 2d positions
     // auto frameBufferTimestamps = sharedData.frameBufferTimestamps.replicate(1, position0to1.cols());
+    int lineOfInterestShape = sharedData.parameters->lineOfInterestShape->getIndex();
+    voiceData->lineOfInterestShape = lineOfInterestShape;
 
-    Eigen::ArrayX<Decimal> lineOfInterestX = sharedData.parameters->lineOfInterestX->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
-    Eigen::ArrayX<Decimal> lineOfInterestY = -sharedData.parameters->lineOfInterestY->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
-    Eigen::ArrayX<Decimal> lineOfInterestLength = sharedData.parameters->lineOfInterestLength->getModulated(modulationData);
-    Eigen::ArrayX<Decimal> lineOfInterestRotation = sharedData.parameters->lineOfInterestRotation->getModulated(modulationData);
-
-    // TODO: Broadcast all to 2d
-    auto timestamps = sharedData.frameBufferTimestamps.replicate(1, position0to1.cols());
-
-    Eigen::ArrayX<Decimal> xEnd = lineOfInterestLength * lineOfInterestRotation.cos();
-    Eigen::ArrayX<Decimal> yEnd = lineOfInterestLength * lineOfInterestRotation.sin();
-
-    Eigen::ArrayX<Decimal> xStart = -xEnd;
-    Eigen::ArrayX<Decimal> yStart = -yEnd;
-
-    auto endClipDivisor = clipDivisor(xEnd, yEnd, lineOfInterestX, lineOfInterestY);
-    auto startClipDivisor = clipDivisor(xStart, yStart, lineOfInterestX, lineOfInterestY);
-
-    xEnd = xEnd / endClipDivisor + lineOfInterestX;
-    yEnd = yEnd / endClipDivisor + lineOfInterestY;
-    xStart = xStart / startClipDivisor + lineOfInterestX;
-    yStart = yStart / startClipDivisor + lineOfInterestY;
-
-    voiceData->scanlineEndX = xEnd(0);
-    voiceData->scanlineStartX = xStart(0);
-    voiceData->scanlineEndY = yEnd(0);
-    voiceData->scanlineStartY = yStart(0);
-
-    auto x = (1-position0to1).colwise() * xStart + position0to1.colwise() * xEnd;
-    auto y = (1-position0to1).colwise() * yStart + position0to1.colwise() * yEnd;
-
-    Eigen::ArrayXX<Decimal> xScaled = (x + 1) / 2 * sharedData.simulationWidth;
-    Eigen::ArrayXX<Decimal> yScaled = (y + 1) / 2 * sharedData.simulationHeight;
-
-    return interpolation(sharedData.frameBuffer, timestamps, yScaled, xScaled);
-
+    if (lineOfInterestShape == 0) {
+        return getValuesLine(position0to1, interpolation, modulationData);
+    } else {
+        return getValuesCircle(position0to1, interpolation, modulationData);
+    }
 }
 
 
@@ -220,4 +191,100 @@ void Scanner::prepareToPlay(Decimal newSampleRate) {
 
 
 void Scanner::restart() {
+}
+
+
+
+Eigen::ArrayXX<Decimal> Scanner::getValuesLine(const Eigen::ArrayXX<Decimal> &position0to1, const std::function<Eigen::ArrayXX<Decimal>(const FrameList &,
+                                                                                                                                        const Eigen::ArrayXX<Decimal> &,
+                                                                                                                                        const Eigen::ArrayXX<Decimal> &,
+                                                                                                                                        const Eigen::ArrayXX<Decimal> &)>& interpolation,const ModulationData &modulationData) {
+
+    Eigen::ArrayX<Decimal> lineOfInterestX = sharedData.parameters->lineOfInterestX->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
+    Eigen::ArrayX<Decimal> lineOfInterestY = -sharedData.parameters->lineOfInterestY->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
+    Eigen::ArrayX<Decimal> lineOfInterestLength = sharedData.parameters->lineOfInterestLength->getModulated(modulationData);
+    Eigen::ArrayX<Decimal> lineOfInterestRotation = sharedData.parameters->lineOfInterestRotation->getModulated(modulationData) / 360 * juce::MathConstants<Decimal>::twoPi;
+
+    // Shared Data
+    voiceData->lineOfInterestX = lineOfInterestX(Eigen::last);
+    voiceData->lineOfInterestY = lineOfInterestY(Eigen::last);
+    voiceData->lineOfInterestLength = lineOfInterestLength(Eigen::last);
+    voiceData->lineOfInterestRotation = lineOfInterestRotation(Eigen::last);
+
+    auto timestamps = sharedData.frameBufferTimestamps.replicate(1, position0to1.cols());
+
+    Eigen::ArrayX<Decimal> xEnd = lineOfInterestLength * lineOfInterestRotation.cos();
+    Eigen::ArrayX<Decimal> yEnd = lineOfInterestLength * lineOfInterestRotation.sin();
+
+    Eigen::ArrayX<Decimal> xStart = -xEnd;
+    Eigen::ArrayX<Decimal> yStart = -yEnd;
+
+    auto endClipDivisor = clipDivisor(xEnd, yEnd, lineOfInterestX, lineOfInterestY);
+    auto startClipDivisor = clipDivisor(xStart, yStart, lineOfInterestX, lineOfInterestY);
+
+    xEnd = xEnd / endClipDivisor + lineOfInterestX;
+    yEnd = yEnd / endClipDivisor + lineOfInterestY;
+    xStart = xStart / startClipDivisor + lineOfInterestX;
+    yStart = yStart / startClipDivisor + lineOfInterestY;
+
+    auto x = (1-position0to1).colwise() * xStart + position0to1.colwise() * xEnd;
+    auto y = (1-position0to1).colwise() * yStart + position0to1.colwise() * yEnd;
+
+    Eigen::ArrayXX<Decimal> xScaled = (x + 1) / 2 * sharedData.simulationWidth;
+    Eigen::ArrayXX<Decimal> yScaled = (y + 1) / 2 * sharedData.simulationHeight;
+
+    return interpolation(sharedData.frameBuffer, timestamps, yScaled, xScaled);
+}
+
+
+
+Eigen::ArrayXX<Decimal> Scanner::getValuesCircle(const Eigen::ArrayXX<Decimal> &position0to1, const std::function<Eigen::ArrayXX<Decimal>(const FrameList &,
+                                                                                                                                          const Eigen::ArrayXX<Decimal> &,
+                                                                                                                                          const Eigen::ArrayXX<Decimal> &,
+                                                                                                                                          const Eigen::ArrayXX<Decimal> &)>& interpolation, const ModulationData &modulationData) {
+
+    Eigen::ArrayX<Decimal> circleX = sharedData.parameters->lineOfInterestX->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
+    Eigen::ArrayX<Decimal> circleY = -sharedData.parameters->lineOfInterestY->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
+    Eigen::ArrayX<Decimal> circleWidth = sharedData.parameters->circleOfInterestWidth->getModulated(modulationData);
+    Eigen::ArrayX<Decimal> circleHeight = sharedData.parameters->circleOfInterestHeight->getModulated(modulationData);
+    Eigen::ArrayX<Decimal> circleRotation = sharedData.parameters->lineOfInterestRotation->getModulated(modulationData) / 360 * juce::MathConstants<Decimal>::twoPi;
+    Eigen::ArrayX<Decimal> circleFraction = sharedData.parameters->circleOfInterestFraction->getModulated(modulationData);
+
+    // Shared Data
+    voiceData->lineOfInterestX = circleX(Eigen::last);
+    voiceData->lineOfInterestY = circleY(Eigen::last);
+    voiceData->circleOfInterestWidth = circleWidth(Eigen::last);
+    voiceData->circleOfInterestHeight = circleHeight(Eigen::last);
+    voiceData->lineOfInterestRotation = circleRotation(Eigen::last);
+    voiceData->circleOfInterestFraction = circleFraction(Eigen::last);
+
+    auto timestamps = sharedData.frameBufferTimestamps.replicate(1, position0to1.cols());
+
+    // Circle setup
+    Eigen::ArrayX<Decimal> alpha = juce::MathConstants<Decimal>::twoPi * circleFraction * position0to1 + juce::MathConstants<Decimal>::pi * (1 - circleFraction);
+    Eigen::ArrayX<Decimal> x = circleWidth  * alpha.cos();
+    Eigen::ArrayX<Decimal> y = circleHeight * alpha.sin();
+
+    // Rotation
+    Eigen::ArrayX<Decimal> sinRotation = circleRotation.sin();
+    Eigen::ArrayX<Decimal> cosRotation = circleRotation.cos();
+    Eigen::ArrayX<Decimal> xRotated = x * cosRotation - y * sinRotation;
+    Eigen::ArrayX<Decimal> yRotated = x * sinRotation + y * cosRotation;
+
+    // Clipping
+    auto divisor = clipDivisor(xRotated, yRotated, circleX, circleY);
+    xRotated /= divisor;
+    yRotated /= divisor;
+
+    // Moving
+    xRotated += circleX;
+    yRotated += circleY;
+
+    // Simulation scaling
+    xRotated = (xRotated + 1) / 2 * sharedData.simulationWidth;
+    yRotated = (yRotated + 1) / 2 * sharedData.simulationHeight;
+
+    return interpolation(sharedData.frameBuffer, timestamps, yRotated, xRotated);
+
+
 }

@@ -11,18 +11,23 @@ public:
     // Declare Parameters here
     ModulatedParameterFloat* simulationSpeedFactor = add<ModulatedParameterFloat>(
             "Simulation speed",
-            juce::NormalisableRange<float>(0, 400, 0, 0.7f, false),
-            10);
+            juce::NormalisableRange<float>(0, 400, 0, 0.3f, false),
+            40);
     ModulatedParameterFloat* simulationStepsPerSecond = add<ModulatedParameterFloat>(
             "Simulation steps per second",
             juce::NormalisableRange<float>(10, 1000, 1, 0.5f, false),
-            100);
+            150);
     ModulatedParameterFloat* simulationBufferSeconds = add<ModulatedParameterFloat>(
             "Simulation buffer seconds",
             juce::NormalisableRange<float>(0, 2, 0, 0.5f, false),
             0.2f);
 
 
+    juce::AudioParameterChoice* lineOfInterestShape = add<juce::AudioParameterChoice>(
+            juce::ParameterID("Line of interest shape", Parameters::VERSION),
+            "Line of interest shape",
+            juce::StringArray{"Line", "Circle"},
+            0);
     ModulatedParameterFloat* lineOfInterestX = add<ModulatedParameterFloat>(
             "Line of interest x",
             juce::NormalisableRange<float>(-1, 1, 0, 1.f, false),
@@ -37,8 +42,20 @@ public:
             1.f);
     ModulatedParameterFloat* lineOfInterestRotation = add<ModulatedParameterFloat>(
             "Line of interest rotation",
-            juce::NormalisableRange<float>(-juce::MathConstants<float>::pi, juce::MathConstants<float>::pi, 0, 1.f, false),
+            juce::NormalisableRange<float>(-360, 360, 0, 1.f, false),
             0.f);
+    ModulatedParameterFloat* circleOfInterestWidth = add<ModulatedParameterFloat>(
+            "Circle of interest width",
+            juce::NormalisableRange<float>(0, 3, 0, 0.5f, false),
+            .5f);
+    ModulatedParameterFloat* circleOfInterestHeight = add<ModulatedParameterFloat>(
+            "Circle of interest height",
+            juce::NormalisableRange<float>(0, 3, 0, 0.5f, false),
+            .5f);
+    ModulatedParameterFloat* circleOfInterestFraction = add<ModulatedParameterFloat>(
+            "Circle of interest fraction",
+            juce::NormalisableRange<float>(0, 1, 0, 0.5f, false),
+            1.f);
 
 
     juce::AudioParameterChoice* sonificationMethod = add<juce::AudioParameterChoice>(
