@@ -3,6 +3,7 @@
 
 SimulationThread::SimulationThread(const std::shared_ptr<Simulation> &s) {
     simulation = s;
+    timestamp = 0;
     newestFrame = -1;
     started = false;
     terminate = false;
@@ -16,24 +17,70 @@ SimulationThread::~SimulationThread() {
 
 void SimulationThread::simulationLoop() {
     while (!terminate) {
+        // cut history buffer
+        if (historyBuffer.size() > historySize) {
+            historyBuffer.erase(
+                historyBuffer.begin(),
+                historyBuffer.begin() + static_cast<long>(historyBuffer.size() - historySize));
+        }
         // fill buffer
         if (frameBuffer.size() < bufferTargetSize) {
             // reset simulation
             if (reset) {
                 simulation->reset();
+                historyBuffer.clear();
+                timestamp = 0;
                 std::lock_guard lock(frameMutex);
                 frameBuffer.clear();
                 reset = false;
             }
             // append frame buffer
             const Decimal timestep = this->timestep;
-            if (!started || juce::approximatelyEqual(timestep, static_cast<Decimal>(0))) {
+            long historyIndex = -2;  // -2: not used; -1: no history available; >=0: can go backward to here
+
+            if (started) {
+                timestamp += timestep;
+
+                // setup for moving backward
+                if (timestep < 0 && !juce::approximatelyEqual(timestep, static_cast<Decimal>(0))) {
+                    // find frame directly before requested timestamp
+                    for (historyIndex = historyBuffer.size() - 1; historyIndex >= 0; --historyIndex) {
+                        if (historyBuffer[historyIndex]->timestamp <= timestamp) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // stationary frame
+            if (!started || historyIndex == -1 || juce::approximatelyEqual(timestep, static_cast<Decimal>(0))) {
                 if (frameBuffer.empty())
                     appendFrame(simulation->getStartFrame());
                 else
                     appendFrame(std::shared_ptr<SimulationFrame>(frameBuffer.back()->clone()));
             }
-            appendFrame(simulation->getNextFrame(timestep, {}));
+            // frame from history
+            else if (timestep < 0) {
+                // remove later frames as they won't be used anymore
+                historyBuffer.erase(
+                    historyBuffer.begin() + (historyIndex + 1),
+                    historyBuffer.end());
+                // overwrite simulation with old frame
+                simulation->setState(historyBuffer[historyIndex]);
+                if (juce::approximatelyEqual(historyBuffer[historyIndex]->timestamp, timestamp)) {
+                    // use already existent frame
+                    appendFrame(historyBuffer[historyIndex]);
+                } else {
+                    // simulate until exact requested time
+                    appendFrame(simulation->getNextFrame(timestamp - historyBuffer[historyIndex]->timestamp));
+                }
+            }
+            // new frame
+            else {
+                auto frame = simulation->getNextFrame(timestep);
+                appendFrame(frame);
+                historyBuffer.append(frame);
+            }
         }
         // else: busy wait
     }
@@ -43,8 +90,10 @@ void SimulationThread::updateParameters(const ParameterCollection* parameterColl
     const Decimal simulationStepsPerSecond = parameterCollection->simulationStepsPerSecond->getSingleModulated(modulationDataList);
     const Decimal simulationSpeedFactor = parameterCollection->simulationSpeedFactor->getSingleModulated(modulationDataList);
     const Decimal simulationBufferSeconds = parameterCollection->simulationBufferSeconds->getSingleModulated(modulationDataList);
+    const Decimal simulationHistorySeconds = parameterCollection->simulationHistorySeconds->getSingleModulated(modulationDataList);
 
     bufferTargetSize = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));
+    historySize = static_cast<size_t>(simulationHistorySeconds * simulationStepsPerSecond);
     timestep = simulationSpeedFactor / simulationStepsPerSecond;
 
     // simulation parameters
@@ -54,6 +103,7 @@ void SimulationThread::updateParameters(const ParameterCollection* parameterColl
 void SimulationThread::appendFrame(const SimulationFramePointer& f) {
     if (f == nullptr)
         return;
+    f->timestamp = timestamp;
     std::lock_guard lock(frameMutex);
     frameBuffer.append(f);
     ++newestFrame;

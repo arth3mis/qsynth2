@@ -60,7 +60,7 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
     }
 
     // draw barrier TODO y barriers
-    if (sharedData.barrierX >= -1) {
+    if (sharedData.barrierX >= -1 && sharedData.barrierWidth > 0) {
         const float barrierX = static_cast<float>(sharedData.barrierX) * fw/2 + fw/2;
         const List<V2>& slits = sharedData.barrierSlits;
         g.setColour(juce::Colour(150, 190, 255));

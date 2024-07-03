@@ -139,7 +139,7 @@ QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2& offset, con
     return *this;
 }
 
-SimulationFramePointer QuantumSimulation::getNextFrame(const Decimal timestep, const ModulationData& modulationData) {
+SimulationFramePointer QuantumSimulation::getNextFrame(const Decimal timestep) {
     if (!started) {
         started = true;
         psi = initialPsi;
@@ -160,14 +160,9 @@ SimulationFramePointer QuantumSimulation::getNextFrame(const Decimal timestep, c
     }
     if (updateBarrier) {
         List<V2> slits;
-        if (barrierSlit1Start >= -1 && -barrierSlit1End >= -1)
-            slits.append({barrierSlit1Start, barrierSlit1End});
-        if (barrierSlit2Start >= -1 && -barrierSlit2End >= -1)
-            slits.append({barrierSlit2Start, barrierSlit2End});
+        if (barrierSlit1Start >= -1 && -barrierSlit1End >= -1) slits.append({barrierSlit1Start, barrierSlit1End});
+        if (barrierSlit2Start >= -1 && -barrierSlit2End >= -1) slits.append({barrierSlit2Start, barrierSlit2End});
         barrierPotential({barrierOffsetX < -1 ? NAN : barrierOffsetX, NAN}, static_cast<int>(std::round(barrierWidth)), slits, 1e30);
-        sharedData.barrierX = barrierOffsetX;
-        sharedData.barrierWidth = barrierWidth;
-        sharedData.barrierSlits = slits;
         updateBarrier = false;
     }
 
@@ -181,6 +176,13 @@ bool QuantumSimulation::isContinuous() {
 
 void QuantumSimulation::reset() {
     started = false;
+}
+
+void QuantumSimulation::setState(const SimulationFramePointer frame) {
+    const auto newPsi = std::dynamic_pointer_cast<QuantumSimulationFrame>(frame);
+    if (!newPsi)
+        return;
+    psi = newPsi->getRaw();
 }
 
 void QuantumSimulation::updateParameters(const ParameterCollection *p, const List<ModulationData*> &m) {
@@ -220,6 +222,13 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
         !juce::approximatelyEqual(barrierSlit2Start, l_barrierSlit2Start) ||
         !juce::approximatelyEqual(barrierSlit2End, l_barrierSlit2End)) {
         updateBarrier = true;
+        // for display
+        List<V2> slits;
+        if (barrierSlit1Start >= -1 && -barrierSlit1End >= -1) slits.append({barrierSlit1Start, barrierSlit1End});
+        if (barrierSlit2Start >= -1 && -barrierSlit2End >= -1) slits.append({barrierSlit2Start, barrierSlit2End});
+        sharedData.barrierX = barrierOffsetX;
+        sharedData.barrierWidth = barrierWidth;
+        sharedData.barrierSlits = slits;
     }
 
     gaussianOffsetX = l_gaussianOffsetX;        gaussianOffsetY = l_gaussianOffsetY;

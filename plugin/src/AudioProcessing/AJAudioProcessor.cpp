@@ -14,6 +14,9 @@ AJAudioProcessor::AJAudioProcessor() {
         .gaussianDistribution({-0.4, 0}, {0.25, 0.25}, {4, 0})));
     sharedData.simulationWidth = SIM_SIZE;
     sharedData.simulationHeight = SIM_SIZE;
+    sharedData.barrierX = 0;
+    sharedData.barrierWidth = 2;
+    sharedData.barrierSlits = {{-0.2, -0.1}, {0.1, 0.2}};
 
     simulationThread = new SimulationThread(simulation);
 

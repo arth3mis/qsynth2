@@ -11,7 +11,7 @@ public:
     // Declare Parameters here
     ModulatedParameterFloat* simulationSpeedFactor = add<ModulatedParameterFloat>(
             "Simulation speed",
-            juce::NormalisableRange<float>(0, 400, 0, 0.3f, false),
+            juce::NormalisableRange<float>(-400, 400, 0, 0.3f, true),
             40);
     ModulatedParameterFloat* simulationStepsPerSecond = add<ModulatedParameterFloat>(
             "Simulation steps per second",
@@ -21,6 +21,10 @@ public:
             "Simulation buffer seconds",
             juce::NormalisableRange<float>(0, 2, 0, 0.5f, false),
             0.2f);
+    ModulatedParameterFloat* simulationHistorySeconds = add<ModulatedParameterFloat>(
+            "Simulation saved history seconds",
+            juce::NormalisableRange<float>(0, 300, 1, 0.5f, false),
+            30.f);
 
 
     juce::AudioParameterChoice* lineOfInterestShape = add<juce::AudioParameterChoice>(

@@ -25,6 +25,7 @@ typedef Eigen::ArrayXX<Decimal> RealMatrix;
 
 class SimulationFrame {
 public:
+    Decimal timestamp = 0;
     virtual ~SimulationFrame() = default;
     [[nodiscard]] virtual SimulationFrame* clone() = 0;
     [[nodiscard]] virtual Decimal toDecimal(long row, long col) const = 0;
