@@ -38,9 +38,9 @@ Eigen::ArrayX<Decimal>
 Sonifier::audification(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scanner, const ModulationData &modulationData) {
 
     // https://www.desmos.com/calculator/2e1qa2mn8l
-    const Decimal overlapAmount = sharedData.parameters->audificationSmoothing->getSingleModulated(modulationData);
+    const auto overlapAmount = sharedData.parameters->audificationSmoothing->getModulated(modulationData);
 
-    if (juce::approximatelyEqual(overlapAmount, 0.0)) scanner.getValuesAt(phases0to1, Scanner::bicubicInterpolation, modulationData);
+    if (overlapAmount.unaryExpr([](Decimal d){ return juce::approximatelyEqual(d, 0.0); }).any()) return scanner.getValuesAt(phases0to1, Scanner::bicubicInterpolation, modulationData);
 
     Eigen::ArrayX<Decimal> phases0to1Shifted =  phases0to1 / (1 + overlapAmount) + (1 - 1 / (1 + overlapAmount));
     auto interpolatedValues = scanner.getValuesAt(phases0to1Shifted, Scanner::bicubicInterpolation, modulationData);
