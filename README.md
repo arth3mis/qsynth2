@@ -1,4 +1,4 @@
-# QSynthi2
+# QSynth2
 Quantum Synthesiser from Schrödinger's Equation - Advanced
 
 ## About the project
