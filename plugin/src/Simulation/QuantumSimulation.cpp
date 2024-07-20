@@ -83,29 +83,32 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2& pos, const int 
     }
     // const size_t h = potentials.append(RealMatrix::Zero(H, W));
     barrierPotentialTemp = RealMatrix::Zero(H, W);
-    // horizontal barrier
-    if (std::isnan(pos.x)) {
-        for (int i = 0; i < W; ++i) {
-            bool isSlit = false;
-            for (const auto& s : slitIndices) {
-                if (i >= s.x && i < s.y) isSlit = true;
-            }
-            if (isSlit) continue;
-            for (int j = 0; j < width; ++j) {
-                barrierPotentialTemp(std::max(static_cast<long>(0), static_cast<long>(py) - width/2 + j), i) = value;
+
+    if (!(std::isnan(pos.x) && std::isnan(pos.y))) {
+        // horizontal barrier
+        if (std::isnan(pos.x)) {
+            for (int i = 0; i < W; ++i) {
+                bool isSlit = false;
+                for (const auto& s : slitIndices) {
+                    if (i >= s.x && i < s.y) isSlit = true;
+                }
+                if (isSlit) continue;
+                for (int j = 0; j < width; ++j) {
+                    barrierPotentialTemp(std::max(static_cast<long>(0), static_cast<long>(py) - width/2 + j), i) = value;
+                }
             }
         }
-    }
-    // vertical barrier
-    else if (std::isnan(pos.y)) {
-        for (int i = 0; i < H; ++i) {
-            bool isSlit = false;
-            for (const auto& s : slitIndices) {
-                if (i > s.x && i <= s.y) isSlit = true;
-            }
-            if (isSlit) continue;
-            for (int j = 0; j < width; ++j) {
-                barrierPotentialTemp(i, std::max(static_cast<long>(0), static_cast<long>(px) - width/2 + j)) = value;
+        // vertical barrier
+        else if (std::isnan(pos.y)) {
+            for (int i = 0; i < H; ++i) {
+                bool isSlit = false;
+                for (const auto& s : slitIndices) {
+                    if (i > s.x && i <= s.y) isSlit = true;
+                }
+                if (isSlit) continue;
+                for (int j = 0; j < width; ++j) {
+                    barrierPotentialTemp(i, std::max(static_cast<long>(0), static_cast<long>(px) - width/2 + j)) = value;
+                }
             }
         }
     }
@@ -243,6 +246,7 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
             List<V2> slits;
             if (l_barrierSlit1Start >= -1 && -l_barrierSlit1End >= -1) slits.append({l_barrierSlit1Start, l_barrierSlit1End});
             if (l_barrierSlit2Start >= -1 && -l_barrierSlit2End >= -1) slits.append({l_barrierSlit2Start, l_barrierSlit2End});
+            barrierPotential({l_barrierOffsetX < -1 ? NAN : l_barrierOffsetX, NAN}, static_cast<int>(std::round(l_barrierWidth)), slits, 1e30);
             sharedData.barrierX = l_barrierOffsetX;
             sharedData.barrierWidth = l_barrierWidth;
             sharedData.barrierSlits = slits;
