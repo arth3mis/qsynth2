@@ -9,7 +9,7 @@ extern Data sharedData;
 AJAudioProcessor::AJAudioProcessor() {
     constexpr int SIM_SIZE = 128;
     auto simulation = std::dynamic_pointer_cast<Simulation>(std::make_shared<QuantumSimulation>(QuantumSimulation(SIM_SIZE,SIM_SIZE)
-        .barrierPotential({-0.0, NAN}, 2, {{-0.2, -0.1}, {0.1, 0.2}}, 1e30)
+        .barrierPotential(BARRIER_VERTICAL, 0, 2, {{-0.2, -0.1}, {0.1, 0.2}}, 1e30)
         .parabolaPotential({0, 0}, {2, 1.5})
         .gaussianDistribution({-0.4, 0}, {0.25, 0.25}, {4, 0})));
     sharedData.simulationWidth = SIM_SIZE;

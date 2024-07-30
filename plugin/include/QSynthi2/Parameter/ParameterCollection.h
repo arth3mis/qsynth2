@@ -149,11 +149,11 @@ public:
     ModulatedParameterFloat *parabolaFactorX = add<ModulatedParameterFloat>(
             "Parabola potential: x strength",
             juce::NormalisableRange<float>(0, 20, 0, 1.f, false),
-            2.f);
+            1.75f);
     ModulatedParameterFloat *parabolaFactorY = add<ModulatedParameterFloat>(
             "Parabola potential: y strength",
             juce::NormalisableRange<float>(0, 20, 0, 1.f, false),
-            1.5f);
+            1.75f);
 
 #define BARRIER_VERTICAL 0
 #define BARRIER_HORIZONTAL 1
@@ -169,20 +169,20 @@ public:
             0.f);
     ModulatedParameterFloat *barrierWidth = add<ModulatedParameterFloat>(
             "Barrier width",
-            juce::NormalisableRange<float>(0, 20, 0, 1.f, false),
+            juce::NormalisableRange<float>(0, 20, 1, 1.f, false),
             2.f);
     ModulatedParameterFloat *barrierSlitCount = add<ModulatedParameterFloat>(
             "Slit count",
             juce::NormalisableRange<float>(0, 10, 1, 1.f, false),
-            1);
+            2);
     ModulatedParameterFloat *barrierSlitDistance = add<ModulatedParameterFloat>(
             "Slit distance",
             juce::NormalisableRange<float>(0, 1, 0, 1.f, false),
-            0.08f);
+            0.3f);
     ModulatedParameterFloat *barrierSlitWidth = add<ModulatedParameterFloat>(
             "Slit width",
             juce::NormalisableRange<float>(0, 1, 0, 1.f, false),
-            0.1f);
+            0.125f);
 
     ModulatedParameterFloat* baseFrequency = add<ModulatedParameterFloat>(
             "Frequency",

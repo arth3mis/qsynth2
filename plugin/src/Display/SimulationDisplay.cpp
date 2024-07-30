@@ -60,11 +60,11 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
     }
 
     // draw barrier
-    if (sharedData.barrierType != BARRIER_NONE && sharedData.barrierWidth > 0) {
-        const float barrierOffset = static_cast<float>(sharedData.barrierOffset) * fw/2 + fw/2;
+    if (sharedData.barrierType != BARRIER_NONE && sharedData.barrierWidth >= 1) {
         const List<V2>& slits = sharedData.barrierSlits;
         g.setColour(juce::Colour(150, 190, 255));
         if (sharedData.barrierType == BARRIER_VERTICAL) {
+            const float barrierOffset = static_cast<float>(sharedData.barrierOffset) * fw/2 + fw/2;
             for (int i = 0; i < h; ++i) {
                 bool insideSlit = false;
                 for (const auto& slit : slits) {
@@ -82,6 +82,7 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
                 }
             }
         } else if (sharedData.barrierType == BARRIER_HORIZONTAL) {
+            const float barrierOffset = static_cast<float>(sharedData.barrierOffset) * fh/2 + fh/2;
             for (int i = 0; i < w; ++i) {
                 bool insideSlit = false;
                 for (const auto& slit : slits) {

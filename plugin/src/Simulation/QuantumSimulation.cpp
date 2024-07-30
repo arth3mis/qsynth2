@@ -159,8 +159,8 @@ SimulationFramePointer QuantumSimulation::getNextFrame(const Decimal timestep) {
     if (updateBarrier) {
         List<V2> slits;
         for (int i = 0; i < barrierSlitCount; ++i) {
-            const Decimal slitPos = 0.5 - (barrierSlitCount - 1) * barrierSlitDistance + i * barrierSlitDistance;
-            slits.append({slitPos-barrierSlitWidth/2.0, slitPos+barrierSlitWidth/2.0});
+            const Decimal slitPos = -0.5 * (barrierSlitCount - 1) * barrierSlitDistance + i * barrierSlitDistance;
+            slits.append({slitPos - barrierSlitWidth/2.0, slitPos + barrierSlitWidth/2.0});
         }
         barrierPotential(barrierType, barrierOffset, static_cast<int>(std::round(barrierWidth)), slits, 1e30);
         sharedData.barrierType = barrierType;
@@ -245,8 +245,8 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
         } else {
             List<V2> slits;
             for (int i = 0; i < l_barrierSlitCount; ++i) {
-                const Decimal slitPos = 0.5 - (l_barrierSlitCount - 1) * l_barrierSlitDistance + i * l_barrierSlitDistance;
-                slits.append({slitPos-l_barrierSlitWidth/2.0, slitPos+l_barrierSlitWidth/2.0});
+                const Decimal slitPos = -0.5 * (l_barrierSlitCount - 1) * l_barrierSlitDistance + i * l_barrierSlitDistance;
+                slits.append({slitPos - l_barrierSlitWidth/2.0, slitPos + l_barrierSlitWidth/2.0});
             }
             barrierPotential(l_barrierType, l_barrierOffset, static_cast<int>(std::round(l_barrierWidth)), slits, 1e30);
             sharedData.barrierType = l_barrierType;
@@ -264,7 +264,7 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
     parabolaFactorX = l_parabolaFactorX;        parabolaFactorY = l_parabolaFactorY;
     barrierType = l_barrierType;
     barrierOffset = l_barrierOffset;
-    barrierWidth = l_barrierOffset;
+    barrierWidth = l_barrierWidth;
     barrierSlitCount = l_barrierSlitCount;
     barrierSlitDistance = l_barrierSlitDistance;
     barrierSlitWidth = l_barrierSlitWidth;
