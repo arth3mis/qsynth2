@@ -15,15 +15,15 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // editor's size to whatever you need it to be.
     setResizable (true, true);
 
-    simDisplaySize = 400;
+    simDisplaySize = 900;  // is updated later based on actual window space
+    controlsDisplayMinSize = 400;
 
-    setSize(simDisplaySize, 800);
+    setSize(simDisplaySize + controlsDisplayMinSize, simDisplaySize);
 
-    simulationDisplay.setSize(simDisplaySize, simDisplaySize);
     addAndMakeVisible(simulationDisplay);
 
     resetButton.onClick = [&]{ sharedData.resetSimulation = true; };
-    addAndMakeVisible(resetButton);
+    // addAndMakeVisible(resetButton);
 
     gpe->setResizable(true, false);
     addAndMakeVisible(gpe);
@@ -47,12 +47,18 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
 void AudioPluginAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
-    simulationDisplay.setTopLeftPosition(0, 0);
+    const int width = getWidth();
+    const int height = getHeight();
+    const int minDim = width < height ? width : height;
+    const int maxDim = width < height ? height : width;
 
-    resetButton.setBounds(20, simDisplaySize+10, 130, 25);
+    const int simSize = width - controlsDisplayMinSize < height ? width - controlsDisplayMinSize : height;
 
-    gpe->setTopLeftPosition(0, simDisplaySize+40);
-    gpe->setSize(getWidth(), getHeight() - simDisplaySize);
+    gpe->setTopLeftPosition(0, 0);
+    gpe->setSize(width - simSize, height);
+
+    simulationDisplay.setTopLeftPosition(width - simSize, 0);
+    simulationDisplay.setSize(simSize, simSize);
+
+    // resetButton.setBounds(20, simDisplaySize+10, 130, 25);
 }

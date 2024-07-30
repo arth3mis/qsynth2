@@ -22,6 +22,7 @@ private:
     juce::GenericAudioProcessorEditor* gpe;
     SimulationDisplay simulationDisplay;
     int simDisplaySize;
+    int controlsDisplayMinSize;
 
     juce::TextButton resetButton{"Reset Simulation"};
 
