@@ -44,7 +44,7 @@ public:
     QuantumSimulation& addPotential(Potential p);
     QuantumSimulation& linearPotential(Decimal angle, Decimal factor);
     QuantumSimulation& parabolaPotential(const V2& offset, const V2& factor);
-    QuantumSimulation& barrierPotential(const V2&, int width, const List<V2>& slits, Decimal value);
+    QuantumSimulation& barrierPotential(int type, Decimal offset, int width, const List<V2>& slits, Decimal value);
     void resetGaussianDistribution(bool onlyApplyToInitialPsi = false);
     QuantumSimulation& gaussianDistribution(const V2& offset, const V2& size, const V2& impulse, bool onlyApplyToInitialPsi = false);
 
@@ -74,10 +74,12 @@ private:
     Decimal linearAngle = 0, linearFactor = 0;
     Decimal parabolaOffsetX = 0, parabolaOffsetY = 0;
     Decimal parabolaFactorX = 0, parabolaFactorY = 0;
-    Decimal barrierOffsetX = 0;
+    int barrierType = 0;
+    Decimal barrierOffset = 0;
+    int barrierSlitCount = 0;
+    Decimal barrierSlitDistance = 0;
+    Decimal barrierSlitWidth = 0;
     Decimal barrierWidth = 0;
-    Decimal barrierSlit1Start = 0, barrierSlit1End = 0;
-    Decimal barrierSlit2Start = 0, barrierSlit2End = 0;
     bool updateGaussian = false, updateLinear = false, updateParabola = false, updateBarrier = false;
 
     List<RealMatrix> potentials;

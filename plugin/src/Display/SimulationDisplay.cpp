@@ -59,25 +59,44 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
         }
     }
 
-    // draw barrier TODO y barriers
-    if (sharedData.barrierX >= -1 && sharedData.barrierWidth > 0) {
-        const float barrierX = static_cast<float>(sharedData.barrierX) * fw/2 + fw/2;
+    // draw barrier
+    if (sharedData.barrierType != BARRIER_NONE && sharedData.barrierWidth > 0) {
+        const float barrierOffset = static_cast<float>(sharedData.barrierOffset) * fw/2 + fw/2;
         const List<V2>& slits = sharedData.barrierSlits;
         g.setColour(juce::Colour(150, 190, 255));
-        for (int i = 0; i < h; ++i) {
-            bool insideSlit = false;
-            for (const auto& slit : slits) {
-                if (i >= slit.x * fh/2 + fh/2 && i < slit.y * fh/2 + fh/2) {
-                    insideSlit = true;
-                    break;
+        if (sharedData.barrierType == BARRIER_VERTICAL) {
+            for (int i = 0; i < h; ++i) {
+                bool insideSlit = false;
+                for (const auto& slit : slits) {
+                    if (i >= slit.x * fh/2 + fh/2 && i < slit.y * fh/2 + fh/2) {
+                        insideSlit = true;
+                        break;
+                    }
+                }
+                if (!insideSlit) {
+                    g.fillRect(juce::Rectangle(
+                        (barrierOffset - static_cast<float>(sharedData.barrierWidth/2)) * vx - xOverlap,
+                        static_cast<float>(i) * vy - yOverlap,
+                        static_cast<float>(sharedData.barrierWidth) * vx + xOverlap * 2,
+                        vy + yOverlap * 2));
                 }
             }
-            if (!insideSlit) {
-                g.fillRect(juce::Rectangle(
-                    (barrierX - static_cast<float>(sharedData.barrierWidth/2)) * vx - xOverlap,
-                    static_cast<float>(i) * vy - yOverlap,
-                    static_cast<float>(sharedData.barrierWidth) * vx + xOverlap * 2,
-                    vy + yOverlap * 2));
+        } else if (sharedData.barrierType == BARRIER_HORIZONTAL) {
+            for (int i = 0; i < w; ++i) {
+                bool insideSlit = false;
+                for (const auto& slit : slits) {
+                    if (i >= slit.x * fw/2 + fw/2 && i < slit.y * fw/2 + fw/2) {
+                        insideSlit = true;
+                        break;
+                    }
+                }
+                if (!insideSlit) {
+                    g.fillRect(juce::Rectangle(
+                        static_cast<float>(i) * vx - xOverlap,
+                        (barrierOffset - static_cast<float>(sharedData.barrierWidth/2)) * vy - yOverlap,
+                        vx + xOverlap * 2,
+                        static_cast<float>(sharedData.barrierWidth) * vy + yOverlap * 2));
+                }
             }
         }
     }

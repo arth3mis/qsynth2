@@ -70,13 +70,10 @@ QuantumSimulation& QuantumSimulation::parabolaPotential(const V2& offset, const 
     return *this;
 }
 
-QuantumSimulation& QuantumSimulation::barrierPotential(const V2& pos, const int width, const List<V2>& slits, const Decimal value) {
-    // TODO outsource to Potential class
-    const Eigen::Index px = toX(pos.x);
-    const Eigen::Index py = toY(pos.y);
+QuantumSimulation& QuantumSimulation::barrierPotential(const int type, const Decimal offset, const int width, const List<V2>& slits, const Decimal value) {
     List<Vec2<Eigen::Index>> slitIndices;
     for (const auto& s : slits) {
-        if (std::isnan(pos.x))
+        if (type == BARRIER_VERTICAL)
             slitIndices.push_back(Vec2(toX(s.x), toX(s.y)));
         else
             slitIndices.push_back(Vec2(toY(s.x), toY(s.y)));
@@ -84,9 +81,8 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2& pos, const int 
     // const size_t h = potentials.append(RealMatrix::Zero(H, W));
     barrierPotentialTemp = RealMatrix::Zero(H, W);
 
-    if (!(std::isnan(pos.x) && std::isnan(pos.y))) {
-        // horizontal barrier
-        if (std::isnan(pos.x)) {
+    if (type != BARRIER_NONE) {
+        if (type == BARRIER_HORIZONTAL) {
             for (int i = 0; i < W; ++i) {
                 bool isSlit = false;
                 for (const auto& s : slitIndices) {
@@ -94,12 +90,11 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2& pos, const int 
                 }
                 if (isSlit) continue;
                 for (int j = 0; j < width; ++j) {
-                    barrierPotentialTemp(std::max(static_cast<long>(0), static_cast<long>(py) - width/2 + j), i) = value;
+                    barrierPotentialTemp(std::max(static_cast<long>(0), toY(offset) - width/2 + j), i) = value;
                 }
             }
         }
-        // vertical barrier
-        else if (std::isnan(pos.y)) {
+        else if (type == BARRIER_VERTICAL) {
             for (int i = 0; i < H; ++i) {
                 bool isSlit = false;
                 for (const auto& s : slitIndices) {
@@ -107,7 +102,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const V2& pos, const int 
                 }
                 if (isSlit) continue;
                 for (int j = 0; j < width; ++j) {
-                    barrierPotentialTemp(i, std::max(static_cast<long>(0), static_cast<long>(px) - width/2 + j)) = value;
+                    barrierPotentialTemp(i, std::max(static_cast<long>(0), toX(offset) - width/2 + j)) = value;
                 }
             }
         }
@@ -163,10 +158,13 @@ SimulationFramePointer QuantumSimulation::getNextFrame(const Decimal timestep) {
     }
     if (updateBarrier) {
         List<V2> slits;
-        if (barrierSlit1Start >= -1 && -barrierSlit1End >= -1) slits.append({barrierSlit1Start, barrierSlit1End});
-        if (barrierSlit2Start >= -1 && -barrierSlit2End >= -1) slits.append({barrierSlit2Start, barrierSlit2End});
-        barrierPotential({barrierOffsetX < -1 ? NAN : barrierOffsetX, NAN}, static_cast<int>(std::round(barrierWidth)), slits, 1e30);
-        sharedData.barrierX = barrierOffsetX;
+        for (int i = 0; i < barrierSlitCount; ++i) {
+            const Decimal slitPos = 0.5 - (barrierSlitCount - 1) * barrierSlitDistance + i * barrierSlitDistance;
+            slits.append({slitPos-barrierSlitWidth/2.0, slitPos+barrierSlitWidth/2.0});
+        }
+        barrierPotential(barrierType, barrierOffset, static_cast<int>(std::round(barrierWidth)), slits, 1e30);
+        sharedData.barrierType = barrierType;
+        sharedData.barrierOffset = barrierOffset;
         sharedData.barrierWidth = barrierWidth;
         sharedData.barrierSlits = slits;
         updateBarrier = false;
@@ -198,10 +196,12 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
     const Decimal l_linearAngle = p->linearAngle->getSingleModulated(m),                l_linearFactor = p->linearFactor->getSingleModulated(m);
     const Decimal l_parabolaOffsetX = p->parabolaOffsetX->getSingleModulated(m),        l_parabolaOffsetY = p->parabolaOffsetY->getSingleModulated(m);
     const Decimal l_parabolaFactorX = p->parabolaFactorX->getSingleModulated(m),        l_parabolaFactorY = p->parabolaFactorY->getSingleModulated(m);
-    const Decimal l_barrierOffsetX = p->barrierOffsetX->getSingleModulated(m);
+    const int l_barrierType = p->barrierType->getIndex();
+    const Decimal l_barrierOffset = p->barrierOffset->getSingleModulated(m);
     const Decimal l_barrierWidth = p->barrierWidth->getSingleModulated(m);
-    const Decimal l_barrierSlit1Start = p->barrierSlit1Start->getSingleModulated(m),    l_barrierSlit1End = p->barrierSlit1End->getSingleModulated(m);
-    const Decimal l_barrierSlit2Start = p->barrierSlit2Start->getSingleModulated(m),    l_barrierSlit2End = p->barrierSlit2End->getSingleModulated(m);
+    const int l_barrierSlitCount = static_cast<int>(p->barrierSlitCount->getSingleModulated(m));
+    const Decimal l_barrierSlitDistance = p->barrierSlitDistance->getSingleModulated(m);
+    const Decimal l_barrierSlitWidth = p->barrierSlitWidth->getSingleModulated(m);
 
     if (!juce::approximatelyEqual(gaussianOffsetX, l_gaussianOffsetX) ||
         !juce::approximatelyEqual(gaussianOffsetY, l_gaussianOffsetY) ||
@@ -234,20 +234,23 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
             parabolaPotential({l_parabolaOffsetX, l_parabolaOffsetY}, {l_parabolaFactorX, l_parabolaFactorY});
         }
     }
-    if (!juce::approximatelyEqual(barrierOffsetX, l_barrierOffsetX) ||
+    if (!juce::approximatelyEqual(barrierType, l_barrierType) ||
+        !juce::approximatelyEqual(barrierOffset, l_barrierOffset) ||
         !juce::approximatelyEqual(barrierWidth, l_barrierWidth) ||
-        !juce::approximatelyEqual(barrierSlit1Start, l_barrierSlit1Start) ||
-        !juce::approximatelyEqual(barrierSlit1End, l_barrierSlit1End) ||
-        !juce::approximatelyEqual(barrierSlit2Start, l_barrierSlit2Start) ||
-        !juce::approximatelyEqual(barrierSlit2End, l_barrierSlit2End)) {
+        !juce::approximatelyEqual(barrierSlitCount, l_barrierSlitCount) ||
+        !juce::approximatelyEqual(barrierSlitDistance, l_barrierSlitDistance) ||
+        !juce::approximatelyEqual(barrierSlitWidth, l_barrierSlitWidth)) {
         if (started) {
             updateBarrier = true;
         } else {
             List<V2> slits;
-            if (l_barrierSlit1Start >= -1 && -l_barrierSlit1End >= -1) slits.append({l_barrierSlit1Start, l_barrierSlit1End});
-            if (l_barrierSlit2Start >= -1 && -l_barrierSlit2End >= -1) slits.append({l_barrierSlit2Start, l_barrierSlit2End});
-            barrierPotential({l_barrierOffsetX < -1 ? NAN : l_barrierOffsetX, NAN}, static_cast<int>(std::round(l_barrierWidth)), slits, 1e30);
-            sharedData.barrierX = l_barrierOffsetX;
+            for (int i = 0; i < l_barrierSlitCount; ++i) {
+                const Decimal slitPos = 0.5 - (l_barrierSlitCount - 1) * l_barrierSlitDistance + i * l_barrierSlitDistance;
+                slits.append({slitPos-l_barrierSlitWidth/2.0, slitPos+l_barrierSlitWidth/2.0});
+            }
+            barrierPotential(l_barrierType, l_barrierOffset, static_cast<int>(std::round(l_barrierWidth)), slits, 1e30);
+            sharedData.barrierType = l_barrierType;
+            sharedData.barrierOffset = l_barrierOffset;
             sharedData.barrierWidth = l_barrierWidth;
             sharedData.barrierSlits = slits;
         }
@@ -259,10 +262,12 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
     linearAngle = l_linearAngle;                linearFactor = l_linearFactor;
     parabolaOffsetX = l_parabolaOffsetX;        parabolaOffsetY = l_parabolaOffsetY;
     parabolaFactorX = l_parabolaFactorX;        parabolaFactorY = l_parabolaFactorY;
-    barrierOffsetX = l_barrierOffsetX;
-    barrierWidth = l_barrierWidth;
-    barrierSlit1Start = l_barrierSlit1Start;    barrierSlit1End = l_barrierSlit1End;
-    barrierSlit2Start = l_barrierSlit2Start;    barrierSlit2End = l_barrierSlit2End;
+    barrierType = l_barrierType;
+    barrierOffset = l_barrierOffset;
+    barrierWidth = l_barrierOffset;
+    barrierSlitCount = l_barrierSlitCount;
+    barrierSlitDistance = l_barrierSlitDistance;
+    barrierSlitWidth = l_barrierSlitWidth;
 }
 
 SimulationFramePointer QuantumSimulation::getStartFrame() {

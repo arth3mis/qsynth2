@@ -15,7 +15,8 @@ public:
     std::atomic<bool> resetSimulation{false};
 
     // context: simulation thread <-> GUI thread
-    std::atomic<Decimal> barrierX{0};
+    std::atomic<Decimal> barrierType{0};
+    std::atomic<Decimal> barrierOffset{0};
     std::atomic<Decimal> barrierWidth{0};
     List<V2> barrierSlits{};
 
