@@ -11,7 +11,7 @@ public:
     // Declare Parameters here
     ModulatedParameterFloat* simulationSpeedFactor = add<ModulatedParameterFloat>(
             "Simulation speed",
-            juce::NormalisableRange<float>(-400, 400, 0, 0.3f, true),
+            juce::NormalisableRange<float>(-400, 400, 0, 0.4f, true),
             40);
     ModulatedParameterFloat* simulationStepsPerSecond = add<ModulatedParameterFloat>(
             "Simulation steps per second",

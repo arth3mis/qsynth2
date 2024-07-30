@@ -38,7 +38,6 @@ void AJAudioProcessor::prepareToPlay(const Decimal newSampleRate, const int newS
 
     sharedData.frameBufferTimestamps = Eigen::ArrayX<Decimal>(samplesPerBlock);
 
-    juce::ignoreUnused (samplesPerBlock);
 
 }
 

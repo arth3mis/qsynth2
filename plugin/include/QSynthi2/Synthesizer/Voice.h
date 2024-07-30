@@ -50,6 +50,7 @@ protected:
     std::shared_ptr<VoiceData> voiceData;
 
     juce::SmoothedValue<Decimal> velocity;
+    juce::SmoothedValue<Decimal> key;
     juce::SmoothedValue<Decimal> x;
     juce::SmoothedValue<Decimal> y;
     juce::SmoothedValue<Decimal> z;

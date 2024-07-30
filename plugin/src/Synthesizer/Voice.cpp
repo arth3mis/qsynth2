@@ -33,15 +33,15 @@ void Voice::noteStarted() {
              || currentlyPlayingNote.keyState == juce::MPENote::keyDownAndSustained);
 
 
-    notePitchbendChanged();
+    initialFrequency = juce::MidiMessage::getMidiNoteInHertz(currentlyPlayingNote.initialNote);
 
     if (envelope1.getCurrentState() == ADSR::State::OFF) {
         // New note triggerd: Full reset
         dcOffsetFilter.reset();
 
-        initialFrequency = juce::MidiMessage::getMidiNoteInHertz(currentlyPlayingNote.initialNote);
         initialY = static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat());
 
+        key.setCurrentAndTargetValue(frequencyToModulationValue(initialFrequency));
         x.setCurrentAndTargetValue(frequencyToModulationValue(currentlyPlayingNote.getFrequencyInHertz()));
         y.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat()));
         z.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat()));
@@ -51,6 +51,7 @@ void Voice::noteStarted() {
         velocity.setCurrentAndTargetValue(static_cast<Decimal>(currentlyPlayingNote.noteOnVelocity.asUnsignedFloat()));
     } else {
         // Voice-Stealing: Soft reset
+        key.setTargetValue(frequencyToModulationValue(initialFrequency));
         x.setTargetValue(frequencyToModulationValue(currentlyPlayingNote.getFrequencyInHertz()));
         y.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.timbre.asUnsignedFloat()));
         z.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.pressure.asUnsignedFloat()));
@@ -108,6 +109,7 @@ void Voice::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
     juce::MPESynthesiserVoice::setCurrentSampleRate(static_cast<double>(sampleRate));
 
     velocity.reset(sampleRate, 0.030);
+    key.reset(sampleRate, 0.001);
     x.reset(sampleRate, 0.030);
     y.reset(sampleRate, 0.100);
     z.reset(sampleRate, 0.100);
@@ -141,6 +143,7 @@ void Voice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSam
     activeThisBlock = true;
 
     modulationData.write(ModulationData::Sources::VELOCITY, velocity, startSample, numSamples);
+    modulationData.write(ModulationData::Sources::KEY, key, startSample, numSamples);
     modulationData.write(ModulationData::Sources::X, x, startSample, numSamples);
     modulationData.write(ModulationData::Sources::Y, y, startSample, numSamples);
     modulationData.write(ModulationData::Sources::Z, z, startSample, numSamples);

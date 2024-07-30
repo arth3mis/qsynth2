@@ -12,7 +12,7 @@ void Parameters::connectTo(juce::AudioProcessor &processorToConnectTo) {
 
     treeState = std::make_shared<juce::AudioProcessorValueTreeState>(
             processorToConnectTo,
-            nullptr,
+            &undoManager,
             "Parameters",
             std::move(layout));
 
@@ -117,6 +117,8 @@ void Parameters::setStateInformation(const void *data, int sizeInBytes) {
 
 void Parameters::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
     jassert(!layoutInCreation); // Call connectTo() before any audio processing
+    jassert(sampleRate > 0);
+    jassert(samplesPerBlock > 0);
 
     for (auto& [id, parameter]: modulatedParameters) {
         parameter->prepareToPlay(sampleRate, samplesPerBlock);
