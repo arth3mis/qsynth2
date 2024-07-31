@@ -44,8 +44,8 @@ void SimulationThread::simulationLoop() {
                 // setup for moving backward
                 if (timestep < 0 && !juce::approximatelyEqual(timestep, static_cast<Decimal>(0))) {
                     // find frame directly before requested timestamp
-                    for (historyIndex = historyBuffer.size() - 1; historyIndex >= 0; --historyIndex) {
-                        if (historyBuffer[historyIndex]->timestamp <= timestamp) {
+                    for (historyIndex = static_cast<long>(historyBuffer.size() - 1); historyIndex >= 0; --historyIndex) {
+                        if (historyBuffer[static_cast<size_t>(historyIndex)]->timestamp <= timestamp) {
                             break;
                         }
                     }
@@ -61,18 +61,19 @@ void SimulationThread::simulationLoop() {
             }
             // frame from history
             else if (timestep < 0) {
+                const size_t h = static_cast<size_t>(historyIndex);
                 // remove later frames as they won't be used anymore
                 historyBuffer.erase(
                     historyBuffer.begin() + (historyIndex + 1),
                     historyBuffer.end());
                 // overwrite simulation with old frame
-                simulation->setState(historyBuffer[historyIndex]);
-                if (juce::approximatelyEqual(historyBuffer[historyIndex]->timestamp, timestamp)) {
+                simulation->setState(historyBuffer[h]);
+                if (juce::approximatelyEqual(historyBuffer[h]->timestamp, timestamp)) {
                     // use already existent frame
-                    appendFrame(historyBuffer[historyIndex]);
+                    appendFrame(historyBuffer[h]);
                 } else {
                     // simulate until exact requested time
-                    appendFrame(simulation->getNextFrame(timestamp - historyBuffer[historyIndex]->timestamp));
+                    appendFrame(simulation->getNextFrame(timestamp - historyBuffer[h]->timestamp));
                 }
             }
             // new frame

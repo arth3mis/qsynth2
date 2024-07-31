@@ -3,7 +3,6 @@
 
 #include <complex>
 #include "QSynthi2/Simulation/Simulation.h"
-#include "QSynthi2/Simulation/Potential.h"
 
 class QuantumSimulationFrame final : public SimulationFrame {
 public:
@@ -41,7 +40,6 @@ public:
     QuantumSimulation(int width, int height);
     ~QuantumSimulation() override;
 
-    QuantumSimulation& addPotential(Potential p);
     QuantumSimulation& linearPotential(Decimal angle, Decimal factor);
     QuantumSimulation& parabolaPotential(const V2& offset, const V2& factor);
     QuantumSimulation& barrierPotential(int type, Decimal offset, int width, const List<V2>& slits, Decimal value);

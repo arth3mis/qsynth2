@@ -20,6 +20,11 @@ public:
 
     List(typename std::vector<T>::iterator first, typename std::vector<T>::iterator last) : std::vector<T>(first, last) { }
 
+    List<T>& operator=(const List<T>& other) {
+        this->clear();
+        this->insert(this->end(), other.begin(), other.end());
+        return *this;
+    }
 
     static List list2D(size_t size0, size_t size1, T initialValue) {
         return List(size0, List(size1, initialValue));
@@ -73,7 +78,7 @@ public:
         }
     }
 
-    size_t indexOf(const T &element) {
+    long indexOf(const T &element) {
         auto iterator = find(this->begin(), this->end(), element);
 
         // If element was found
@@ -81,7 +86,7 @@ public:
             return iterator - this->begin();
         }
 
-        return static_cast<size_t>(-1);
+        return static_cast<long>(-1);
     }
 
     void forEach(std::function<void(T)> consumer) {

@@ -62,24 +62,24 @@ Scanner::linearInterpolation(const FrameList &frameBuffer, const Eigen::ArrayXX<
     auto interpolatedValues = RealMatrix(x.rows(), x.cols());
 
     for (Eigen::Index i = 0; i < x.size(); i++) {
-        auto timestampsFloor = static_cast<long>(floor(frameBufferTimestamps(i)));
-        auto timestampsCeil  = static_cast<long>(ceil (frameBufferTimestamps(i)));
+        auto timestampsFloor = static_cast<size_t>(floor(frameBufferTimestamps(i)));
+        auto timestampsCeil  = static_cast<size_t>(ceil (frameBufferTimestamps(i)));
         Decimal timestampsT = fmod(frameBufferTimestamps(i), 1);
 
-        auto yFloor = static_cast<Eigen::Index>(static_cast<long>(floor(y(i))) % sharedData.simulationHeight);
-        auto yCeil  = static_cast<Eigen::Index>(static_cast<long>(ceil (y(i))) % sharedData.simulationHeight);
+        auto yFloor = static_cast<long>(fmod(floor(y(i)), sharedData.simulationHeight));
+        auto yCeil  = static_cast<long>(fmod(ceil (y(i)), sharedData.simulationHeight));
         Decimal yT = fmod(y(i), 1);
 
-        auto xFloor = static_cast<Eigen::Index>(static_cast<long>(floor(x(i))) % sharedData.simulationWidth);
-        auto xCeil  = static_cast<Eigen::Index>(static_cast<long>(ceil (x(i))) % sharedData.simulationWidth);
+        auto xFloor = static_cast<long>(fmod(floor(x(i)), sharedData.simulationWidth));
+        auto xCeil  = static_cast<long>(fmod(ceil (x(i)), sharedData.simulationWidth));
         Decimal xT = fmod(x(i), 1);
 
-        jassert(timestampsFloor >= 0 && timestampsFloor < frameBuffer.size());
-        jassert(timestampsCeil  >= 0 && timestampsCeil  < frameBuffer.size());
-        jassert(yFloor >= 0 && yFloor < frameBuffer.at(timestampsFloor)->cols());
-        jassert(yCeil  >= 0 && yCeil  < frameBuffer.at(timestampsFloor)->cols());
-        jassert(xFloor >= 0 && xFloor < frameBuffer.at(timestampsFloor)->rows());
-        jassert(xCeil  >= 0 && xCeil  < frameBuffer.at(timestampsFloor)->rows());
+        jassert(timestampsFloor < frameBuffer.size());
+        jassert(timestampsCeil  < frameBuffer.size());
+        jassert(yFloor >= 0 && static_cast<size_t>(yFloor) < frameBuffer.at(timestampsFloor)->cols());
+        jassert(yCeil  >= 0 && static_cast<size_t>(yCeil)  < frameBuffer.at(timestampsFloor)->cols());
+        jassert(xFloor >= 0 && static_cast<size_t>(xFloor) < frameBuffer.at(timestampsFloor)->rows());
+        jassert(xCeil  >= 0 && static_cast<size_t>(xCeil)  < frameBuffer.at(timestampsFloor)->rows());
 
         interpolatedValues(i) = (1-timestampsT) * ((1-yT) * ((1-xT) * frameBuffer.at(timestampsFloor)->toDecimal(yFloor, xFloor)
                                                           +     xT  * frameBuffer.at(timestampsFloor)->toDecimal(yFloor, xCeil ))

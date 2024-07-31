@@ -49,8 +49,6 @@ void AudioPluginAudioProcessorEditor::resized()
 {
     const int width = getWidth();
     const int height = getHeight();
-    const int minDim = width < height ? width : height;
-    const int maxDim = width < height ? height : width;
 
     const int simSize = width - controlsDisplayMinSize < height ? width - controlsDisplayMinSize : height;
 

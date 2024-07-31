@@ -7,7 +7,7 @@ namespace audio_plugin_test {
         const std::wstring c = L".,;*?$";
         for (int i = 0; i < m.rows(); ++i) {
             for (int j = 0; j < m.cols(); ++j) {
-                const wchar_t ch = c[static_cast<int>(std::round(
+                const wchar_t ch = c[static_cast<size_t>(std::round(
                     std::max(0.0, std::min(1.0, std::pow(m(i, j), 0.66))) * (static_cast<float>(c.length()) - 1.f)))];
                 std::wcout << ch << ch << ch;
             }
@@ -25,7 +25,7 @@ namespace audio_plugin_test {
         print2D(Eigen::abs(sim.getPsi()));
 
         for (int i = 0; i < 10; ++i) {
-            sim.getNextFrame(0.2, ModulationData());
+            // sim.getNextFrame(0.2, ModulationData());
         }
 
         print2D(Eigen::abs(sim.getPsi()));

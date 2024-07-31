@@ -36,12 +36,6 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
 
 QuantumSimulation::~QuantumSimulation() = default;
 
-QuantumSimulation& QuantumSimulation::addPotential(const Potential p) {
-    // potentials.push_back(p);
-    potentialPrecalc = potentials.sum() * Complex(0, 1);
-    return *this;
-}
-
 QuantumSimulation & QuantumSimulation::linearPotential(const Decimal angle, const Decimal factor) {
     // const size_t h = potentials.append(RealMatrix::Zero(H, W));
     linearPotentialTemp = RealMatrix::Zero(H, W);
@@ -275,7 +269,7 @@ SimulationFramePointer QuantumSimulation::getStartFrame() {
 }
 
 void QuantumSimulation::calculateNextPsi(const Decimal timestep) {
-    static const pocketfft::stride_t stride{ static_cast<long>(H * sizeof(Complex)), sizeof(Complex) };
+    static const pocketfft::stride_t stride{ static_cast<long>(static_cast<size_t>(H) * sizeof(Complex)), sizeof(Complex) };
     static const pocketfft::shape_t shape{ static_cast<size_t>(W), static_cast<size_t>(H) };
 
     // potential part
