@@ -68,7 +68,7 @@ public:
     }
 
     [[nodiscard]] bool isSourceValid (const Source& source) const {
-        return source.id >= 0 && source.id < this->size() && this->at(source.id).size() > 0;
+        return source.id < this->size() && this->at(source.id).size() > 0;
     }
 
 

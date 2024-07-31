@@ -62,16 +62,16 @@ Scanner::linearInterpolation(const FrameList &frameBuffer, const Eigen::ArrayXX<
     auto interpolatedValues = RealMatrix(x.rows(), x.cols());
 
     for (Eigen::Index i = 0; i < x.size(); i++) {
-        auto timestampsFloor = static_cast<size_t>(floor(frameBufferTimestamps(i)));
-        auto timestampsCeil  = static_cast<size_t>(ceil (frameBufferTimestamps(i)));
+        auto timestampsFloor = static_cast<long>(floor(frameBufferTimestamps(i)));
+        auto timestampsCeil  = static_cast<long>(ceil (frameBufferTimestamps(i)));
         Decimal timestampsT = fmod(frameBufferTimestamps(i), 1);
 
-        auto yFloor = static_cast<Eigen::Index>(static_cast<unsigned long>(floor(y(i))) % sharedData.simulationHeight);
-        auto yCeil  = static_cast<Eigen::Index>(static_cast<unsigned long>(ceil (y(i))) % sharedData.simulationHeight);
+        auto yFloor = static_cast<Eigen::Index>(static_cast<long>(floor(y(i))) % sharedData.simulationHeight);
+        auto yCeil  = static_cast<Eigen::Index>(static_cast<long>(ceil (y(i))) % sharedData.simulationHeight);
         Decimal yT = fmod(y(i), 1);
 
-        auto xFloor = static_cast<Eigen::Index>(static_cast<unsigned long>(floor(x(i))) % sharedData.simulationWidth);
-        auto xCeil  = static_cast<Eigen::Index>(static_cast<unsigned long>(ceil (x(i))) % sharedData.simulationWidth);
+        auto xFloor = static_cast<Eigen::Index>(static_cast<long>(floor(x(i))) % sharedData.simulationWidth);
+        auto xCeil  = static_cast<Eigen::Index>(static_cast<long>(ceil (x(i))) % sharedData.simulationWidth);
         Decimal xT = fmod(x(i), 1);
 
         jassert(timestampsFloor >= 0 && timestampsFloor < frameBuffer.size());

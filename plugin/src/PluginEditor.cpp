@@ -15,7 +15,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // editor's size to whatever you need it to be.
     setResizable (true, true);
 
-    simDisplaySize = 900;  // is updated later based on actual window space
+    simDisplaySize = 700;  // is updated later based on actual window space
     controlsDisplayMinSize = 400;
 
     setSize(simDisplaySize + controlsDisplayMinSize, simDisplaySize);
