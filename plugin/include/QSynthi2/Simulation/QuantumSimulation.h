@@ -13,9 +13,10 @@ public:
         return new QuantumSimulationFrame(frame);
     }
     [[nodiscard]] Decimal toDecimal(const long row, const long col) const override {
-        return std::abs(frame(row, col)) * 8; // todo tweak scaling
+        return std::abs(frame(row, col)) * 8;//+ 0.5; // todo tweak scaling
     }
     [[nodiscard]] Decimal toDecimalDisplay(const long row, const long col) const override {
+        // return toDecimal(row, col);
         return std::pow(1.5 * toDecimal(row, col), 0.666);
     }
     [[nodiscard]] Decimal toPhase(const long row, const long col) const override {

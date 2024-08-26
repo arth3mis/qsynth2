@@ -62,7 +62,7 @@ void SimulationDisplay::drawSimulation(juce::Graphics &g) const {
     // draw barrier
     if (sharedData.barrierType != BARRIER_NONE && sharedData.barrierWidth >= 1) {
         const List<V2>& slits = sharedData.barrierSlits;
-        g.setColour(juce::Colour(150, 190, 255));
+        g.setColour(juce::Colour(160, 32, 160));
         if (sharedData.barrierType == BARRIER_VERTICAL) {
             const float barrierOffset = static_cast<float>(sharedData.barrierOffset) * fw/2 + fw/2;
             for (int i = 0; i < h; ++i) {

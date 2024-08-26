@@ -275,14 +275,14 @@ void QuantumSimulation::calculateNextPsi(const Decimal timestep) {
     // potential part
     psi *= Eigen::exp(potentialPrecalc * timestep);
 
-    // FFT (to impulse domain)
+    // FFT (to momentum space)
     pocketfft::c2c(shape, stride, stride, { 0, 1 },
     true, psi.data(), psiFFT.data(), static_cast<Decimal>(1.0 / std::sqrt(Wf*Hf)));
 
-    // kinetic part
+    // momentum part
     psiFFT *= Eigen::exp(thetaPrecalc * timestep);
 
-    // inverse FFT (to spatial domain)
+    // inverse FFT (to position space)
     pocketfft::c2c(shape, stride, stride, { 0, 1 },
     false, psiFFT.data(), psi.data(), static_cast<Decimal>(1.0 / std::sqrt(Wf*Hf)));
 
