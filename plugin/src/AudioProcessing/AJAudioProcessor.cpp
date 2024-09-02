@@ -46,6 +46,13 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     // Process MIDI
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
 
+    auto activeVoices = synth.getActiveVoices();
+    if (!(activeVoices.empty() && !simulationThread->isSimulationContinuous())) {
+        sharedData.tmp_blocktime.start();
+        sharedData.tmp_numblocks++;
+        sharedData.tmp_numsamples += buffer.getNumSamples();
+    }
+
     // buttons
     if (sharedData.resetSimulation) {
         simulationThread->resetSimulation();
@@ -57,7 +64,6 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     }
 
     // Update simulation parameters
-    auto activeVoices = synth.getActiveVoices();
     List<ModulationData*> modulationDataList = activeVoices.map<ModulationData*>([](Voice* v){ return v->getModulationData(); });
     Eigen::ArrayX<Decimal> simulationFrameIncrement = sharedData.parameters->simulationStepsPerSecond->getModulated(modulationDataList) / sampleRate;
     simulationThread->updateParameters(sharedData.parameters, modulationDataList);
@@ -123,5 +129,21 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
                 buffer.addSample(channel, i, static_cast<float>(samples[i]));
             }
         }
+    }
+
+    sharedData.tmp_blocktime.stop();
+
+    sharedData.tmp_print++;
+    if (sharedData.tmp_print >= 500) {
+        sharedData.tmp_print = 0;
+        juce::Logger::writeToLog("--------------------------------------------");
+        juce::Logger::writeToLog("blocks = "+juce::String(sharedData.tmp_numblocks)+"; samples = "+juce::String(sharedData.tmp_numsamples)+"; sim steps = "+juce::String(sharedData.tmp_numsimsteps));
+        // sharedData.tmp_blocktime.print(sharedData.tmp_numsamples, "sample");
+        sharedData.tmp_blocktime.print(sharedData.tmp_numblocks, "block");
+        sharedData.tmp_simtime.print(sharedData.tmp_numblocks, "block");
+        sharedData.tmp_ffttime.print(sharedData.tmp_numblocks, "block");
+        juce::Logger::writeToLog("sim steps per block = "+juce::String((double)sharedData.tmp_numsimsteps/sharedData.tmp_numblocks, 2));
+        sharedData.tmp_simtime.print(sharedData.tmp_numsimsteps, "sim step");
+        sharedData.tmp_ffttime.print(sharedData.tmp_numsimsteps, "sim step");
     }
 }

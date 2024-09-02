@@ -16,10 +16,10 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
     parabolaPotentialTemp = RealMatrix::Zero(H, W);
     barrierPotentialTemp = RealMatrix::Zero(H, W);
 
-    initialPsi = ComplexMatrix::Zero(H, W);
-    psi = ComplexMatrix::Zero(H, W);
-    psiFFT = ComplexMatrix::Zero(H, W);
-    thetaPrecalc = ComplexMatrix(H, W);
+    initialPhi = ComplexMatrix::Zero(H, W);
+    phi = ComplexMatrix::Zero(H, W);
+    phiFFT = ComplexMatrix::Zero(H, W);
+    momentumPrecalculation = ComplexMatrix(H, W);
 
     started = false;
 
@@ -29,7 +29,7 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
             const Decimal k = pi2 * std::min(static_cast<Decimal>(i), Wf-static_cast<Decimal>(i)) / Wf;
             const Decimal l = pi2 * std::min(static_cast<Decimal>(j), Hf-static_cast<Decimal>(j)) / Hf;
             const Decimal theta = (k*k + l*l);
-            thetaPrecalc(j, i) = theta * Complex(0, 1);
+            momentumPrecalculation(j, i) = theta * Complex(0, 1);
         }
     }
 }
@@ -48,7 +48,7 @@ QuantumSimulation & QuantumSimulation::linearPotential(const Decimal angle, cons
 
         linearPotentialTemp(yIndexOf(i), xIndexOf(i)) += -factor * (angleCos * x + angleSin * y);
     }
-    potentialPrecalc = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
+    potentialPrecalculation = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
     return *this;
 }
 
@@ -60,7 +60,7 @@ QuantumSimulation& QuantumSimulation::parabolaPotential(const V2& offset, const 
         const Decimal y = yOf(i) - offset.y;
         parabolaPotentialTemp(yIndexOf(i), xIndexOf(i)) += factor.x * x*x + factor.y * y*y;
     }
-    potentialPrecalc = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
+    potentialPrecalculation = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
     return *this;
 }
 
@@ -105,17 +105,17 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const int type, const Dec
     // create mask that is 0 in barrier regions and 1 else -> sets psi values inside the barrier to 0 to clean simulation
     barrierPotentialMask = 1 - barrierPotentialTemp.cwiseMin(1);
 
-    potentialPrecalc = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
+    potentialPrecalculation = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
     return *this;
 }
 
 void QuantumSimulation::resetGaussianDistribution(const bool onlyApplyToInitialPsi) {
-    const auto pPsi = onlyApplyToInitialPsi ? &initialPsi : getPsiToChange();
+    const auto pPsi = onlyApplyToInitialPsi ? &initialPhi : getPsiToChange();
     *pPsi = ComplexMatrix::Zero(H, W);
 }
 
 QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2& offset, const V2& size, const V2& impulse, const bool onlyApplyToInitialPsi) {
-    const auto pPsi = onlyApplyToInitialPsi ? &initialPsi : getPsiToChange();
+    const auto pPsi = onlyApplyToInitialPsi ? &initialPhi : getPsiToChange();
     const V2 sz = size / 2.f;
     for (int i = 0; i < W * H; ++i) {
         constexpr Decimal pi2 = juce::MathConstants<Decimal>::twoPi;
@@ -134,7 +134,7 @@ QuantumSimulation& QuantumSimulation::gaussianDistribution(const V2& offset, con
 SimulationFramePointer QuantumSimulation::getNextFrame(const Decimal timestep) {
     if (!started) {
         started = true;
-        psi = initialPsi;
+        phi = initialPhi;
     }
 
     if (updateGaussian) {
@@ -164,8 +164,8 @@ SimulationFramePointer QuantumSimulation::getNextFrame(const Decimal timestep) {
         updateBarrier = false;
     }
 
-    calculateNextPsi(timestep);
-    return std::make_shared<QuantumSimulationFrame>(psi);
+    calculateNextPhi(timestep);
+    return std::make_shared<QuantumSimulationFrame>(phi);
 }
 
 bool QuantumSimulation::isContinuous() {
@@ -177,10 +177,10 @@ void QuantumSimulation::reset() {
 }
 
 void QuantumSimulation::setState(const SimulationFramePointer frame) {
-    const auto newPsi = std::dynamic_pointer_cast<QuantumSimulationFrame>(frame);
-    if (!newPsi)
+    const auto newPhi = std::dynamic_pointer_cast<QuantumSimulationFrame>(frame);
+    if (!newPhi)
         return;
-    psi = newPsi->getRaw();
+    phi = newPhi->getRaw();
 }
 
 void QuantumSimulation::updateParameters(const ParameterCollection *p, const List<ModulationData*> &m) {
@@ -265,29 +265,37 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
 }
 
 SimulationFramePointer QuantumSimulation::getStartFrame() {
-    return std::make_shared<QuantumSimulationFrame>(initialPsi);
+    return std::make_shared<QuantumSimulationFrame>(initialPhi);
 }
 
-void QuantumSimulation::calculateNextPsi(const Decimal timestep) {
+void QuantumSimulation::calculateNextPhi(const Decimal timestep) {
     static const pocketfft::stride_t stride{ static_cast<long>(static_cast<size_t>(H) * sizeof(Complex)), sizeof(Complex) };
     static const pocketfft::shape_t shape{ static_cast<size_t>(W), static_cast<size_t>(H) };
 
+    sharedData.tmp_numsimsteps++;
+    sharedData.tmp_simtime.start();
     // potential part
-    psi *= Eigen::exp(potentialPrecalc * timestep);
+    phi *= Eigen::exp(potentialPrecalculation * timestep);
 
+    sharedData.tmp_ffttime.start();
     // FFT (to momentum space)
     pocketfft::c2c(shape, stride, stride, { 0, 1 },
-    true, psi.data(), psiFFT.data(), static_cast<Decimal>(1.0 / std::sqrt(Wf*Hf)));
+    true, phi.data(), phiFFT.data(), static_cast<Decimal>(1.0 / std::sqrt(Wf*Hf)));
+    sharedData.tmp_ffttime.stop();
 
     // momentum part
-    psiFFT *= Eigen::exp(thetaPrecalc * timestep);
+    phiFFT *= Eigen::exp(momentumPrecalculation * timestep);
 
+    sharedData.tmp_ffttime.start();
     // inverse FFT (to position space)
     pocketfft::c2c(shape, stride, stride, { 0, 1 },
-    false, psiFFT.data(), psi.data(), static_cast<Decimal>(1.0 / std::sqrt(Wf*Hf)));
+    false, phiFFT.data(), phi.data(), static_cast<Decimal>(1.0 / std::sqrt(Wf*Hf)));
+    sharedData.tmp_ffttime.stop();
 
     // set 0 behind barrier
-    psi *= barrierPotentialMask;
+    phi *= barrierPotentialMask;
     // normalize
-    psi = psi / std::sqrt(psi.abs().square().sum());
+    phi = phi / std::sqrt(phi.abs().square().sum());
+
+    sharedData.tmp_simtime.stop();
 }

@@ -4,6 +4,7 @@
 #include <atomic>
 #include "QSynthi2/Parameter/ParameterCollection.h"
 #include "QSynthi2/Synthesizer/VoiceData.h"
+#include "QSynthi2/Testing/Stopwatch.h"
 
 class Data {
 public:
@@ -27,6 +28,9 @@ public:
     //
     ParameterCollection* parameters;
     List<std::shared_ptr<VoiceData>> voiceData{};
+
+    Stopwatch tmp_simtime{"simTime"}, tmp_ffttime{"fftTime"}, tmp_blocktime{"blockTime"};
+    std::atomic_long tmp_numsimsteps = 0, tmp_numsamples = 0, tmp_numblocks = 0, tmp_print = 0;
 
     // context: audio thread
     //

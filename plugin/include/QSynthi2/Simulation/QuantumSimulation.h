@@ -57,7 +57,7 @@ public:
     bool isContinuous() override;
 
     [[nodiscard]] const List<RealMatrix>& getPotentials() const { return potentials; }
-    [[nodiscard]] const ComplexMatrix& getPsi() const { return started ? psi : initialPsi; }
+    [[nodiscard]] const ComplexMatrix& getPsi() const { return started ? phi : initialPhi; }
     [[nodiscard]] Eigen::Index getW() const { return W; }
     [[nodiscard]] Eigen::Index getH() const { return H; }
 
@@ -87,17 +87,17 @@ private:
     RealMatrix parabolaPotentialTemp;
     RealMatrix barrierPotentialTemp;
     RealMatrix barrierPotentialMask;
-    ComplexMatrix potentialPrecalc;
-    ComplexMatrix thetaPrecalc;
-    ComplexMatrix initialPsi;
-    ComplexMatrix psi;
-    ComplexMatrix psiFFT;
+    ComplexMatrix potentialPrecalculation;
+    ComplexMatrix momentumPrecalculation;
+    ComplexMatrix initialPhi;
+    ComplexMatrix phi;
+    ComplexMatrix phiFFT;
     bool started;
 
-    void calculateNextPsi(Decimal timestep);
+    void calculateNextPhi(Decimal timestep);
 
     // returns pointer to psi for started simulation, else initialPsi
-    ComplexMatrix* getPsiToChange() { return started ? &psi : &initialPsi; }
+    ComplexMatrix* getPsiToChange() { return started ? &phi : &initialPhi; }
 
     // index to coordinates, normalized to [-1;1]
     [[nodiscard]] Decimal xOf(const Eigen::Index i) const { return (static_cast<Decimal>(i / W) - Wf/2) / (Wf/2); }  // NOLINT(*-integer-division)
