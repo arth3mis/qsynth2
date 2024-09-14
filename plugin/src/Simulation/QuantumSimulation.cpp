@@ -32,6 +32,7 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
             thetaPrecalc(j, i) = theta * Complex(0, 1);
         }
     }
+    thetaPrecalc = Eigen::exp(thetaPrecalc);
 }
 
 QuantumSimulation::~QuantumSimulation() = default;
@@ -49,6 +50,7 @@ QuantumSimulation & QuantumSimulation::linearPotential(const Decimal angle, cons
         linearPotentialTemp(yIndexOf(i), xIndexOf(i)) += -factor * (angleCos * x + angleSin * y);
     }
     potentialPrecalc = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
+    potentialPrecalc = Eigen::exp(potentialPrecalc);
     return *this;
 }
 
@@ -61,6 +63,7 @@ QuantumSimulation& QuantumSimulation::parabolaPotential(const V2& offset, const 
         parabolaPotentialTemp(yIndexOf(i), xIndexOf(i)) += factor.x * x*x + factor.y * y*y;
     }
     potentialPrecalc = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
+    potentialPrecalc = Eigen::exp(potentialPrecalc);
     return *this;
 }
 
@@ -106,6 +109,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const int type, const Dec
     barrierPotentialMask = 1 - barrierPotentialTemp.cwiseMin(1);
 
     potentialPrecalc = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
+    potentialPrecalc = Eigen::exp(potentialPrecalc);
     return *this;
 }
 
@@ -273,14 +277,14 @@ void QuantumSimulation::calculateNextPsi(const Decimal timestep) {
     static const pocketfft::shape_t shape{ static_cast<size_t>(W), static_cast<size_t>(H) };
 
     // potential part
-    psi *= Eigen::exp(potentialPrecalc * timestep);
+    psi *= Eigen::pow(potentialPrecalc, timestep);
 
     // FFT (to momentum space)
     pocketfft::c2c(shape, stride, stride, { 0, 1 },
     true, psi.data(), psiFFT.data(), static_cast<Decimal>(1.0 / std::sqrt(Wf*Hf)));
 
     // momentum part
-    psiFFT *= Eigen::exp(thetaPrecalc * timestep);
+    psiFFT *= Eigen::pow(thetaPrecalc, timestep);
 
     // inverse FFT (to position space)
     pocketfft::c2c(shape, stride, stride, { 0, 1 },
