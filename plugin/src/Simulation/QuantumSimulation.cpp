@@ -29,10 +29,10 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
             const Decimal k = pi2 * std::min(static_cast<Decimal>(i), Wf-static_cast<Decimal>(i)) / Wf;
             const Decimal l = pi2 * std::min(static_cast<Decimal>(j), Hf-static_cast<Decimal>(j)) / Hf;
             const Decimal theta = (k*k + l*l);
-            momentumPrecalculation(j, i) = theta;// * Complex(0, 1);
+            momentumPrecalculation(j, i) = theta * Complex(0, 1);
         }
     }
-    // momentumPrecalculation = Eigen::exp(momentumPrecalculation);
+    momentumPrecalculation = Eigen::exp(momentumPrecalculation);
 }
 
 QuantumSimulation::~QuantumSimulation() = default;
@@ -49,8 +49,8 @@ QuantumSimulation & QuantumSimulation::linearPotential(const Decimal angle, cons
 
         linearPotentialTemp(yIndexOf(i), xIndexOf(i)) += -factor * (angleCos * x + angleSin * y);
     }
-    potentialPrecalculation = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp);// * Complex(0, 1);
-    // potentialPrecalculation = Eigen::exp(potentialPrecalculation);
+    potentialPrecalculation = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
+    potentialPrecalculation = Eigen::exp(potentialPrecalculation);
     return *this;
 }
 
@@ -62,8 +62,8 @@ QuantumSimulation& QuantumSimulation::parabolaPotential(const V2& offset, const 
         const Decimal y = yOf(i) - offset.y;
         parabolaPotentialTemp(yIndexOf(i), xIndexOf(i)) += factor.x * x*x + factor.y * y*y;
     }
-    potentialPrecalculation = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp);// * Complex(0, 1);
-    // potentialPrecalculation = Eigen::exp(potentialPrecalculation);
+    potentialPrecalculation = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
+    potentialPrecalculation = Eigen::exp(potentialPrecalculation);
     return *this;
 }
 
@@ -108,8 +108,8 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const int type, const Dec
     // create mask that is 0 in barrier regions and 1 else -> sets psi values inside the barrier to 0 to clean simulation
     barrierPotentialMask = 1 - barrierPotentialTemp.cwiseMin(1);
 
-    potentialPrecalculation = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp);// * Complex(0, 1);
-    // potentialPrecalculation = Eigen::exp(potentialPrecalculation);
+    potentialPrecalculation = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
+    potentialPrecalculation = Eigen::exp(potentialPrecalculation);
     return *this;
 }
 
@@ -279,7 +279,7 @@ void QuantumSimulation::calculateNextPhi(const Decimal timestep) {
     sharedData.tmp_numsimsteps++;
     sharedData.tmp_simtime.start();
     // potential part
-    phi *= Eigen::exp(Complex(0,1) * potentialPrecalculation * timestep);
+    phi *= Eigen::pow(potentialPrecalculation, timestep);
 
     sharedData.tmp_ffttime.start();
     // FFT (to momentum space)
@@ -288,7 +288,7 @@ void QuantumSimulation::calculateNextPhi(const Decimal timestep) {
     sharedData.tmp_ffttime.stop();
 
     // momentum part
-    phiFFT *= Eigen::exp(Complex(0,1) * momentumPrecalculation * timestep);
+    phiFFT *= Eigen::pow(momentumPrecalculation, timestep);
 
     sharedData.tmp_ffttime.start();
     // inverse FFT (to position space)
