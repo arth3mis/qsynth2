@@ -32,7 +32,6 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
             momentumPrecalculation(j, i) = theta * Complex(0, 1);
         }
     }
-    momentumPrecalculation = Eigen::exp(momentumPrecalculation);
 }
 
 QuantumSimulation::~QuantumSimulation() = default;
@@ -50,7 +49,6 @@ QuantumSimulation & QuantumSimulation::linearPotential(const Decimal angle, cons
         linearPotentialTemp(yIndexOf(i), xIndexOf(i)) += -factor * (angleCos * x + angleSin * y);
     }
     potentialPrecalculation = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
-    potentialPrecalculation = Eigen::exp(potentialPrecalculation);
     return *this;
 }
 
@@ -63,7 +61,6 @@ QuantumSimulation& QuantumSimulation::parabolaPotential(const V2& offset, const 
         parabolaPotentialTemp(yIndexOf(i), xIndexOf(i)) += factor.x * x*x + factor.y * y*y;
     }
     potentialPrecalculation = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
-    potentialPrecalculation = Eigen::exp(potentialPrecalculation);
     return *this;
 }
 
@@ -109,7 +106,6 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const int type, const Dec
     barrierPotentialMask = 1 - barrierPotentialTemp.cwiseMin(1);
 
     potentialPrecalculation = (linearPotentialTemp + parabolaPotentialTemp + barrierPotentialTemp) * Complex(0, 1);
-    potentialPrecalculation = Eigen::exp(potentialPrecalculation);
     return *this;
 }
 
@@ -279,7 +275,7 @@ void QuantumSimulation::calculateNextPhi(const Decimal timestep) {
     sharedData.tmp_numsimsteps++;
     sharedData.tmp_simtime.start();
     // potential part
-    phi *= Eigen::pow(potentialPrecalculation, timestep);
+    phi *= Eigen::exp(potentialPrecalculation * timestep);
 
     sharedData.tmp_ffttime.start();
     // FFT (to momentum space)
@@ -288,7 +284,7 @@ void QuantumSimulation::calculateNextPhi(const Decimal timestep) {
     sharedData.tmp_ffttime.stop();
 
     // momentum part
-    phiFFT *= Eigen::pow(momentumPrecalculation, timestep);
+    phiFFT *= Eigen::exp(momentumPrecalculation * timestep);
 
     sharedData.tmp_ffttime.start();
     // inverse FFT (to position space)
