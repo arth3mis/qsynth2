@@ -3,7 +3,7 @@
 
 extern Data sharedData;
 
-Sonifier::Sonifier(std::shared_ptr<VoiceData> voiceData) : scanner(voiceData) {
+Sonifier::Sonifier(const std::shared_ptr<VoiceData>& _voiceData) : voiceData(_voiceData), scanner(_voiceData) {
 
 }
 
@@ -14,6 +14,8 @@ Eigen::ArrayX<Decimal> Sonifier::generateNextBlock(const std::function<Eigen::Ar
                                                    const ModulationData &modulationData) {
 
     const auto& frequency = sharedData.parameters->baseFrequency->getModulated(modulationData);
+    jassert(frequency.unaryExpr([](Decimal f){ return !isnan(f); }).all());
+    voiceData->frequency = frequency(Eigen::last);
 
     auto phases = Eigen::ArrayXX<Decimal>(samplesPerBlock, 1);
 

@@ -15,13 +15,17 @@ sonifier(voiceData) {
 
 
 Decimal Voice::frequencyToModulationValue(double frequency) {
-    return log2(frequency / ModulationData::PITCH_MODULATION_NEUTRAL_FREQUENCY);
+    Decimal modulationValue = log2(frequency / ModulationData::PITCH_MODULATION_NEUTRAL_FREQUENCY);
+    jassert(!isnan(modulationValue));
+    return modulationValue;
 }
 
 
 
 Decimal Voice::relativeFrequencyToModulationValue(double frequency) {
-    return 24 * log2(frequency / initialFrequency);
+    Decimal modulationValue = 24 * log2(frequency / initialFrequency);
+    jassert(!isnan(modulationValue));
+    return modulationValue;
 }
 
 
@@ -168,7 +172,6 @@ Eigen::ArrayX<Decimal> Voice::generateNextBlock() {
         voiceData->gain = 0;
     } else {
         voiceData->gain = modulationData.atSource(ModulationData::Sources::ENVELOPE1)(Eigen::last);
-        voiceData->frequency = currentlyPlayingNote.getFrequencyInHertz();
     }
 
     //juce::Logger::writeToLog(juce::String(modulationData.atSource(ModulationData::Sources::ENVELOPE1)(Eigen::last)) + " -> " + juce::String(envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1))(Eigen::last)));

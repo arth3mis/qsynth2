@@ -7,7 +7,7 @@
 class Sonifier {
 public:
 
-    Sonifier(std::shared_ptr<VoiceData> voiceData);
+    explicit Sonifier(const std::shared_ptr<VoiceData>& _voiceData);
 
     Eigen::ArrayX<Decimal> generateNextBlock(const std::function<Eigen::ArrayX<Decimal>(const Eigen::ArrayX<Decimal>&, Scanner &scanner, const ModulationData&)>& sonificationMethod, const ModulationData& modulationData);
 
@@ -25,6 +25,7 @@ protected:
 
     Decimal phase0to1 = 0;
 
+    std::shared_ptr<VoiceData> voiceData;
     Scanner scanner;
 
     Decimal sampleRate = 0;

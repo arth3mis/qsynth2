@@ -22,7 +22,7 @@ public:
             juce::NormalisableRange<float>(0, 2, 0, 0.5f, false),
             0.2f);
     ModulatedParameterFloat* simulationHistorySeconds = add<ModulatedParameterFloat>(
-            "Simulation saved history seconds",
+            "Simulation history",
             juce::NormalisableRange<float>(0, 300, 1, 0.5f, false),
             30.f);
 
@@ -70,7 +70,7 @@ public:
     ModulatedParameterFloat* audificationSmoothing = add<ModulatedParameterFloat>(
             "Audification scanline-smoothing",
             juce::NormalisableRange<float>(0, 1, 0, 0.5f, false),
-            0.2f);
+            0);
     juce::AudioParameterChoice* timbreOvertoneLayout = add<juce::AudioParameterChoice>(
             juce::ParameterID("Overtone layout", Parameters::VERSION),
             "Overtone layout",
