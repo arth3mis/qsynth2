@@ -24,7 +24,7 @@ you should [build](#custom-build-setup) the plugin yourself.
 
 ## Custom Build Setup
 
-This project can be easily built using CMake.
+This project can be built using CMake.
 The following tools must be installed on your system:
 - CMake Version 3.22 or higher
 - C++ compiler for C++ 20, e.g. g++, clang, MinGW
@@ -33,8 +33,8 @@ The following tools must be installed on your system:
 
 Clone the repository and open it in your IDE.
 
-When your build has succeeded, you will find the VST3 and AU Plugin files here (relative to the project directory):
-``build/plugin/AudioPlugin_artefacts/Release/VST3/``
+When your build has succeeded, you will find the VST3 and AU Plugin files here (relative to the project directory):  
+``build/plugin/AudioPlugin_artefacts/Release/VST3/`` (on Windows, the actual VST3 file is further nested in ``.../QSynth2.vst3/Contents/x86_64-win/``)  
 ``build/plugin/AudioPlugin_artefacts/Release/AU/``
 
 If errors occur during the setup, you can retry by deleting the build folder.
@@ -52,10 +52,12 @@ Please install the CMake extension (twxs.cmake) inside Visual Studio Code.
 Visual Studio Code should be able to detect the project and offer you to configure it.
 You can also right-click the file ``CMakeLists.txt`` in the project root directory and select "Configure All Projects".
 
-In the CMake tab on the left side of VS Code, you will now find the "Project Outline" containing
-the buildable targets. Select ``AudioPlugin_All`` as the default build target or build it
-via the button or right-clicking.
+In the CMake tab on the left side of VS Code, you will now find the "Project Status". Under "Configure", 
+set your CMake Toolkit if none is selected, and change the build variant from ``Debug`` to ``Release``.
+In the same tab, you find the "Project Outline" containing the buildable targets. 
+Select ``AudioPlugin_All`` (grouped under "AudioPlugin") as the default build target, or build it via the button next to it or by right-clicking.
 
+If a Debug build was running and you change to Release, you must delete the ``build`` folder in the main directory before rebuilding.
 
 ### CLion
 

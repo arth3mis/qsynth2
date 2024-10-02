@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(QSynthi2)
+project(QSynth2)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -11,11 +11,21 @@ set(CMAKE_CXX_STANDARD 20)
 # If you want to install them system wide, set CPM_SOURCE_CACHE with the path to the dependencies
 # either as an environment variable or pass it to the cmake script with -DCPM_SOURCE_CACHE=<path>.
 
-IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs-debug)
-ELSE()
-    set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs-release)
-ENDIF()
+# set library dir to release path, maybe overwrite with debug path
+set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs-release)
+
+if (CMAKE_GENERATOR STREQUAL "Ninja" OR CMAKE_GENERATOR STREQUAL "Unix Makefiles")
+    # Single-config generator
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs-debug)
+    endif()
+else()
+    # Multi-config generator (like MSVC)
+    if (CMAKE_CFG_INTDIR STREQUAL "Debug")
+        message("debug msvc")
+        set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs-debug)
+    endif()
+endif()
 
 # Downloads CPM if not already downloaded. CPM is an easy-to-use package manager nicely integrated with CMake.
 include(cmake/get_cpm.cmake)
