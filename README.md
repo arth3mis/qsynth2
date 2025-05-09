@@ -1,13 +1,25 @@
 # QSynth2
-Quantum Synthesiser from Schrödinger's Equation - Advanced
+QSynth2 is a Synthesizer Plugin (VST3, AU) that lets you interact with quantum systems in various ways.
+- 2D Quantum Simulation
+- Real-Time Interactivity
+- Multiple sonification methods
+- Dynamic parameter mappings
 
 ## About the project
 
 This project aims to explore the sonification (data→sound) of 2D simulations,
 with the Schrödinger Equation as a starting point.
 
-The original project (with our Paper) can be found at http://qsynthi.com 
+The paper "Interactive Sonification of 2D Quantum Systems", 
+which describes the research and development processes behind this Synthesizer,
+has been accepted at the ICAD 2025 (International Conference on Auditory Display). 
+
+The predecessor project (with our ICAD 2023 paper) can be found at http://qsynthi.com 
 and on [GitHub](https://github.com/arth3mis/qsynthi).
+
+The different parts (simulation, sonification, parameter modulation) follow a modular design,
+so they can be re-used and re-purposed for other setups. For example, check out the `video` branch
+where a video file can be loaded as the "simulation" to be turned into sound.
 
 ---
 
