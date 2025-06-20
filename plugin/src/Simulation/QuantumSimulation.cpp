@@ -16,6 +16,7 @@ QuantumSimulation::QuantumSimulation(const int width, const int height)
     linearPotentialTemp = RealMatrix::Zero(H, W);
     parabolaPotentialTemp = RealMatrix::Zero(H, W);
     barrierPotentialTemp = RealMatrix::Zero(H, W);
+    barrierPotentialMask = RealMatrix::Ones(H, W);
 
     initialPsi = ComplexMatrix::Zero(H, W);
     psi = ComplexMatrix::Zero(H, W);
