@@ -2,6 +2,7 @@
 #include "QSynthi2/Juce.h"
 #include "QSynthi2/FFT.h"
 #include <cmath>
+#include <algorithm>
 #include <QSynthi2/Data.h>
 
 extern Data sharedData;
@@ -84,7 +85,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const int type, const Dec
                 }
                 if (isSlit) continue;
                 for (int j = 0; j < width; ++j) {
-                    barrierPotentialTemp(std::max(static_cast<long>(0), toY(offset) - width/2 + j), i) = value;
+                    barrierPotentialTemp(std::max(static_cast<long>(0), static_cast<long>(toY(offset) - width/2 + j)), i) = value;
                 }
             }
         }
@@ -96,7 +97,7 @@ QuantumSimulation& QuantumSimulation::barrierPotential(const int type, const Dec
                 }
                 if (isSlit) continue;
                 for (int j = 0; j < width; ++j) {
-                    barrierPotentialTemp(i, std::max(static_cast<long>(0), toX(offset) - width/2 + j)) = value;
+                    barrierPotentialTemp(i, std::max(static_cast<long>(0), static_cast<long>(toX(offset) - width/2 + j))) = value;
                 }
             }
         }

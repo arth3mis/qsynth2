@@ -5,13 +5,21 @@ project(AudioPlugin VERSION 0.1.5)
 
 # Adding a directory with the library/application name as a subfolder of the
 # include folder is a good practice. It helps avoid name clashes later on.
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/QSynthi2")
+set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/QSynth2")
 
-IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    set(PROD_NAME "QSynthi2-Debug")
-ELSE()
-    set(PROD_NAME "QSynthi2")
-ENDIF()
+set(PROD_NAME "QSynth2")
+
+if (CMAKE_GENERATOR STREQUAL "Ninja" OR CMAKE_GENERATOR STREQUAL "Unix Makefiles")
+    # Single-config generator
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(PROD_NAME "QSynth2-Debug")
+    endif()
+else()
+    # Multi-config generator (like MSVC)
+    if (CMAKE_CFG_INTDIR STREQUAL "Debug")
+        set(PROD_NAME "QSynth2-Debug")
+    endif()
+endif()
 
 # Adds a plugin target (that's basically what the Projucer does).
 juce_add_plugin(${PROJECT_NAME}
