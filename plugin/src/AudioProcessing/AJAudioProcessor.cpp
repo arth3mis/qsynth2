@@ -90,15 +90,26 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         // TODO
         //  - If offline rendering: Busy wait until simulation is ready
         //  - Else: slow down simulation speed for audio processing to just use available frames
-        if (simulationThread->frameReadyCount() <= neededSimulationFrames) {
-            juce::Logger::writeToLog("Busy wait for simulation thread.");
+        size_t frameReadyCount = simulationThread->frameReadyCount();
+        if (frameReadyCount < neededSimulationFrames) {
+            /*juce::Logger::writeToLog("Busy wait for simulation thread.");
             int busyWaitCounter = 0;
-            while (simulationThread->frameReadyCount() <= neededSimulationFrames) {
+            while (simulationThread->frameReadyCount() < neededSimulationFrames) {
                 busyWaitCounter++;
                 if (busyWaitCounter >= 100000) {
                     break;
                 }
-            }
+            }*/
+
+            // Slow frame buffer down to only use available frames
+            Decimal firstFrameBufferTimestamp = sharedData.frameBufferTimestamps[0];
+            sharedData.frameBufferTimestamps -= firstFrameBufferTimestamp;
+            sharedData.frameBufferTimestamps *= static_cast<Decimal>(frameReadyCount) / sharedData.frameBufferTimestamps(Eigen::last);
+            sharedData.frameBufferTimestamps += firstFrameBufferTimestamp;
+
+            currentSimulationFrame -= static_cast<Decimal>(neededSimulationFrames - simulationThread->frameReadyCount());
+
+            juce::Logger::writeToLog("Simulation thread behind. Using only " + juce::String(simulationThread->frameReadyCount()) + " of " + juce::String(neededSimulationFrames) + " requested frames");
         }
         // juce::Logger::writeToLog("Simulation thread is " + juce::String(simulationThread->frameReadyCount() - neededSimulationFrames) + " frames ahead.");
 
