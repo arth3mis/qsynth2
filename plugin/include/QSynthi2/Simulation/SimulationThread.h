@@ -16,7 +16,7 @@ public:
     ~SimulationThread();
 
     void simulationLoop();
-    void updateParameters(const ParameterCollection* parameterCollection, const List<ModulationData*>& modulationDataList);
+    bool updateParameters(const ParameterCollection* parameterCollection, const List<ModulationData*>& modulationDataList);
     void appendFrame(const SimulationFramePointer& f);
     FrameList getFrames(size_t n);
     SimulationFramePointer getStartFrame();

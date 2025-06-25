@@ -63,8 +63,13 @@ void AudioPluginAudioProcessorEditor::resized()
 
     const int simSize = width - controlsDisplayMinSize < height ? width - controlsDisplayMinSize : height;
 
-    gpe->setTopLeftPosition(0, 50);
-    gpe->setSize(width - simSize, height);
+    int progressBarSpaceY = 0;
+#if SHOW_BUFFER_FILL_PROGRESS==1
+    progressBarSpaceY = 50;
+#endif
+
+    gpe->setTopLeftPosition(0, progressBarSpaceY);
+    gpe->setSize(width - simSize, height - progressBarSpaceY);
 
     simulationDisplay.setTopLeftPosition(width - simSize, 0);
     simulationDisplay.setSize(simSize, simSize);

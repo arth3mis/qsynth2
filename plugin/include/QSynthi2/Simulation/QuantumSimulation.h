@@ -49,7 +49,7 @@ public:
 
     void reset() override;
     void setState(SimulationFramePointer frame) override;
-    void updateParameters(const ParameterCollection *p, const List<ModulationData*> &m) override;
+    bool updateParameters(const ParameterCollection *p, const List<ModulationData*> &m, bool isPlaying) override;
 
     // getters
     SimulationFramePointer getStartFrame() override;

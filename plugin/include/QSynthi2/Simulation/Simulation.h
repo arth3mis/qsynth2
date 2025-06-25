@@ -16,7 +16,7 @@ public:
     virtual bool isContinuous() = 0;
     virtual void reset() = 0;
     virtual void setState(SimulationFramePointer frame) = 0;
-    virtual void updateParameters(const ParameterCollection* parameterCollection, const List<ModulationData*> &modulationDataList) = 0;
+    virtual bool updateParameters(const ParameterCollection* parameterCollection, const List<ModulationData*> &modulationDataList, bool isPlaying) = 0;
 };
 
 #endif //SIMULATION_H

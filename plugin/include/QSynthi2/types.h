@@ -20,6 +20,8 @@ typedef Vec2<Decimal> V2;
 
 typedef std::complex<Decimal> Complex;
 
+typedef Eigen::ArrayX<Decimal> ArrayX;
+
 typedef Eigen::ArrayXX<Complex> ComplexMatrix;
 typedef Eigen::ArrayXX<Decimal> RealMatrix;
 

@@ -24,17 +24,19 @@ void SimulationThread::simulationLoop() {
                 historyBuffer.begin(),
                 historyBuffer.begin() + static_cast<long>(historyBuffer.size() - historySize));
         }
+
+        // reset simulation?
+        if (reset) {
+            simulation->reset();
+            historyBuffer.clear();
+            timestamp = 0;
+            std::lock_guard lock(frameMutex);
+            frameBuffer.clear();
+            reset = false;
+        }
+
         // fill buffer
         if (frameBuffer.size() < bufferTargetSize) {
-            // reset simulation
-            if (reset) {
-                simulation->reset();
-                historyBuffer.clear();
-                timestamp = 0;
-                std::lock_guard lock(frameMutex);
-                frameBuffer.clear();
-                reset = false;
-            }
             // append frame buffer
             const Decimal timestep = this->timestep;
             long historyIndex = -2;  // -2: not used; -1: no history available; >=0: can go backward to here
@@ -84,13 +86,13 @@ void SimulationThread::simulationLoop() {
                 historyBuffer.append(frame);
             }
         } else {
-            // else: wait
+            // busy wait; 2025: wait (visibly reduced CPU load when not playing and buffer was filled)
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
 }
 
-void SimulationThread::updateParameters(const ParameterCollection* parameterCollection, const List<ModulationData*> &modulationDataList) {
+bool SimulationThread::updateParameters(const ParameterCollection* parameterCollection, const List<ModulationData*> &modulationDataList) {
     const Decimal simulationStepsPerSecond = parameterCollection->simulationStepsPerSecond->getSingleModulated(modulationDataList);
     const Decimal simulationSpeedFactor = parameterCollection->simulationSpeedFactor->getSingleModulated(modulationDataList);
     const Decimal simulationBufferSeconds = parameterCollection->simulationBufferSeconds->getSingleModulated(modulationDataList);
@@ -107,12 +109,21 @@ void SimulationThread::updateParameters(const ParameterCollection* parameterColl
     this->simulationSpeedFactor = simulationSpeedFactor;
     this->simulationStepsPerSecond = simulationStepsPerSecond;
 
+    // calculate simulation "meta" settings
+    // TODO note: actual buffer is not reduced when size shrinks, could be important if we don't fix the buffer-accuracy mismatch
     bufferTargetSize = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));
     historySize = static_cast<size_t>(simulationHistorySeconds * simulationStepsPerSecond);
     timestep = simulationSpeedFactor / simulationStepsPerSecond;
 
-    // simulation parameters
-    simulation->updateParameters(parameterCollection, modulationDataList);
+    // update simulation parameters
+    bool simulationParametersChanged = simulation->updateParameters(parameterCollection, modulationDataList, playing);
+    // reset if not playing and parameters changed (enables live preview)
+    if (!playing && simulationParametersChanged) {
+        reset = true;
+
+        return true;
+    }
+    return false;
 }
 
 void SimulationThread::appendFrame(const SimulationFramePointer& f) {
@@ -127,7 +138,7 @@ void SimulationThread::appendFrame(const SimulationFramePointer& f) {
 
 FrameList SimulationThread::getFrames(const size_t n) {
     std::lock_guard lock(frameMutex);
-    jassert(bufferTargetSize >= 2 * n); // buffer must at least double the size of requested frames, so the simulation thread can write in one half while the audio thread reads the other half
+    //jassert(bufferTargetSize >= 2 * n); // buffer must at least double the size of requested frames, so the simulation thread can write in one half while the audio thread reads the other half
 
     const auto first = frameBuffer.begin();
     const auto last = std::next(first, static_cast<long>(std::min(n, frameBuffer.size())));

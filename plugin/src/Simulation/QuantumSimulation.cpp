@@ -185,7 +185,9 @@ void QuantumSimulation::setState(const SimulationFramePointer frame) {
     psi = newPsi->getRaw();
 }
 
-void QuantumSimulation::updateParameters(const ParameterCollection *p, const List<ModulationData*> &m) {
+bool QuantumSimulation::updateParameters(const ParameterCollection *p, const List<ModulationData*> &m, bool isPlaying) {
+    // for live preview (if not playing): the simulation must apply changes directly, not wait for getNextFrame.
+
     const Decimal l_gaussianOffsetX = p->gaussianOffsetX->getSingleModulated(m),        l_gaussianOffsetY = p->gaussianOffsetY->getSingleModulated(m);
     const Decimal l_gaussianStretchX = p->gaussianStretchX->getSingleModulated(m),      l_gaussianStretchY = p->gaussianStretchY->getSingleModulated(m);
     const Decimal l_gaussianImpulseX = p->gaussianImpulseX->getSingleModulated(m),      l_gaussianImpulseY = p->gaussianImpulseY->getSingleModulated(m);
@@ -199,36 +201,41 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
     const Decimal l_barrierSlitDistance = p->barrierSlitDistance->getSingleModulated(m);
     const Decimal l_barrierSlitWidth = p->barrierSlitWidth->getSingleModulated(m);
 
+    bool parametersChanged = false;
+
     if (!juce::approximatelyEqual(gaussianOffsetX, l_gaussianOffsetX) ||
         !juce::approximatelyEqual(gaussianOffsetY, l_gaussianOffsetY) ||
         !juce::approximatelyEqual(gaussianStretchX, l_gaussianStretchX) ||
         !juce::approximatelyEqual(gaussianStretchY, l_gaussianStretchY) ||
         !juce::approximatelyEqual(gaussianImpulseX, l_gaussianImpulseX) ||
         !juce::approximatelyEqual(gaussianImpulseY, l_gaussianImpulseY)) {
-        if (started) {
+        if (started && isPlaying) {
             updateGaussian = true;
         } else {
             resetGaussianDistribution(true);
             gaussianDistribution({l_gaussianOffsetX, l_gaussianOffsetY}, {l_gaussianStretchX, l_gaussianStretchY}, {l_gaussianImpulseX, l_gaussianImpulseY}, true);
         }
+        parametersChanged = true;
     }
     if (!juce::approximatelyEqual(linearAngle, l_linearAngle) ||
         !juce::approximatelyEqual(linearFactor, l_linearFactor)) {
-        if (started) {
+        if (started && isPlaying) {
             updateLinear = true;
         } else {
             linearPotential(l_linearAngle, l_linearFactor);
         }
+        parametersChanged = true;
     }
     if (!juce::approximatelyEqual(parabolaOffsetX, l_parabolaOffsetX) ||
         !juce::approximatelyEqual(parabolaOffsetY, l_parabolaOffsetY) ||
         !juce::approximatelyEqual(parabolaFactorX, l_parabolaFactorX) ||
         !juce::approximatelyEqual(parabolaFactorY, l_parabolaFactorY)) {
-        if (started) {
+        if (started && isPlaying) {
             updateParabola = true;
         } else {
             parabolaPotential({l_parabolaOffsetX, l_parabolaOffsetY}, {l_parabolaFactorX, l_parabolaFactorY});
         }
+        parametersChanged = true;
     }
     if (!juce::approximatelyEqual(barrierType, l_barrierType) ||
         !juce::approximatelyEqual(barrierOffset, l_barrierOffset) ||
@@ -236,7 +243,7 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
         !juce::approximatelyEqual(barrierSlitCount, l_barrierSlitCount) ||
         !juce::approximatelyEqual(barrierSlitDistance, l_barrierSlitDistance) ||
         !juce::approximatelyEqual(barrierSlitWidth, l_barrierSlitWidth)) {
-        if (started) {
+        if (started && isPlaying) {
             updateBarrier = true;
         } else {
             List<V2> slits;
@@ -250,6 +257,7 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
             sharedData.barrierWidth = l_barrierWidth;
             sharedData.barrierSlits = slits;
         }
+        parametersChanged = true;
     }
 
     gaussianOffsetX = l_gaussianOffsetX;        gaussianOffsetY = l_gaussianOffsetY;
@@ -264,6 +272,8 @@ void QuantumSimulation::updateParameters(const ParameterCollection *p, const Lis
     barrierSlitCount = l_barrierSlitCount;
     barrierSlitDistance = l_barrierSlitDistance;
     barrierSlitWidth = l_barrierSlitWidth;
+
+    return parametersChanged;
 }
 
 SimulationFramePointer QuantumSimulation::getStartFrame() {

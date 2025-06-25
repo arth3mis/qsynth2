@@ -61,7 +61,7 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     List<ModulationData*> modulationDataList = activeVoices.map<ModulationData*>([](Voice* v){ return v->getModulationData(); });
     // TODO pre-allocate EVERYTHING
     Eigen::ArrayX<Decimal> simulationFrameIncrement = sharedData.parameters->simulationStepsPerSecond->getModulated(modulationDataList) / sampleRate;
-    simulationThread->updateParameters(sharedData.parameters, modulationDataList);
+    bool simulationParametersChanged = simulationThread->updateParameters(sharedData.parameters, modulationDataList);
 
     // Update simulation buffer progress bar
     int frameReadyCount = simulationThread->frameReadyCount();
@@ -84,7 +84,11 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
             firstRun = false;
             juce::Logger::writeToLog("Reset");
         }
-        // else: do nothing (return to JUCE)
+        // update display frame to enable live preview when not playing
+        if (simulationParametersChanged) {
+            sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
+        }
+        // else/finally: do nothing, return to JUCE
     }
     // main audio logic, fetching simulation frames and generating the requested sample block
     else {
