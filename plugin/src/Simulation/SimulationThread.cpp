@@ -5,7 +5,8 @@ SimulationThread::SimulationThread(const std::shared_ptr<Simulation> &s) {
     simulation = s;
     timestamp = 0;
     newestFrame = -1;
-    started = false;
+    started = true;  // 2025: always started to fill buffer with moving sim frames even before/when not playing
+    playing = false;
     terminate = false;
     reset = false;
     t = std::thread(&SimulationThread::simulationLoop, this);
@@ -17,8 +18,8 @@ SimulationThread::~SimulationThread() {
 
 void SimulationThread::simulationLoop() {
     while (!terminate) {
-        // cut history buffer
-        if (historyBuffer.size() > historySize) {
+        // cut history buffer (with tolerance to reduce operations)
+        if (historyBuffer.size() > historySize * 1.2) {
             historyBuffer.erase(
                 historyBuffer.begin(),
                 historyBuffer.begin() + static_cast<long>(historyBuffer.size() - historySize));
@@ -82,8 +83,10 @@ void SimulationThread::simulationLoop() {
                 appendFrame(frame);
                 historyBuffer.append(frame);
             }
+        } else {
+            // else: wait
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-        // else: busy wait
     }
 }
 
@@ -92,6 +95,17 @@ void SimulationThread::updateParameters(const ParameterCollection* parameterColl
     const Decimal simulationSpeedFactor = parameterCollection->simulationSpeedFactor->getSingleModulated(modulationDataList);
     const Decimal simulationBufferSeconds = parameterCollection->simulationBufferSeconds->getSingleModulated(modulationDataList);
     const Decimal simulationHistorySeconds = parameterCollection->simulationHistorySeconds->getSingleModulated(modulationDataList);
+
+    // if not playing: check speed/accuracy, reset buffer if changed
+    // otherwise, the buffer will have buffered frames with different settings, which feels bad for large buffers
+    if (!playing) {
+        if (!juce::approximatelyEqual(this->simulationSpeedFactor, simulationSpeedFactor) ||
+            !juce::approximatelyEqual(this->simulationStepsPerSecond, simulationStepsPerSecond)) {
+            reset = true;
+        }
+    }
+    this->simulationSpeedFactor = simulationSpeedFactor;
+    this->simulationStepsPerSecond = simulationStepsPerSecond;
 
     bufferTargetSize = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));
     historySize = static_cast<size_t>(simulationHistorySeconds * simulationStepsPerSecond);
@@ -107,6 +121,7 @@ void SimulationThread::appendFrame(const SimulationFramePointer& f) {
     f->timestamp = timestamp;
     std::lock_guard lock(frameMutex);
     frameBuffer.append(f);
+    // juce::Logger::writeToLog("append frame, new size " + juce::String(frameBuffer.size()));
     ++newestFrame;
 }
 
@@ -118,6 +133,7 @@ FrameList SimulationThread::getFrames(const size_t n) {
     const auto last = std::next(first, static_cast<long>(std::min(n, frameBuffer.size())));
     auto subList = FrameList(first, last);
     frameBuffer.erase(first, last);
+    // juce::Logger::writeToLog("get frames, new size " + juce::String(frameBuffer.size()));
     return subList;
 }
 
@@ -125,7 +141,7 @@ SimulationFramePointer SimulationThread::getStartFrame() {
     return simulation->getStartFrame();
 }
 
-size_t SimulationThread::frameReadyCount() {
+int SimulationThread::frameReadyCount() {
     std::lock_guard lock(frameMutex);
     return frameBuffer.size();
 }

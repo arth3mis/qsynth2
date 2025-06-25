@@ -13,6 +13,7 @@ public:
     std::atomic<size_t> simulationWidth;
     std::atomic<size_t> simulationHeight;
     std::atomic<bool> resetSimulation{false};
+    std::atomic<Decimal> simulationBufferProgressFraction{0.0};
 
     // context: simulation thread <-> GUI thread
     std::atomic<int> barrierType{0};

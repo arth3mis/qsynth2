@@ -193,13 +193,14 @@ void Scanner::prepareToPlay(Decimal newSampleRate) {
 void Scanner::restart() {
 }
 
-
+#include <malloc.h>
 
 Eigen::ArrayXX<Decimal> Scanner::getValuesLine(const Eigen::ArrayXX<Decimal> &position0to1, const std::function<Eigen::ArrayXX<Decimal>(const FrameList &,
                                                                                                                                         const Eigen::ArrayXX<Decimal> &,
                                                                                                                                         const Eigen::ArrayXX<Decimal> &,
                                                                                                                                         const Eigen::ArrayXX<Decimal> &)>& interpolation,const ModulationData &modulationData) {
 
+    long long before = mallinfo().uordblks;
     Eigen::ArrayX<Decimal> lineOfInterestX = sharedData.parameters->lineOfInterestX->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
     Eigen::ArrayX<Decimal> lineOfInterestY = -sharedData.parameters->lineOfInterestY->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
     Eigen::ArrayX<Decimal> lineOfInterestLength = sharedData.parameters->lineOfInterestLength->getModulated(modulationData);
@@ -232,6 +233,9 @@ Eigen::ArrayXX<Decimal> Scanner::getValuesLine(const Eigen::ArrayXX<Decimal> &po
 
     Eigen::ArrayXX<Decimal> xScaled = (x + 1) / 2 * sharedData.simulationWidth;
     Eigen::ArrayXX<Decimal> yScaled = (y + 1) / 2 * sharedData.simulationHeight;
+
+    long long after = mallinfo().uordblks;
+    // juce::Logger::writeToLog("Scanner::getValuesLine: Allocated " + juce::String(after - before) + " bytes");
 
     return interpolation(sharedData.frameBuffer, timestamps, yScaled, xScaled);
 }

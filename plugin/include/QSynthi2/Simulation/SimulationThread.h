@@ -20,12 +20,13 @@ public:
     void appendFrame(const SimulationFramePointer& f);
     FrameList getFrames(size_t n);
     SimulationFramePointer getStartFrame();
-    size_t frameReadyCount();
+    int frameReadyCount();
     bool isSimulationContinuous();
 
     void resetSimulation();
 
-    std::atomic<bool> started;
+    std::atomic<bool> started;  // TODO 2025: check but I think it can be removed (always true)
+    std::atomic<bool> playing;
     std::atomic<bool> terminate;
 
     std::atomic<bool> reset;
@@ -39,6 +40,8 @@ private:
 
     // parameters
     std::atomic<Decimal> timestep = 0.2;
+    Decimal simulationStepsPerSecond;
+    Decimal simulationSpeedFactor;
     std::atomic<size_t> bufferTargetSize;
     std::atomic<size_t> historySize;
 

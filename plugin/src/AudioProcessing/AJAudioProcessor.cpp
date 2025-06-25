@@ -59,17 +59,38 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     // Update simulation parameters
     auto activeVoices = synth.getActiveVoices();
     List<ModulationData*> modulationDataList = activeVoices.map<ModulationData*>([](Voice* v){ return v->getModulationData(); });
+    // TODO pre-allocate EVERYTHING
     Eigen::ArrayX<Decimal> simulationFrameIncrement = sharedData.parameters->simulationStepsPerSecond->getModulated(modulationDataList) / sampleRate;
     simulationThread->updateParameters(sharedData.parameters, modulationDataList);
 
+    // Update simulation buffer progress bar
+    int frameReadyCount = simulationThread->frameReadyCount();
+    const Decimal simulationStepsPerSecond = sharedData.parameters->simulationStepsPerSecond->getSingleModulated(modulationDataList);
+    const Decimal simulationBufferSeconds = sharedData.parameters->simulationBufferSeconds->getSingleModulated(modulationDataList);
+    const size_t target = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));
+    sharedData.simulationBufferProgressFraction = static_cast<Decimal>(frameReadyCount) / target;
+
+    // always call the first time, then if nothing is playing (continuous: true for video, false for quantum)
     // todo maybe exclude release state voices
-    if (activeVoices.empty() && !simulationThread->isSimulationContinuous()) {
-        simulationThread->resetSimulation();
-        sharedData.resetFrameBuffer();
-        sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
-        simulationThread->started = false;
-    } else {
-        simulationThread->started = true;
+    if (firstRun || (activeVoices.empty() && !simulationThread->isSimulationContinuous())) {
+        // reset simulation and buffer a) when running and playing stopped, b) on first run to reset after updating simulation parameters
+        if (simulationRunning || firstRun) {
+            simulationThread->resetSimulation();
+            sharedData.resetFrameBuffer();
+            sharedData.setSimulationDisplayFrame(simulationThread->getStartFrame());
+            // simulationThread->started = false;  // 2025: simulatio always started to fill buffer
+            simulationRunning = false;
+            simulationThread->playing = false;
+            firstRun = false;
+            juce::Logger::writeToLog("Reset");
+        }
+        // else: do nothing (return to JUCE)
+    }
+    // main audio logic, fetching simulation frames and generating the requested sample block
+    else {
+        // simulationThread->started = true;  // 2025: simulatio always started to fill buffer
+        simulationRunning = true;
+        simulationThread->playing = true;
 
         const auto frameBufferNewFirstFrame = static_cast<size_t>(floor(currentSimulationFrame));
 
@@ -85,34 +106,50 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
             currentSimulationFrame += simulationFrameIncrement[sample];
         }
 
-        size_t neededSimulationFrames = static_cast<size_t>(ceil(currentSimulationFrame)) + 1 - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
+        int neededSimulationFrames = static_cast<int>(ceil(currentSimulationFrame)) + 1 - sharedData.frameBufferFirstFrame - sharedData.frameBuffer.size();
 
         // TODO
         //  - If offline rendering: Busy wait until simulation is ready
         //  - Else: slow down simulation speed for audio processing to just use available frames
-        if (simulationThread->frameReadyCount() <= neededSimulationFrames) {
-            juce::Logger::writeToLog("Busy wait for simulation thread.");
+        if (simulationThread->frameReadyCount() < neededSimulationFrames) {
+            // juce::Logger::writeToLog("Busy wait for simulation thread.");
             int busyWaitCounter = 0;
-            while (simulationThread->frameReadyCount() <= neededSimulationFrames) {
+            // 2025: only wait for 1 frame
+            while (simulationThread->frameReadyCount() < 1) {
                 busyWaitCounter++;
-                if (busyWaitCounter >= 100000) {
+                // ensure loop is not removed by compiler optimisation
+                std::atomic_signal_fence(std::memory_order_seq_cst);
+                // busy wait limit
+                if (busyWaitCounter >= 1000000) {
+                    juce::Logger::writeToLog("VERY LONG busy wait for simulation thread.");
                     break;
                 }
             }
         }
         // juce::Logger::writeToLog("Simulation thread is " + juce::String(simulationThread->frameReadyCount() - neededSimulationFrames) + " frames ahead.");
 
-        // append the shared frame buffer
-        // this also sets the latest simulation frame as the display frame (if a new one arrived)
+        // move new frames from simulation buffer here
         auto newFrames = simulationThread->getFrames(neededSimulationFrames);
-        if (newFrames.empty() && newFrames.size() < neededSimulationFrames) {
-            if (sharedData.frameBuffer.empty()) newFrames.push_back(simulationThread->getStartFrame());
-            else newFrames.push_back(sharedData.frameBuffer.back());
-        }
-        while (newFrames.size() < neededSimulationFrames) newFrames.push_back(newFrames.back());
-        sharedData.appendFrameBuffer(newFrames);
-
         // juce::Logger::writeToLog("got frames: " + juce::String(newFrames.size()) + " of " + juce::String(neededSimulationFrames));
+
+        // got 0 new frames but at least 1 needed?
+        if (newFrames.empty() && neededSimulationFrames > 0) {
+            // push start frame
+            if (sharedData.frameBuffer.empty())
+                newFrames.push_back(simulationThread->getStartFrame());
+            // push latest frame
+            else
+                newFrames.push_back(sharedData.frameBuffer.back());
+        }
+
+        // too few frames? repeat last frame until enough frames are ready
+        while (newFrames.size() < neededSimulationFrames) {
+            newFrames.push_back(newFrames.back());
+        }
+
+        // append shared frame buffer for audio processing
+        // this also sets the latest simulation frame as the display frame (if a new one arrived)
+        sharedData.appendFrameBuffer(newFrames);
 
 
         // Process Audio

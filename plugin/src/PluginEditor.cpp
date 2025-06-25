@@ -9,6 +9,9 @@ extern Data sharedData;
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p)
     , gpe (new juce::GenericAudioProcessorEditor(p))
+#if SHOW_BUFFER_FILL_PROGRESS==1
+    , bufferProgressBar(new ProgressBarComponent(sharedData.simulationBufferProgressFraction))
+#endif
 {
     juce::ignoreUnused (processorRef);
     // Make sure that before the constructor has finished, you've set the
@@ -27,11 +30,19 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     gpe->setResizable(true, false);
     addAndMakeVisible(gpe);
+
+#if SHOW_BUFFER_FILL_PROGRESS==1
+    addAndMakeVisible(bufferProgressBarLabel);
+    addAndMakeVisible(bufferProgressBar);
+#endif
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 {
     delete gpe;
+
+    if (bufferProgressBar)
+        delete bufferProgressBar;
 }
 
 //==============================================================================
@@ -52,11 +63,16 @@ void AudioPluginAudioProcessorEditor::resized()
 
     const int simSize = width - controlsDisplayMinSize < height ? width - controlsDisplayMinSize : height;
 
-    gpe->setTopLeftPosition(0, 0);
+    gpe->setTopLeftPosition(0, 50);
     gpe->setSize(width - simSize, height);
 
     simulationDisplay.setTopLeftPosition(width - simSize, 0);
     simulationDisplay.setSize(simSize, simSize);
 
     // resetButton.setBounds(20, simDisplaySize+10, 130, 25);
+
+#if SHOW_BUFFER_FILL_PROGRESS==1
+    bufferProgressBarLabel.setBounds(20, 10, width - simSize - 100, 15);
+    bufferProgressBar->setBounds(20, 30, width - simSize - 100, 15);
+#endif
 }

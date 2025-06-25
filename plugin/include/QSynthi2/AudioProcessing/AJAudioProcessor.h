@@ -27,4 +27,8 @@ protected:
 
     Decimal currentSimulationFrame = 0;
     SimulationThread* simulationThread;
+
+private:
+    bool firstRun = true;
+    bool simulationRunning = false;
 };
