@@ -35,7 +35,7 @@ public:
     using MPESynthesiserVoice::renderNextBlock; // TODO: Why? Necessary?
 
     // Generates the audio
-    Eigen::ArrayX<Decimal> generateNextBlock();
+    void generateNextBlock(Eigen::ArrayX<Decimal>& outputBuffer);
 
     ModulationData* getModulationData();
 
@@ -45,6 +45,8 @@ public:
 protected:
 
     bool activeThisBlock = false;
+
+    Eigen::ArrayX<Decimal> buffer;
 
     ModulationData modulationData;
     std::shared_ptr<VoiceData> voiceData;

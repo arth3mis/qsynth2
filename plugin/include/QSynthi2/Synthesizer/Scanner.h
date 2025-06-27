@@ -9,32 +9,31 @@ public:
 
     explicit Scanner(std::shared_ptr<VoiceData> voiceData);
 
-    Eigen::ArrayXX<Decimal> getValuesAt(const Eigen::ArrayXX<Decimal> &position0to1, const std::function<Eigen::ArrayXX<Decimal>(const FrameList &frameBuffer,
-                                                                                                                           const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
-                                                                                                                           const Eigen::ArrayXX<Decimal> &y,
-                                                                                                                           const Eigen::ArrayXX<Decimal> &x)>&, const ModulationData &modulationData);
+    // Alternative: template functions (need explicit declaration in cpp after body for public ones, i.e. getValuesAt)
+    typedef Eigen::ArrayXX<Decimal>& (*InterpolationFunc)(
+        const FrameList& frameBuffer,
+        const Eigen::ArrayXX<Decimal>& frameBufferTimestamps,
+        const Eigen::ArrayXX<Decimal>& y,
+        const Eigen::ArrayXX<Decimal>& x
+    );
 
-    Eigen::ArrayXX<Decimal> getValuesLine(const Eigen::ArrayXX<Decimal> &position0to1, const std::function<Eigen::ArrayXX<Decimal>(const FrameList &frameBuffer,
-                                                                                                                             const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
-                                                                                                                             const Eigen::ArrayXX<Decimal> &y,
-                                                                                                                             const Eigen::ArrayXX<Decimal> &x)>&, const ModulationData &modulationData);
+    Eigen::ArrayXX<Decimal>& getValuesAt(const Eigen::ArrayXX<Decimal> &position0to1, InterpolationFunc interpolation, const ModulationData &modulationData);
 
-    Eigen::ArrayXX<Decimal> getValuesCircle(const Eigen::ArrayXX<Decimal> &position0to1, const std::function<Eigen::ArrayXX<Decimal>(const FrameList &frameBuffer,
-                                                                                                                               const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
-                                                                                                                               const Eigen::ArrayXX<Decimal> &y,
-                                                                                                                               const Eigen::ArrayXX<Decimal> &x)>&, const ModulationData &modulationData);
+    Eigen::ArrayXX<Decimal>& getValuesLine(const Eigen::ArrayXX<Decimal> &position0to1, InterpolationFunc interpolation, const ModulationData &modulationData);
 
-    static Eigen::ArrayXX<Decimal> noInterpolation(const FrameList &frameBuffer,
+    Eigen::ArrayXX<Decimal>& getValuesCircle(const Eigen::ArrayXX<Decimal> &position0to1, InterpolationFunc interpolation, const ModulationData &modulationData);
+
+    static Eigen::ArrayXX<Decimal>& noInterpolation(const FrameList &frameBuffer,
                                                    const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
                                                    const Eigen::ArrayXX<Decimal> &y,
                                                    const Eigen::ArrayXX<Decimal> &x);
 
-    static Eigen::ArrayXX<Decimal> linearInterpolation(const FrameList &frameBuffer,
+    static Eigen::ArrayXX<Decimal>& linearInterpolation(const FrameList &frameBuffer,
                                                    const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
                                                    const Eigen::ArrayXX<Decimal> &y,
                                                    const Eigen::ArrayXX<Decimal> &x);
 
-    static Eigen::ArrayXX<Decimal> bicubicInterpolation(const FrameList &frameBuffer,
+    static Eigen::ArrayXX<Decimal>& bicubicInterpolation(const FrameList &frameBuffer,
                                                         const Eigen::ArrayXX<Decimal> &frameBufferTimestamps,
                                                         const Eigen::ArrayXX<Decimal> &y,
                                                         const Eigen::ArrayXX<Decimal> &x);
@@ -94,4 +93,23 @@ private:
     std::shared_ptr<VoiceData> voiceData;
 
     static Eigen::ArrayXX<Decimal> toDecimal(const Eigen::ArrayXX<Complex> &simulationValues);
+
+    // actually local variables - avoid reallocation except when size increases
+    Eigen::ArrayX<Decimal> lineOfInterestX;
+    Eigen::ArrayX<Decimal> lineOfInterestY;
+    Eigen::ArrayX<Decimal> lineOfInterestLength;
+    Eigen::ArrayX<Decimal> lineOfInterestRotation;
+    Eigen::ArrayX<Decimal> xEnd;
+    Eigen::ArrayX<Decimal> yEnd;
+    Eigen::ArrayX<Decimal> xStart;
+    Eigen::ArrayX<Decimal> yStart;
+    Eigen::ArrayX<Decimal> endClipDivisor;
+    Eigen::ArrayX<Decimal> startClipDivisor;
+    // XX
+    Eigen::ArrayXX<Decimal> x;
+    Eigen::ArrayXX<Decimal> y;
+    Eigen::ArrayXX<Decimal> xScaled;
+    Eigen::ArrayXX<Decimal> yScaled;
+    inline static Eigen::ArrayXX<Decimal> interpolatedValues{0, 0};
+
 };

@@ -9,11 +9,18 @@ public:
 
     explicit Sonifier(const std::shared_ptr<VoiceData>& _voiceData);
 
-    Eigen::ArrayX<Decimal> generateNextBlock(const std::function<Eigen::ArrayX<Decimal>(const Eigen::ArrayX<Decimal>&, Scanner &scanner, const ModulationData&)>& sonificationMethod, const ModulationData& modulationData);
+    typedef void (*SonificationFunc)(
+        const Eigen::ArrayX<Decimal>&,
+        Scanner&,
+        const ModulationData&,
+        Eigen::ArrayX<Decimal>& outputBuffer
+    );
 
-    static Eigen::ArrayX<Decimal> audification(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scanner, const ModulationData &modulationData);
+    void generateNextBlock(SonificationFunc sonificationMethod, const ModulationData& modulationData, Eigen::ArrayX<Decimal>& outputBuffer);
 
-    static Eigen::ArrayX<Decimal> timbreMapping(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scanner, const ModulationData &modulationData);
+    static void audification(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scanner, const ModulationData &modulationData, Eigen::ArrayX<Decimal>& outputBuffer);
+
+    static void timbreMapping(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scanner, const ModulationData &modulationData, Eigen::ArrayX<Decimal>& outputBuffer);
 
     void prepareToPlay(Decimal newSampleRate, int samplesPerBlock);
 
@@ -24,10 +31,18 @@ public:
 protected:
 
     Decimal phase0to1 = 0;
+    Eigen::ArrayX<Decimal> phases;
 
     std::shared_ptr<VoiceData> voiceData;
     Scanner scanner;
 
     Decimal sampleRate = 0;
     int samplesPerBlock = 0;
+
+    // actually local variables - avoid reallocation expect when size increases
+    Eigen::ArrayX<Decimal> oscillationsPerSample;
+    inline static Eigen::ArrayX<Decimal> interpolatedValues{0};
+    inline static Eigen::ArrayX<Decimal> phases0to1Overlap{0};
+    inline static Eigen::ArrayX<Decimal> overlapValues{0};
+    inline static Eigen::ArrayX<Decimal> overlapMask{0};
 };

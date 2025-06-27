@@ -6,26 +6,26 @@
 class Synthesiser : public juce::MPESynthesiser {
 public:
 
-    explicit Synthesiser(juce::MPEInstrument& instrument_) : juce::MPESynthesiser(instrument_) {
-
+    explicit Synthesiser(juce::MPEInstrument& instrument_)
+        : juce::MPESynthesiser(instrument_) {
     }
-
-
 
     void prepareToPlay(Decimal newSampleRate, int newSamplesPerBlock) {
         juce::MPESynthesiser::setCurrentPlaybackSampleRate(newSampleRate);
-        samplesPerBlock = newSamplesPerBlock;
 
+        // pre-allocate sample buffer
+        if (newSamplesPerBlock != samplesPerBlock) {
+            samples.resize(newSamplesPerBlock);
+        }
+
+        samplesPerBlock = newSamplesPerBlock;
 
         for (auto mpeVoice : voices) {
             if (auto* voice = dynamic_cast<Voice*>(mpeVoice)) {
                 voice->prepareToPlay(newSampleRate, newSamplesPerBlock);
             }
         }
-
     }
-
-
 
     List<Voice*> getActiveVoices() {
         List<Voice*> activeVoices;
@@ -41,20 +41,18 @@ public:
         return activeVoices;
     }
 
+    Eigen::ArrayX<Decimal>& generateNextBlock() {
+        samples.setZero();
 
-
-    Eigen::ArrayX<Decimal> generateNextBlock() {
-        auto samples = Eigen::ArrayX<Decimal>(samplesPerBlock).setZero();
-
-        getActiveVoices().forEach([&](Voice* v){ samples += v->generateNextBlock(); });
+        getActiveVoices().forEach([&](Voice* v){ v->generateNextBlock(samples); });
 
         return samples;
     }
 
-    //
-
 protected:
 
     int samplesPerBlock = 0;
+
+    Eigen::ArrayX<Decimal> samples;
 
 };

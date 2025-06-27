@@ -8,18 +8,15 @@ Sonifier::Sonifier(const std::shared_ptr<VoiceData>& _voiceData) : voiceData(_vo
 }
 
 
-Eigen::ArrayX<Decimal> Sonifier::generateNextBlock(const std::function<Eigen::ArrayX<Decimal>(const Eigen::ArrayX<Decimal> &,
-                                                                                        Scanner &scanner,
-                                                                                        const ModulationData &)>& sonificationMethod,
-                                                   const ModulationData &modulationData) {
+void Sonifier::generateNextBlock(SonificationFunc sonificationMethod,
+                                                   const ModulationData &modulationData,
+                                                   Eigen::ArrayX<Decimal>& outputBuffer) {
 
     const auto& frequency = sharedData.parameters->baseFrequency->getModulated(modulationData);
     jassert(frequency.unaryExpr([](Decimal f){ return !isnan(f); }).all());
     voiceData->frequency = frequency(Eigen::last);
 
-    auto phases = Eigen::ArrayXX<Decimal>(samplesPerBlock, 1);
-
-    Eigen::ArrayX<Decimal> oscillationsPerSample = frequency / sampleRate;
+    oscillationsPerSample = frequency / sampleRate;
 
     for(int i = 0; i < phases.size(); i++) {
         phase0to1 += oscillationsPerSample(i);
@@ -28,39 +25,40 @@ Eigen::ArrayX<Decimal> Sonifier::generateNextBlock(const std::function<Eigen::Ar
         phases(i) = phase0to1;
     }
 
-    auto sonifiedValues = sonificationMethod(phases, scanner, modulationData);
-    jassert(sonifiedValues.cols() == 1); // Scanner returned too many Columns
-
-    return sonifiedValues;
+    sonificationMethod(phases, scanner, modulationData, outputBuffer);
+    jassert(outputBuffer.cols() == 1); // Scanner returned too many Columns
 }
 
 
 
-Eigen::ArrayX<Decimal>
-Sonifier::audification(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scanner, const ModulationData &modulationData) {
+void Sonifier::audification(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scanner, const ModulationData &modulationData, Eigen::ArrayX<Decimal>& outputBuffer) {
 
     // https://www.desmos.com/calculator/2e1qa2mn8l
     const auto overlapAmount = sharedData.parameters->audificationSmoothing->getModulated(modulationData);
 
-    if (overlapAmount.unaryExpr([](Decimal d){ return juce::approximatelyEqual(d, 0.0); }).any()) return scanner.getValuesAt(phases0to1, Scanner::bicubicInterpolation, modulationData);
+    if (overlapAmount.unaryExpr([](Decimal d){ return juce::approximatelyEqual(d, 0.0); }).any()) {
+        S1
+        outputBuffer = scanner.getValuesAt(phases0to1, Scanner::bicubicInterpolation, modulationData);
+        S1E
+        return;
+    }
 
-    Eigen::ArrayX<Decimal> phases0to1Shifted =  phases0to1 / (1 + overlapAmount) + (1 - 1 / (1 + overlapAmount));
-    auto interpolatedValues = scanner.getValuesAt(phases0to1Shifted, Scanner::bicubicInterpolation, modulationData);
+    Eigen::ArrayX<Decimal> phases0to1Shifted = phases0to1 / (1 + overlapAmount) + (1 - 1 / (1 + overlapAmount));
+    interpolatedValues = scanner.getValuesAt(phases0to1Shifted, Scanner::bicubicInterpolation, modulationData);
 
 
-    Eigen::ArrayX<Decimal> phases0to1Overlap = phases0to1 / (1 + overlapAmount) + 2 * (1 - 1 / (1 + overlapAmount));
+    phases0to1Overlap = phases0to1 / (1 + overlapAmount) + 2 * (1 - 1 / (1 + overlapAmount));
     phases0to1Overlap -= phases0to1Overlap.floor();
-    auto overlapValues = scanner.getValuesAt(phases0to1Overlap, Scanner::bicubicInterpolation, modulationData);
+    overlapValues = scanner.getValuesAt(phases0to1Overlap, Scanner::bicubicInterpolation, modulationData);
 
-    Eigen::ArrayX<Decimal> overlapMask = 0.5 - 0.5 * (juce::MathConstants<Decimal>::pi * (1 + overlapAmount) / overlapAmount * (phases0to1 / (1 + overlapAmount) - (1 - overlapAmount) / (1 + overlapAmount)).cwiseMax(0)).cos();
+    overlapMask = 0.5 - 0.5 * (juce::MathConstants<Decimal>::pi * (1 + overlapAmount) / overlapAmount * (phases0to1 / (1 + overlapAmount) - (1 - overlapAmount) / (1 + overlapAmount)).cwiseMax(0)).cos();
 
-    return (1-overlapMask) * interpolatedValues + overlapMask * overlapValues;
+    outputBuffer = (1-overlapMask) * interpolatedValues + overlapMask * overlapValues;
 }
 
 
 
-Eigen::ArrayX<Decimal>
-Sonifier::timbreMapping(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scanner, const ModulationData &modulationData) {
+void Sonifier::timbreMapping(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scanner, const ModulationData &modulationData, Eigen::ArrayX<Decimal>& outputBuffer) {
 
     auto numOvertones = static_cast<Eigen::Index>(sharedData.parameters->timbreNumberOvertones->getSingleModulated(modulationData));
 
@@ -86,8 +84,7 @@ Sonifier::timbreMapping(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scann
     Eigen::ArrayXX<Decimal> overtoneIndices = Eigen::ArrayXd::LinSpaced(numOvertones, 1, static_cast<Decimal>(numOvertones)).transpose().replicate(phases0to1.rows(), 1);
     Eigen::ArrayXX<Decimal> phases2d = overtoneIndices * (phases0to1 * juce::MathConstants<Decimal>::twoPi).replicate(1, numOvertones);
 
-    Eigen::ArrayX<Decimal> output = (amplitudes * phases2d.sin()).rowwise().sum();
-    return output;
+    outputBuffer = (amplitudes * phases2d.sin()).rowwise().sum();
 }
 
 
@@ -95,6 +92,10 @@ Sonifier::timbreMapping(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &scann
 void Sonifier::prepareToPlay(Decimal newSampleRate, int samplesPerBlock) {
     sampleRate = newSampleRate;
     this->samplesPerBlock = samplesPerBlock;
+
+    if (phases.size() != samplesPerBlock) {
+        phases.resize(samplesPerBlock);
+    }
 
     scanner.prepareToPlay(newSampleRate);
 }

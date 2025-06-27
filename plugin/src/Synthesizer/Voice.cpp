@@ -112,6 +112,11 @@ void Voice::prepareToPlay(Decimal sampleRate, int samplesPerBlock) {
     noteStopped(false);
     juce::MPESynthesiserVoice::setCurrentSampleRate(static_cast<double>(sampleRate));
 
+    // pre-allocate sample buffer
+    if (samplesPerBlock != buffer.size()) {
+        buffer.resize(samplesPerBlock);
+    }
+
     velocity.reset(sampleRate, 0.030);
     key.reset(sampleRate, 0.001);
     x.reset(sampleRate, 0.030);
@@ -164,7 +169,7 @@ void Voice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSam
 
 
 
-Eigen::ArrayX<Decimal> Voice::generateNextBlock() {
+void Voice::generateNextBlock(Eigen::ArrayX<Decimal>& outputBuffer) {
 
     activeThisBlock = false;
 
@@ -175,22 +180,21 @@ Eigen::ArrayX<Decimal> Voice::generateNextBlock() {
     }
 
     //juce::Logger::writeToLog(juce::String(modulationData.atSource(ModulationData::Sources::ENVELOPE1)(Eigen::last)) + " -> " + juce::String(envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1))(Eigen::last)));
-
-    Eigen::ArrayX<Decimal> buffer;
-
+S1
     if (sharedData.parameters->sonificationMethod->getIndex() == 0) {
-        buffer = sonifier.generateNextBlock(Sonifier::audification, modulationData);
+        sonifier.generateNextBlock(Sonifier::audification, modulationData, buffer);
     } else {
-        buffer = sonifier.generateNextBlock(Sonifier::timbreMapping, modulationData);
+        sonifier.generateNextBlock(Sonifier::timbreMapping, modulationData, buffer);
     }
-
-    buffer *= envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1)) * envelope1.toGainFactor(sharedData.parameters->volume->getModulated(modulationData));
+S1E
+    buffer *= envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1));
+    buffer *= envelope1.toGainFactor(sharedData.parameters->volume->getModulated(modulationData));
 
     for (Decimal &sample : buffer) {
         sample = dcOffsetFilter.processSample(sample);
     }
 
-    return buffer;
+    outputBuffer += buffer;
 }
 
 
