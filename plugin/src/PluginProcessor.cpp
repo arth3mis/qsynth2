@@ -119,6 +119,8 @@ void AudioPluginAudioProcessor::changeProgramName (int index, const juce::String
 
 void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    audioProcessor.isOfflineRendering = isNonRealtime();
+
     if (sampleRate > 0) {
         sharedData.parameters->prepareToPlay(static_cast<Decimal>(sampleRate), samplesPerBlock);
         audioProcessor.prepareToPlay(sampleRate, samplesPerBlock);

@@ -11,6 +11,8 @@ public:
     AJAudioProcessor();
     ~AJAudioProcessor();
 
+    bool isOfflineRendering = false;
+
     void prepareToPlay(double newSampleRate, int newSamplesPerBlock);
 
     void processBlock(juce::AudioBuffer<float>& buffer, const juce::MidiBuffer& midiMessages);

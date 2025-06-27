@@ -38,7 +38,7 @@ void AJAudioProcessor::prepareToPlay(const Decimal newSampleRate, const int newS
 
     sharedData.frameBufferTimestamps = Eigen::ArrayX<Decimal>(samplesPerBlock);
 
-
+    juce::Logger::writeToLog(isOfflineRendering ? "offline rendering detected" : "live/realtime mode");
 }
 
 void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce::MidiBuffer &midiMessages) {
@@ -57,14 +57,13 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     }
 
     // Update simulation parameters
-    auto activeVoices = synth.getActiveVoices();
+    const auto activeVoices = synth.getActiveVoices();
     List<ModulationData*> modulationDataList = activeVoices.map<ModulationData*>([](Voice* v){ return v->getModulationData(); });
-    // TODO pre-allocate EVERYTHING
     Eigen::ArrayX<Decimal> simulationFrameIncrement = sharedData.parameters->simulationStepsPerSecond->getModulated(modulationDataList) / sampleRate;
-    bool simulationParametersChanged = simulationThread->updateParameters(sharedData.parameters, modulationDataList);
+    const bool simulationParametersChanged = simulationThread->updateParameters(sharedData.parameters, modulationDataList);
 
     // Update simulation buffer progress bar
-    int frameReadyCount = simulationThread->frameReadyCount();
+    const int frameReadyCount = simulationThread->frameReadyCount();
     const Decimal simulationStepsPerSecond = sharedData.parameters->simulationStepsPerSecond->getSingleModulated(modulationDataList);
     const Decimal simulationBufferSeconds = sharedData.parameters->simulationBufferSeconds->getSingleModulated(modulationDataList);
     const size_t target = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));
@@ -115,16 +114,17 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
         // TODO
         //  - If offline rendering: Busy wait until simulation is ready
         //  - Else: slow down simulation speed for audio processing to just use available frames
-        if (simulationThread->frameReadyCount() < neededSimulationFrames) {
+        //       2025 Else: repeat latest available frame until new ones are available
+        if (isOfflineRendering && simulationThread->frameReadyCount() < neededSimulationFrames) {
             // juce::Logger::writeToLog("Busy wait for simulation thread.");
             int busyWaitCounter = 0;
-            // 2025: only wait for 1 frame
-            while (simulationThread->frameReadyCount() < 1) {
+
+            while (simulationThread->frameReadyCount() < neededSimulationFrames) {
                 busyWaitCounter++;
                 // ensure loop is not removed by compiler optimisation
                 std::atomic_signal_fence(std::memory_order_seq_cst);
                 // busy wait limit
-                if (busyWaitCounter >= 1000000) {
+                if (busyWaitCounter >= 10000000) {
                     juce::Logger::writeToLog("VERY LONG busy wait for simulation thread.");
                     break;
                 }
