@@ -105,56 +105,94 @@ Eigen::ArrayXX<Decimal> Scanner::bicubicInterpolation(const FrameList &frameBuff
 
     auto interpolatedValues = RealMatrix(x.rows(), x.cols());
 
+    // Precompute constants for better performance
+    const size_t height = sharedData.simulationHeight;
+    const size_t width = sharedData.simulationWidth;
+    
     for (Eigen::Index i = 0; i < x.size(); i++) {
-        interpolatedValues(i) = getBicubicInterpolated(frameBuffer, frameBufferTimestamps(i), y(i), x(i));
+        const Decimal timestamp = frameBufferTimestamps(i);
+        const Decimal yPos = y(i);
+        const Decimal xPos = x(i);
+        
+        // Time interpolation
+        const size_t tFloor = static_cast<size_t>(floor(timestamp));
+        const size_t tCeil = static_cast<size_t>(ceil(timestamp));
+        const Decimal t = fmod(timestamp, 1.0);
+        
+        // Ensure bounds
+        const size_t tFloorSafe = (tFloor < frameBuffer.size()) ? tFloor : frameBuffer.size() - 1;
+        const size_t tCeilSafe = (tCeil < frameBuffer.size()) ? tCeil : frameBuffer.size() - 1;
+        
+        // Get interpolated values for both timestamps
+        const Decimal valFloor = getBicubicInterpolatedOptimized(frameBuffer, tFloorSafe, yPos, xPos, height, width);
+        const Decimal valCeil = getBicubicInterpolatedOptimized(frameBuffer, tCeilSafe, yPos, xPos, height, width);
+        
+        // Final time interpolation
+        interpolatedValues(i) = (1.0 - t) * valFloor + t * valCeil;
     }
 
     return interpolatedValues;
 }
 
-
-
-Decimal Scanner::getBicubicInterpolated(const FrameList &frameBuffer, Decimal frameBufferTimestamp, Decimal y, Decimal x) {
-    auto timestampFloor = static_cast<size_t>(floor(frameBufferTimestamp));
-    auto timestampCeil  = static_cast<size_t>(ceil (frameBufferTimestamp));
-    Decimal t = fmod(frameBufferTimestamp, 1);
-
-    return (1-t) * getBicubicInterpolated(frameBuffer, timestampFloor, y, x) +
-              t  * getBicubicInterpolated(frameBuffer, timestampCeil,  y, x);
+// Optimized bicubic interpolation for a single timestamp
+Decimal Scanner::getBicubicInterpolatedOptimized(const FrameList &frameBuffer, size_t frameBufferTimestamp, 
+                                                 Decimal y, Decimal x, size_t height, size_t width) {
+    // This implements Catmull-Rom spline interpolation, not standard bicubic
+    // First interpolate in Y direction, then in X direction
+    
+    // Get the 4x4 grid of surrounding points with bounds checking
+    Decimal yValues[4];
+    Decimal xValues[4];
+    
+    // Calculate integer and fractional parts
+    const Decimal yFloor = floor(y);
+    const Decimal xFloor = floor(x);
+    const Decimal yFrac = y - yFloor;
+    const Decimal xFrac = x - xFloor;
+    
+    // Get 4 points in Y direction for each X position
+    for (int dx = -1; dx <= 2; dx++) {
+        const long xIdx = static_cast<long>(xFloor) + dx;
+        const long xSafe = (xIdx < 0) ? (xIdx + width) : (xIdx >= static_cast<long>(width)) ? (xIdx - width) : xIdx;
+        
+        // Get 4 points in Y direction for this X position
+        for (int dy = -1; dy <= 2; dy++) {
+            const long yIdx = static_cast<long>(yFloor) + dy;
+            const long ySafe = (yIdx < 0) ? (yIdx + height) : (yIdx >= static_cast<long>(height)) ? (yIdx - height) : yIdx;
+            yValues[dy + 1] = frameBuffer.at(frameBufferTimestamp)->toDecimal(ySafe, xSafe);
+        }
+        
+        // Interpolate in Y direction using Catmull-Rom
+        xValues[dx + 1] = catmullRomInterpolate(yValues[0], yValues[1], yValues[2], yValues[3], yFrac);
+    }
+    
+    // Interpolate in X direction using Catmull-Rom
+    return catmullRomInterpolate(xValues[0], xValues[1], xValues[2], xValues[3], xFrac);
 }
 
 
+// Legacy functions for backward compatibility - now use optimized versions
+Decimal Scanner::getBicubicInterpolated(const FrameList &frameBuffer, Decimal frameBufferTimestamp, Decimal y, Decimal x) {
+    const size_t timestampFloor = static_cast<size_t>(floor(frameBufferTimestamp));
+    const size_t timestampCeil = static_cast<size_t>(ceil(frameBufferTimestamp));
+    const Decimal t = fmod(frameBufferTimestamp, 1.0);
+
+    const Decimal valFloor = getBicubicInterpolatedOptimized(frameBuffer, timestampFloor, y, x, 
+                                                            sharedData.simulationHeight, sharedData.simulationWidth);
+    const Decimal valCeil = getBicubicInterpolatedOptimized(frameBuffer, timestampCeil, y, x, 
+                                                           sharedData.simulationHeight, sharedData.simulationWidth);
+
+    return (1.0 - t) * valFloor + t * valCeil;
+}
 
 Decimal Scanner::getBicubicInterpolated(const FrameList &frameBuffer, size_t frameBufferTimestamp, Decimal y, Decimal x) {
-    Decimal t = fmod(y, 1);
-
-    Decimal y0 = getBicubicInterpolated(frameBuffer, frameBufferTimestamp, bicubicIndex<0>(y, sharedData.simulationHeight), x);
-    Decimal y1 = getBicubicInterpolated(frameBuffer, frameBufferTimestamp, bicubicIndex<1>(y, sharedData.simulationHeight), x);
-    Decimal y2 = getBicubicInterpolated(frameBuffer, frameBufferTimestamp, bicubicIndex<2>(y, sharedData.simulationHeight), x);
-    Decimal y3 = getBicubicInterpolated(frameBuffer, frameBufferTimestamp, bicubicIndex<3>(y, sharedData.simulationHeight), x);
-
-    return bicubicCoefficient<0>(y0, y1, y2, y3)
-         + bicubicCoefficient<1>(y0, y1, y2, y3) * t
-         + bicubicCoefficient<2>(y0, y1, y2, y3) * t*t
-         + bicubicCoefficient<3>(y0, y1, y2, y3) * t*t*t;
-
+    return getBicubicInterpolatedOptimized(frameBuffer, frameBufferTimestamp, y, x, 
+                                          sharedData.simulationHeight, sharedData.simulationWidth);
 }
 
-
-
 Decimal Scanner::getBicubicInterpolated(const FrameList &frameBuffer, size_t frameBufferTimestamp, Eigen::Index y, Decimal x) {
-    Decimal t = fmod(x, 1);
-
-    Decimal x0 = frameBuffer.at(frameBufferTimestamp)->toDecimal(y, bicubicIndex<0>(x, sharedData.simulationWidth));
-    Decimal x1 = frameBuffer.at(frameBufferTimestamp)->toDecimal(y, bicubicIndex<1>(x, sharedData.simulationWidth));
-    Decimal x2 = frameBuffer.at(frameBufferTimestamp)->toDecimal(y, bicubicIndex<2>(x, sharedData.simulationWidth));
-    Decimal x3 = frameBuffer.at(frameBufferTimestamp)->toDecimal(y, bicubicIndex<3>(x, sharedData.simulationWidth));
-
-    return bicubicCoefficient<0>(x0, x1, x2, x3)
-         + bicubicCoefficient<1>(x0, x1, x2, x3) * t
-         + bicubicCoefficient<2>(x0, x1, x2, x3) * t*t
-         + bicubicCoefficient<3>(x0, x1, x2, x3) * t*t*t;
-
+    return getBicubicInterpolatedOptimized(frameBuffer, frameBufferTimestamp, static_cast<Decimal>(y), x, 
+                                          sharedData.simulationHeight, sharedData.simulationWidth);
 }
 
 
