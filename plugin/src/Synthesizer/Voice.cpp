@@ -186,9 +186,9 @@ void Voice::generateNextBlock(Eigen::ArrayX<Decimal>& outputBuffer) {
     } else {
         sonifier.generateNextBlock(Sonifier::timbreMapping, modulationData, buffer);
     }
-S1E
-    buffer *= envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1));
-    buffer *= envelope1.toGainFactor(sharedData.parameters->volume->getModulated(modulationData));
+
+    envelope1.toGainFactorAndMultiply(modulationData.atSource(ModulationData::Sources::ENVELOPE1), buffer);
+    envelope1.toGainFactorAndMultiply(sharedData.parameters->volume->getModulated(modulationData), buffer);
 
     for (Decimal &sample : buffer) {
         sample = dcOffsetFilter.processSample(sample);

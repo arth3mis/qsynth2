@@ -112,8 +112,8 @@ void ADSR::noteOff() {
 
 
 // See: https://www.desmos.com/calculator/wmf37crmss
-Eigen::ArrayX<Decimal> ADSR::toGainFactor(const Eigen::ArrayX<Decimal>& buffer) {
-    return (1 + LOWEST_VOLUME_GAIN) * Eigen::pow(10.0, std::log10(LOWEST_VOLUME_GAIN / (1 + LOWEST_VOLUME_GAIN)) * (1 - buffer)) - LOWEST_VOLUME_GAIN;
+void ADSR::toGainFactorAndMultiply(const Eigen::ArrayX<Decimal>& inputBuffer, Eigen::ArrayX<Decimal>& multiplyTargetBuffer) {
+    multiplyTargetBuffer *= (1 + LOWEST_VOLUME_GAIN) * Eigen::pow(10.0, std::log10(LOWEST_VOLUME_GAIN / (1 + LOWEST_VOLUME_GAIN)) * (1 - inputBuffer)) - LOWEST_VOLUME_GAIN;
 }
 
 

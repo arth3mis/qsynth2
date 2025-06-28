@@ -29,7 +29,7 @@ public:
 
     [[nodiscard]] State getCurrentState() const;
 
-    Eigen::ArrayX<Decimal> toGainFactor(const Eigen::ArrayX<Decimal>& buffer);
+    void toGainFactorAndMultiply(const Eigen::ArrayX<Decimal>& inputBuffer, Eigen::ArrayX<Decimal>& multiplyTargetBuffer);
 
 
 protected:
