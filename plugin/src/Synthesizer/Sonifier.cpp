@@ -37,9 +37,7 @@ void Sonifier::audification(const Eigen::ArrayX<Decimal> &phases0to1, Scanner &s
     const auto overlapAmount = sharedData.parameters->audificationSmoothing->getModulated(modulationData);
 
     if (overlapAmount.unaryExpr([](Decimal d){ return juce::approximatelyEqual(d, 0.0); }).any()) {
-        S1
         outputBuffer = scanner.getValuesAt(phases0to1, Scanner::bicubicInterpolation, modulationData);
-        S1E
         return;
     }
 

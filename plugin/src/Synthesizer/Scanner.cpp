@@ -230,7 +230,7 @@ void Scanner::restart() {
 
 
 Eigen::ArrayXX<Decimal>& Scanner::getValuesLine(const Eigen::ArrayXX<Decimal> &position0to1, InterpolationFunc interpolation, const ModulationData &modulationData) {
-S3
+
     lineOfInterestX = sharedData.parameters->lineOfInterestX->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
     lineOfInterestY = -sharedData.parameters->lineOfInterestY->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
     lineOfInterestLength = sharedData.parameters->lineOfInterestLength->getModulated(modulationData);
@@ -262,11 +262,8 @@ S3
 
     xScaled = (x + 1) / 2 * sharedData.simulationWidth;
     yScaled = (y + 1) / 2 * sharedData.simulationHeight;
-S3E
-S2
-    auto& temp =  interpolation(sharedData.frameBuffer, timestamps, yScaled, xScaled);
-S2E
-    return temp;
+
+    return interpolation(sharedData.frameBuffer, timestamps, yScaled, xScaled);
 }
 
 

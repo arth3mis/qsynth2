@@ -180,7 +180,7 @@ void Voice::generateNextBlock(Eigen::ArrayX<Decimal>& outputBuffer) {
     }
 
     //juce::Logger::writeToLog(juce::String(modulationData.atSource(ModulationData::Sources::ENVELOPE1)(Eigen::last)) + " -> " + juce::String(envelope1.toGainFactor(modulationData.atSource(ModulationData::Sources::ENVELOPE1))(Eigen::last)));
-S1
+
     if (sharedData.parameters->sonificationMethod->getIndex() == 0) {
         sonifier.generateNextBlock(Sonifier::audification, modulationData, buffer);
     } else {
