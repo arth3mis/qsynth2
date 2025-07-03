@@ -81,7 +81,6 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
             simulationRunning = false;
             simulationThread->playing = false;
             firstRun = false;
-            juce::Logger::writeToLog("Reset");
         }
         // update display frame to enable live preview when not playing
         if (simulationParametersChanged) {

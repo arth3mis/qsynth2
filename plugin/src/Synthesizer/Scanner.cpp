@@ -60,7 +60,6 @@ Scanner::linearInterpolation(const FrameList &frameBuffer, const Eigen::ArrayXX<
     // interpolatedValues = RealMatrix(x.rows(), x.cols());
     if (outputBuffer.rows() < x.rows() || outputBuffer.cols() < x.cols()) {
         outputBuffer.resize(x.rows(), x.cols());
-        juce::Logger::writeToLog("linear interpolation: buffer resized to " + juce::String(outputBuffer.size()) + ": " + juce::String(outputBuffer.rows()) + "*" + juce::String(outputBuffer.cols()));
     }
 
     for (Eigen::Index i = 0; i < x.size(); i++) {
@@ -105,7 +104,6 @@ Scanner::bicubicInterpolation(const FrameList &frameBuffer, const Eigen::ArrayXX
     // interpolatedValues = RealMatrix(x.rows(), x.cols());
     if (outputBuffer.rows() < x.rows() || outputBuffer.cols() < x.cols()) {
         outputBuffer.resize(x.rows(), x.cols());
-        juce::Logger::writeToLog("bicubic interpolation: buffer resized to " + juce::String(outputBuffer.size()));
     }
 
     // Precompute constants for better performance
