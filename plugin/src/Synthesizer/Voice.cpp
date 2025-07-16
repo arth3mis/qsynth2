@@ -65,6 +65,15 @@ void Voice::noteStarted() {
         velocity.setTargetValue(static_cast<Decimal>(currentlyPlayingNote.noteOnVelocity.asUnsignedFloat()));
     }
 
+    modulationData.write(ModulationData::Sources::VELOCITY, velocity, 0, buffer.size());
+    modulationData.write(ModulationData::Sources::KEY, key, 0, buffer.size());
+    modulationData.write(ModulationData::Sources::X, x, 0, buffer.size());
+    modulationData.write(ModulationData::Sources::Y, y, 0, buffer.size());
+    modulationData.write(ModulationData::Sources::Z, z, 0, buffer.size());
+    modulationData.write(ModulationData::Sources::X_RELATIVE, xRelative, 0, buffer.size());
+    modulationData.write(ModulationData::Sources::Y_RELATIVE, yRelative, 0, buffer.size());
+    modulationData.write(ModulationData::Sources::Y_CENTERED, yCentered, 0, buffer.size());
+
 
     envelope1.noteOn();
 
@@ -80,6 +89,7 @@ void Voice::noteStopped(bool allowTailOff) {
 
     if (!allowTailOff) {
         envelope1.reset();
+        clearCurrentNote();
         return;
     }
 
@@ -162,9 +172,6 @@ void Voice::renderNextBlock(juce::AudioBuffer<float> &outputBuffer, int startSam
 
     envelope1.processBlock(&modulationData.at(ModulationData::Sources::ENVELOPE1.id), modulationData, startSample, numSamples);
 
-    if (envelope1.getCurrentState() == ADSR::State::OFF) {
-        clearCurrentNote();
-    }
 }
 
 
@@ -195,6 +202,10 @@ void Voice::generateNextBlock(Eigen::ArrayX<Decimal>& outputBuffer) {
     }
 
     outputBuffer += buffer;
+
+    if (envelope1.getCurrentState() == ADSR::State::OFF) {
+        clearCurrentNote();
+    }
 }
 
 
