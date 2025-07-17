@@ -245,7 +245,7 @@ Scanner::getValuesLine(const Eigen::ArrayXX<Decimal> &position0to1, Interpolatio
     voiceData->lineOfInterestLength = lineOfInterestLength(Eigen::last);
     voiceData->lineOfInterestRotation = lineOfInterestRotation(Eigen::last);
 
-    auto timestamps = sharedData.frameBufferTimestamps.replicate(1, position0to1.cols());
+    timestamps = sharedData.frameBufferTimestamps.replicate(1, position0to1.cols());
 
     xEnd = lineOfInterestLength * lineOfInterestRotation.cos();
     yEnd = lineOfInterestLength * lineOfInterestRotation.sin();
@@ -274,13 +274,12 @@ void
 Scanner::getValuesCircle(const Eigen::ArrayXX<Decimal> &position0to1, InterpolationFunc interpolation,
                          const ModulationData &modulationData, Eigen::ArrayXX<Decimal>& outputBuffer) {
 
-    // TODO extract locals
-    Eigen::ArrayX<Decimal> circleX = sharedData.parameters->lineOfInterestX->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
-    Eigen::ArrayX<Decimal> circleY = -sharedData.parameters->lineOfInterestY->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
-    Eigen::ArrayX<Decimal> circleWidth = sharedData.parameters->circleOfInterestWidth->getModulated(modulationData);
-    Eigen::ArrayX<Decimal> circleHeight = sharedData.parameters->circleOfInterestHeight->getModulated(modulationData);
-    Eigen::ArrayX<Decimal> circleRotation = sharedData.parameters->lineOfInterestRotation->getModulated(modulationData) / 360 * juce::MathConstants<Decimal>::twoPi;
-    Eigen::ArrayX<Decimal> circleFraction = sharedData.parameters->circleOfInterestFraction->getModulated(modulationData);
+    circleX = sharedData.parameters->lineOfInterestX->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
+    circleY = -sharedData.parameters->lineOfInterestY->getModulated(modulationData).cwiseMin(1 - 1e-9).cwiseMax(-1 + 1e-9);
+    circleWidth = sharedData.parameters->circleOfInterestWidth->getModulated(modulationData);
+    circleHeight = sharedData.parameters->circleOfInterestHeight->getModulated(modulationData);
+    circleRotation = sharedData.parameters->lineOfInterestRotation->getModulated(modulationData) / 360 * juce::MathConstants<Decimal>::twoPi;
+    circleFraction = sharedData.parameters->circleOfInterestFraction->getModulated(modulationData);
 
     // Shared Data
     voiceData->lineOfInterestX = circleX(Eigen::last);
@@ -290,21 +289,21 @@ Scanner::getValuesCircle(const Eigen::ArrayXX<Decimal> &position0to1, Interpolat
     voiceData->lineOfInterestRotation = circleRotation(Eigen::last);
     voiceData->circleOfInterestFraction = circleFraction(Eigen::last);
 
-    auto timestamps = sharedData.frameBufferTimestamps.replicate(1, position0to1.cols());
+    timestamps = sharedData.frameBufferTimestamps.replicate(1, position0to1.cols());
 
     // Circle setup
-    Eigen::ArrayX<Decimal> alpha = juce::MathConstants<Decimal>::twoPi * circleFraction * position0to1 + juce::MathConstants<Decimal>::pi * (1 - circleFraction);
-    Eigen::ArrayX<Decimal> x = circleWidth  * alpha.cos();
-    Eigen::ArrayX<Decimal> y = circleHeight * alpha.sin();
+    alpha = juce::MathConstants<Decimal>::twoPi * circleFraction * position0to1 + juce::MathConstants<Decimal>::pi * (1 - circleFraction);
+    x = circleWidth  * alpha.cos();
+    y = circleHeight * alpha.sin();
 
     // Rotation
-    Eigen::ArrayX<Decimal> sinRotation = circleRotation.sin();
-    Eigen::ArrayX<Decimal> cosRotation = circleRotation.cos();
-    Eigen::ArrayX<Decimal> xRotated = x * cosRotation - y * sinRotation;
-    Eigen::ArrayX<Decimal> yRotated = x * sinRotation + y * cosRotation;
+    sinRotation = circleRotation.sin();
+    cosRotation = circleRotation.cos();
+    xRotated = x * cosRotation - y * sinRotation;
+    yRotated = x * sinRotation + y * cosRotation;
 
     // Clipping
-    auto divisor = clipDivisor(xRotated, yRotated, circleX, circleY);
+    divisor = clipDivisor(xRotated, yRotated, circleX, circleY);
     xRotated /= divisor;
     yRotated /= divisor;
 

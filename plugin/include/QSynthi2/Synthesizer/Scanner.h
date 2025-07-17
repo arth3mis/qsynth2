@@ -61,17 +61,30 @@ private:
     Eigen::ArrayX<Decimal> lineOfInterestY;
     Eigen::ArrayX<Decimal> lineOfInterestLength;
     Eigen::ArrayX<Decimal> lineOfInterestRotation;
+    Eigen::ArrayX<Decimal> timestamps;
     Eigen::ArrayX<Decimal> xEnd;
     Eigen::ArrayX<Decimal> yEnd;
     Eigen::ArrayX<Decimal> xStart;
     Eigen::ArrayX<Decimal> yStart;
     Eigen::ArrayX<Decimal> endClipDivisor;
     Eigen::ArrayX<Decimal> startClipDivisor;
+    Eigen::ArrayX<Decimal> circleX;
+    Eigen::ArrayX<Decimal> circleY;
+    Eigen::ArrayX<Decimal> circleWidth;
+    Eigen::ArrayX<Decimal> circleHeight;
+    Eigen::ArrayX<Decimal> circleRotation;
+    Eigen::ArrayX<Decimal> circleFraction;
+    Eigen::ArrayX<Decimal> alpha;
+    Eigen::ArrayX<Decimal> divisor;
     // XX
     Eigen::ArrayXX<Decimal> x;
     Eigen::ArrayXX<Decimal> y;
     Eigen::ArrayXX<Decimal> xScaled;
     Eigen::ArrayXX<Decimal> yScaled;
+    Eigen::ArrayXX<Decimal> sinRotation;
+    Eigen::ArrayXX<Decimal> cosRotation;
+    Eigen::ArrayXX<Decimal> xRotated;
+    Eigen::ArrayXX<Decimal> yRotated;
     inline static Eigen::ArrayXX<Decimal> interpolatedValues{0, 0};
 
 
