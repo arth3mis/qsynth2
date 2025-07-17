@@ -43,8 +43,8 @@ CPMAddPackage(
 CPMAddPackage(
         NAME GOOGLETEST
         GITHUB_REPOSITORY google/googletest
-        GIT_TAG v1.13.0
-        VERSION 1.13.0
+        GIT_TAG v1.17.0
+        VERSION 1.17.0
         SOURCE_DIR ${LIB_DIR}/googletest
         OPTIONS
         "INSTALL_GTEST OFF"
@@ -54,7 +54,7 @@ CPMAddPackage(
 # Adds pocketfft
 CPMAddPackage(
         NAME PocketFFT
-        GIT_TAG b557a35
+        GIT_TAG 0fa0ef5
         GITHUB_REPOSITORY mreineck/pocketfft
         SOURCE_DIR ${LIB_DIR}/pocketfft
 )
