@@ -9,8 +9,8 @@
 class ProgressBarComponent : public juce::Component, private juce::Timer
 {
 public:
-    ProgressBarComponent(std::atomic<double>& fractionRef)
-        : progress(progressInternal), progressRef(fractionRef)
+    ProgressBarComponent(std::atomic<double>& fractionRef, std::atomic<bool>& activeRef)
+        : progress(progressInternal), progressRef(fractionRef), activeRef(activeRef)
     {
         addAndMakeVisible(progress);
         startTimerHz(30);
@@ -25,10 +25,17 @@ private:
     void timerCallback() override
     {
         progressInternal = juce::jlimit(0.0, 1.0, progressRef.load());
+
+        // "deactivate" progress bar?
+        if (!activeRef.load()) {
+            progressInternal = 0.0;
+        }
+
         progress.repaint();
     }
 
     std::atomic<double>& progressRef;
+    std::atomic<bool>& activeRef;
     double progressInternal = 0.0;
     juce::ProgressBar progress;
 

@@ -66,8 +66,10 @@ void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce
     const int frameReadyCount = simulationThread->frameReadyCount();
     const Decimal simulationStepsPerSecond = sharedData.parameters->simulationStepsPerSecond->getSingleModulated(modulationDataList);
     const Decimal simulationBufferSeconds = sharedData.parameters->simulationBufferSeconds->getSingleModulated(modulationDataList);
-    const size_t target = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));
-    sharedData.simulationBufferProgressFraction = static_cast<Decimal>(frameReadyCount) / target;
+    const size_t bufferTargetSize = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));
+    sharedData.simulationBufferProgressFraction = static_cast<Decimal>(frameReadyCount) / bufferTargetSize;
+    // disable progress bar for minimum buffer target size (= user-disabled)
+    sharedData.simulationBufferProgressBarActive = bufferTargetSize > 2;
 
     // always call the first time, then if nothing is playing (continuous: true for video, false for quantum)
     // todo maybe exclude release state voices

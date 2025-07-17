@@ -24,7 +24,7 @@ public:
     ModulatedParameterFloat* simulationHistorySeconds = add<ModulatedParameterFloat>(
             "Simulation history",
             juce::NormalisableRange<float>(0, 300, 1, 0.5f, false),
-            30.f);
+            1.f);
 
 
     juce::AudioParameterChoice* lineOfInterestShape = add<juce::AudioParameterChoice>(

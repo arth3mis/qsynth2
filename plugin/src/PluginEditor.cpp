@@ -10,7 +10,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     : AudioProcessorEditor (&p), processorRef (p)
     , gpe (new juce::GenericAudioProcessorEditor(p))
 #if SHOW_BUFFER_FILL_PROGRESS==1
-    , bufferProgressBar(new ProgressBarComponent(sharedData.simulationBufferProgressFraction))
+    , bufferProgressBar(new ProgressBarComponent(sharedData.simulationBufferProgressFraction, sharedData.simulationBufferProgressBarActive))
 #endif
 {
     juce::ignoreUnused (processorRef);
