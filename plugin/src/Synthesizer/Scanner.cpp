@@ -245,7 +245,7 @@ Scanner::getValuesLine(const Eigen::ArrayXX<Decimal> &position0to1, Interpolatio
     voiceData->lineOfInterestLength = lineOfInterestLength(Eigen::last);
     voiceData->lineOfInterestRotation = lineOfInterestRotation(Eigen::last);
 
-    timestamps = sharedData.frameBufferTimestamps.replicate(1, position0to1.cols());
+    auto timestamps = sharedData.frameBufferTimestamps.replicate(1, position0to1.cols());
 
     xEnd = lineOfInterestLength * lineOfInterestRotation.cos();
     yEnd = lineOfInterestLength * lineOfInterestRotation.sin();
@@ -289,7 +289,7 @@ Scanner::getValuesCircle(const Eigen::ArrayXX<Decimal> &position0to1, Interpolat
     voiceData->lineOfInterestRotation = circleRotation(Eigen::last);
     voiceData->circleOfInterestFraction = circleFraction(Eigen::last);
 
-    timestamps = sharedData.frameBufferTimestamps.replicate(1, position0to1.cols());
+    auto timestamps = sharedData.frameBufferTimestamps.replicate(1, position0to1.cols());
 
     // Circle setup
     alpha = juce::MathConstants<Decimal>::twoPi * circleFraction * position0to1 + juce::MathConstants<Decimal>::pi * (1 - circleFraction);

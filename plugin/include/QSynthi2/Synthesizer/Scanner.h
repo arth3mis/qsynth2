@@ -61,7 +61,6 @@ private:
     Eigen::ArrayX<Decimal> lineOfInterestY;
     Eigen::ArrayX<Decimal> lineOfInterestLength;
     Eigen::ArrayX<Decimal> lineOfInterestRotation;
-    Eigen::ArrayX<Decimal> timestamps;
     Eigen::ArrayX<Decimal> xEnd;
     Eigen::ArrayX<Decimal> yEnd;
     Eigen::ArrayX<Decimal> xStart;
