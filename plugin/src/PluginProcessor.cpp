@@ -31,6 +31,45 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 
     sharedData.parameters = new ParameterCollection();
     sharedData.parameters->connectTo(*this);
+
+    // because timbre mapping + circle of interest cause a crash, here
+    // added: these lines, inheriting from AudioProcessorParameter::Listener and the functions below
+    sharedData.parameters->lineOfInterestShape->addListener(this);
+    sharedData.parameters->sonificationMethod->addListener(this);
+}
+
+/*
+ * Getting re‑entrant callbacks (on line to circle change) -> Guard them and show the dialog only once.
+ * If the main issue is just multiple dialogs, wrap the alert in a static flag to show only one at a time
+ */
+void AudioPluginAudioProcessor::showCombinationWarningDialog() {
+    if (dialogOpen)
+        return;
+
+    dialogOpen = true;
+
+    juce::AlertWindow::showAsync(
+            juce::MessageBoxOptions()
+                .withIconType(juce::MessageBoxIconType::WarningIcon)
+                .withTitle("Unsupported parameter combination")
+                .withMessage("Timbre mapping sonification does not work with a circle of interest yet. The shape has been reverted to line of interest.")
+                .withButton("OK"),
+            [this](int) { dialogOpen = false; }   // callback
+        );
+}
+
+void AudioPluginAudioProcessor::parameterValueChanged(int parameterIndex, float newValue) {
+    // juce::Logger::writeToLog(juce::String(parameterIndex) + " changed to value: " + std::to_string(newValue));
+
+    int choiceShape = sharedData.parameters->lineOfInterestShape->getIndex();
+    int choiceMethod = sharedData.parameters->sonificationMethod->getIndex();
+
+    if (choiceShape == 1 && choiceMethod == 1) {
+        showCombinationWarningDialog();
+
+        // Revert change
+        sharedData.parameters->lineOfInterestShape->setValueNotifyingHost(0.0f);
+    }
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()

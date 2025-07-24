@@ -3,6 +3,9 @@
 #include "QSynthi2/AudioProcessing/AJAudioProcessor.h"
 #include <malloc.h>
 
+#include "QSynthi2/Data.h"
+
+extern Data sharedData;
 
 namespace audio_plugin_test {
     TEST(AudioProcessor, Synth) {
@@ -17,5 +20,10 @@ namespace audio_plugin_test {
         std::cout << "Allocated: " << (after - before) << " bytes\n";
 
         // AJAudioProcessor processor{};
+    }
+
+    TEST(AudioProcessor, Listener) {
+        AudioPluginAudioProcessor processor{};
+        sharedData.parameters->lineOfInterestShape->setValueNotifyingHost(1.0f);
     }
 } // namespace audio_plugin_test

@@ -4,7 +4,7 @@
 #include "QSynthi2/AudioProcessing/AJAudioProcessor.h"
 
 //==============================================================================
-class AudioPluginAudioProcessor final : public juce::AudioProcessor
+class AudioPluginAudioProcessor : public juce::AudioProcessor, public juce::AudioProcessorParameter::Listener
 {
 public:
     //==============================================================================
@@ -42,6 +42,12 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+
+    //==============================================================================
+    void parameterValueChanged (int parameterIndex, float newValue) override;
+    void parameterGestureChanged (int, bool) override {}
+    void showCombinationWarningDialog();
+    bool dialogOpen = false;
 
 private:
     //==============================================================================
