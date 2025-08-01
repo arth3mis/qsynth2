@@ -35,6 +35,15 @@ void SimulationThread::simulationLoop() {
             reset = false;
         }
 
+        // reduce frame buffer?
+        if (!playing && frameBuffer.size() > bufferTargetSize) {
+            std::lock_guard lock(frameMutex);
+            const auto last = frameBuffer.end();
+            const auto first = std::prev(last, static_cast<long>(frameBuffer.size() - bufferTargetSize));
+            frameBuffer.erase(first, last);
+            frameBuffer.shrink_to_fit();  // try to free RAM (OS might keep it though)
+        }
+
         // fill buffer
         if (frameBuffer.size() < bufferTargetSize) {
             // append frame buffer
@@ -110,7 +119,7 @@ bool SimulationThread::updateParameters(const ParameterCollection* parameterColl
     this->simulationStepsPerSecond = simulationStepsPerSecond;
 
     // calculate simulation "meta" settings
-    // TODO note: actual buffer is not reduced when size shrinks, could be important if we don't fix the buffer-accuracy mismatch
+    // TODO note: actual buffer is not reduced when size shrinks (edit: now it is, test again), could be important if we don't fix the buffer-accuracy mismatch
     bufferTargetSize = std::max(static_cast<size_t>(round(simulationBufferSeconds * simulationStepsPerSecond)), static_cast<size_t>(2));
     historySize = static_cast<size_t>(simulationHistorySeconds * simulationStepsPerSecond);
     timestep = simulationSpeedFactor / simulationStepsPerSecond;
