@@ -38,7 +38,7 @@ void AJAudioProcessor::prepareToPlay(const Decimal newSampleRate, const int newS
 
     sharedData.frameBufferTimestamps = Eigen::ArrayX<Decimal>(samplesPerBlock);
 
-    juce::Logger::writeToLog(isOfflineRendering ? "offline rendering detected" : "live/realtime mode");
+    juce::Logger::writeToLog(isOfflineRendering ? "QSynth2: offline rendering detected" : "QSynth2: live/realtime mode");
 }
 
 void AJAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, const juce::MidiBuffer &midiMessages) {

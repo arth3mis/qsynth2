@@ -19,11 +19,11 @@ public:
             150);
     ModulatedParameterFloat* simulationBufferSeconds = add<ModulatedParameterFloat>(
             "Simulation buffer seconds",
-            juce::NormalisableRange<float>(0, 2, 0, 0.5f, false),
+            juce::NormalisableRange<float>(0, 30, 0, 0.2f, false),
             0.2f);
     ModulatedParameterFloat* simulationHistorySeconds = add<ModulatedParameterFloat>(
             "Simulation history",
-            juce::NormalisableRange<float>(0, 300, 1, 0.5f, false),
+            juce::NormalisableRange<float>(0, 60, 1, 0.5f, false),
             1.f);
 
 
